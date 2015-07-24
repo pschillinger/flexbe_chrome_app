@@ -1,0 +1,31 @@
+{
+  "name": "FlexBE Editor - Team ViGIR Edition",
+  "description": "Editor to create, modify and control behaviors based on the Flexible Behavior Engine.",
+  "version": "0.17.0",
+  "app": {
+    "background": {
+      "scripts": ["launcher.js"]
+    }
+  },
+  "icons": { "128": "img/icon-128.png" },
+  "permissions": [
+    {"fileSystem": ["write", "retainEntries", "directory"]},
+    "storage",
+    "clipboardRead",
+    "clipboardWrite"
+  ],
+  "sockets": {
+    "tcp": {
+      "connect": "127.0.0.1:*"
+    },
+    "tcpServer": {
+      "listen": "127.0.0.1:*"
+    }
+  },
+  "commands": {
+    "Copy": { "suggested_key": { "default": "Ctrl+Shift+C" }, "description": "Copy" },
+    "Paste": { "suggested_key": { "default": "Ctrl+Shift+V" }, "description": "Paste" },
+    "Undo": { "suggested_key": { "default": "Ctrl+Shift+Z" }, "description": "Undo" },
+    "Redo": { "suggested_key": { "default": "Ctrl+Shift+Y" }, "description": "Redo" }
+  } 
+}

@@ -1,0 +1,192 @@
+body, html {
+	margin: 0;
+	height: 100%;
+	width:100%;
+	/*background-image: url('../img/background.jpg');
+	background-size: cover;*/
+	background-color: #eee;
+	overflow: hidden;
+	position:fixed;
+}
+
+.toolbar {
+	position: fixed;
+	height: 79px;
+	width: 100%;
+	background: linear-gradient(#f2f2f2, #e5e5e5);
+	border-bottom: 1px solid black;
+	vertical-align: middle;
+	box-shadow: 2px 2px 15px #999;
+	z-index: 50;
+}
+
+.tool_category {
+	display: inline-block;
+	padding: 4px 10px;
+	vertical-align: top;
+	height: 75px;
+}
+
+.category_button {
+	display: inline-block;
+	background: none;
+	color: #555;
+	margin: 0px;
+	padding: 8px;
+	width: 75px;
+	max-width: 75px;
+	height: 60px;
+	text-align: center;
+	vertical-align: middle;
+}
+.category_button:hover {
+	background: rgba(255,255,255,0.3);
+}
+.category_button_active {
+	display: inline-block;
+	background: rgba(255,255,255,0.5);
+	color: #000;
+	margin: 0px;
+	padding: 8px;
+	width: 75px;
+	max-width: 75px;
+	height: 60px;
+	text-align: center;
+	vertical-align: middle;
+}
+#editor_title {
+	height: 80px;
+	padding: 0px;
+	margin: 0px;
+}
+
+#title_button_panel {
+	padding-left: 15px;
+}
+
+.tool_button {
+	display: inline-block;
+	border: none;
+	background: none;
+	color: #000;
+	margin: 0px;
+	padding: 3px;
+	height: 18px;
+	vertical-align: middle;
+}
+
+.tool_button:hover {
+	background-color: rgba(100, 100, 100, 0.1);
+	color: #333;
+}
+
+#label_editor_title {
+	display: inline-block;
+	padding: 2px 1px 6px 5px;
+	color: #ddd;
+	font-style: italic;
+	font-size: 13pt;
+	text-shadow: -1px -1px 0px #bbb, 1px 1px 0px #fff;
+	width: 150px;
+}
+#label_runtime_status {
+	display: inline-block;
+	padding: 2px;
+	padding-left: 15px;
+	color: #aaa;
+	font-style: italic;
+	font-size: 12pt;
+}
+#panel_runtime_status {
+	display: inline-block;
+	padding: 2px;
+	padding-left: 15px;
+	color: #aaa;
+	font-style: italic;
+	font-size: 12pt;
+}
+
+#runtime_status_txt {
+	line-height: 0.8em;
+}
+
+#terminal {
+	position: absolute;
+	top: 80px;
+	left: 0px;
+	height: 0;
+	width: 100%;
+	transition: all 0.5s ease;
+	font-family: monospace;
+	font-size: 10px;
+	background-color: rgba(0, 0, 0, 0.8);
+	/*border-bottom: 1px solid black;*/
+	padding: 0px;
+	/*box-shadow: 0px 6px 8px rgba(20, 20, 20, 0.4);*/
+	overflow: auto;
+	line-height: 1.2em;
+	z-index: 52;
+}
+
+.emptypage {
+
+}
+
+#devbanner {
+	position: absolute;
+	top: 8px;
+	right: 10px;
+	width: 190px;
+	height: 50px;
+	background-color: #fdc;
+	border: 2px solid #f65;
+	color: #944;
+	padding: 4px;
+	font-size: 9pt;
+	transition: all 0.2s ease;
+	box-shadow: 1px 1px 5px #633;
+	z-index: 100;
+	overflow: hidden;
+	text-align: justify;
+	line-height: 1.2em;
+	display: none;
+}
+#devbanner h2 {
+	font-size: 9pt;
+	padding: 0;
+	margin: 0;
+	margin-bottom: 5px;
+}
+
+#devbanner:hover {
+	height: 148px;
+}
+
+#devlogo {
+	position: absolute;
+	top: 6px;
+	right: 10px;
+	width: 190px;
+	height: 50px;
+	background: url("../img/team_vigir_logo.png");
+	background-size: contain;
+	background-position: right top;
+	background-repeat: no-repeat;
+	padding: 4px;
+	z-index: 100;
+	overflow: hidden;
+}
+
+#devcredit {
+	position: absolute;
+	top: 61px;
+	right: 10px;
+	width: 190px;
+	height: 10px;
+	padding: 4px;
+	z-index: 100;
+	overflow: hidden;
+	font-size: 7pt;
+	color: #888;
+	text-align: right;
+}
