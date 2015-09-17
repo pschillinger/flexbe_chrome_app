@@ -272,7 +272,8 @@ RC.Controller = new (function() {
 				RC.Sync.setProgress("State", 1, false);
 		}
 
-		UI.Statemachine.refreshView();
+		if(UI.Menu.isPageStatemachine())
+			UI.Statemachine.refreshView();
 	}
 
 	this.setLockedStatePath = function(state_path) {
