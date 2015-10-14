@@ -123,6 +123,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('input_package_namespace').addEventListener('change', UI.Settings.packageNamespaceChanged);
     document.getElementById('select_transition_mode').addEventListener('change', UI.Settings.transitionEndpointsChanged);
     document.getElementById('input_gridsize').addEventListener('change', UI.Settings.gridsizeChanged);
+    document.getElementById('cb_commands_enabled').addEventListener('change', UI.Settings.commandsEnabledClicked);
+    document.getElementById('input_commands_key').addEventListener('change', UI.Settings.commandsKeyChanged);
 
     document.getElementById('cb_synthesis_enabled').addEventListener('change', UI.Settings.synthesisEnabledClicked);
     document.getElementById('input_synthesis_topic').addEventListener('change', UI.Settings.synthesisTopicChanged);

@@ -9,6 +9,7 @@ RC.PubSub = new (function() {
 	var behavior_status_listener;
 	var command_feedback_listener;
 	var onboard_heartbeat_listener;
+	var ros_command_listener;
 
 	var behavior_start_publisher;
 	var mirror_structure_publisher;
@@ -118,6 +119,22 @@ RC.PubSub = new (function() {
 			console.log("Onboard connection timed out.");
 			RC.Controller.signalDisconnected();
 		}, RC.Controller.onboardTimeout * 1000);
+	}
+
+	var ros_command_callback = function (msg) {
+		console.log('got message!')
+		if (!UI.Settings.isCommandsEnabled()) return;
+		if (UI.Settings.getCommandsKey() != '' && msg.key != UI.Settings.getCommandsKey()) {
+			T.clearLog();
+			T.logError('Captured unauthorized command execution attempt!');
+			T.logInfo('You should disable ROS commands in the configuration view and check "rostopic info /flexbe/uicommand" for suspicious publishers.');
+			return;
+		}
+
+		T.clearLog();
+		T.logInfo('Executing received command: ' + msg.command);
+		UI.Tools.tryExecuteCommand(msg.command);
+		T.show();
 	}
 
 	var command_feedback_callback = function (msg) {
@@ -283,6 +300,13 @@ RC.PubSub = new (function() {
 			messageType: 'std_msgs/Empty',
 		});
 		onboard_heartbeat_listener.subscribe(onboard_heartbeat_callback);
+
+		ros_command_listener = new ROSLIB.Topic({ 
+			ros: ros,
+			name: '/flexbe/uicommand',
+			messageType: 'flexbe_msgs/UICommand',
+		});
+		ros_command_listener.subscribe(ros_command_callback);
 
 
 		// Publisher

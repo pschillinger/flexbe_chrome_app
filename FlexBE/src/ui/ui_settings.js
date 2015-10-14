@@ -13,6 +13,8 @@ UI.Settings = new (function() {
 	var package_namespace;
 	var transition_mode;
 	var gridsize;
+	var commands_enabled;
+	var commands_key;
 
 	var synthesis_enabled;
 	var synthesis_topic;
@@ -29,6 +31,8 @@ UI.Settings = new (function() {
 			'package_namespace': package_namespace,
 			'transition_mode': transition_mode,
 			'gridsize': gridsize,
+			'commands_enabled': commands_enabled,
+			'commands_key': commands_key,
 			'synthesis_enabled': synthesis_enabled,
 			'synthesis_topic': synthesis_topic,
 			'synthesis_type': synthesis_type,
@@ -51,6 +55,8 @@ UI.Settings = new (function() {
 			'package_namespace': '',
 			'transition_mode': 1,
 			'gridsize': 50,
+			'commands_enabled': false,
+			'commands_key': '',
 			'synthesis_enabled': false,
 			'synthesis_topic': '',
 			'synthesis_type': 'flexbe_msgs/BehaviorSynthesisAction',
@@ -83,6 +89,10 @@ UI.Settings = new (function() {
 			document.getElementById("select_transition_mode").selectedIndex = items.transition_mode;
 			gridsize = items.gridsize;
 			document.getElementById("input_gridsize").value = items.gridsize;
+			commands_enabled = items.commands_enabled;
+			document.getElementById("cb_commands_enabled").checked = items.commands_enabled;
+			commands_key = items.commands_key;
+			document.getElementById("input_commands_key").value = items.commands_key;
 
 			synthesis_enabled = items.synthesis_enabled;
 			document.getElementById("cb_synthesis_enabled").checked = items.synthesis_enabled;
@@ -258,6 +268,17 @@ UI.Settings = new (function() {
 		storeSettings();
 	}
 
+	this.commandsEnabledClicked = function(evt) {
+		commands_enabled = evt.target.checked;
+		storeSettings();
+	}
+
+	this.commandsKeyChanged = function() {
+		var el = document.getElementById('input_commands_key');
+		commands_key = el.value;
+		storeSettings();
+	}
+
 	this.getPackageNamespace = function() {
 		return package_namespace;
 	}
@@ -272,6 +293,14 @@ UI.Settings = new (function() {
 
 	this.getGridsize = function() {
 		return gridsize;
+	}
+
+	this.isCommandsEnabled = function() {
+		return commands_enabled;
+	}
+
+	this.getCommandsKey = function() {
+		return commands_key;
 	}
 
 

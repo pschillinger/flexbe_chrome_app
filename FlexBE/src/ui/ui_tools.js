@@ -261,6 +261,39 @@ UI.Tools = new (function() {
 		}, 10);
 	}
 
+	this.tryExecuteCommand = function(cmd) {
+		try {
+			/*var result = eval(document.getElementById("tool_input_command").value);
+			if (result != undefined) {
+				T.logInfo(result.toString());
+				T.show();
+			}*/
+
+			command_history.push(cmd);
+			command_history_idx = command_history.length;
+			var found_command = false;
+
+			for (var i = 0; i < command_library.length; i++) {
+				var c = command_library[i];
+				var args = cmd.match(c.match);
+				if (args != null) {
+					c.impl(args);
+					found_command = true;
+					break;
+				}
+			}
+
+			if (cmd != "" && !found_command) {
+				T.clearLog();
+				T.show();
+				T.logWarn("Command not recognized: " + cmd);
+			}
+
+		} catch (err) {
+			T.logError(err.toString());
+		}
+	}
+
 	this.commandListener = function(event) {
 		var hide = false;
 		var cmd_input = document.getElementById("tool_input_command");
@@ -269,36 +302,8 @@ UI.Tools = new (function() {
 		// process command
 		if (event.keyCode == 13) { // enter
 			hide = true;
-			try {
-				/*var result = eval(document.getElementById("tool_input_command").value);
-				if (result != undefined) {
-					T.logInfo(result.toString());
-					T.show();
-				}*/
-
-				command_history.push(cmd);
-				command_history_idx = command_history.length;
-				var found_command = false;
-
-				for (var i = 0; i < command_library.length; i++) {
-					var c = command_library[i];
-					var args = cmd.match(c.match);
-					if (args != null) {
-						c.impl(args);
-						found_command = true;
-						break;
-					}
-				}
-
-				if (cmd != "" && !found_command) {
-					T.clearLog();
-					T.show();
-					T.logWarn("Command not recognized: " + cmd);
-				}
-
-			} catch (err) {
-				T.logError(err.toString());
-			}
+			
+			that.tryExecuteCommand(cmd);
 		}
 
 		// close overlay
