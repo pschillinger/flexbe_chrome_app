@@ -479,9 +479,30 @@
 					<td width="150">Grid size: </td>
 					<td><input id="input_gridsize" type="number" min="10" max="200" step="10" /> px</td>
 				</tr>
+			</table>
+		</div>
+
+		<div class="box">
+			<h1>Behavior Synthesis</h1>
+			<font style="color: gray">
+				Incorporate any compatible external synthesis tool in order to automatically generate state machines.
+			</font>
+			<table  class="box_table" style="width: 100%; padding-right: 5px; margin-top: 5px">
 				<tr>
 					<td width="150">Enable synthesis: </td>
-					<td><input id="cb_synthesis_enabled" type="checkbox" /> (requires <i>vigir_synthesis</i> packages)</td>
+					<td><input id="cb_synthesis_enabled" type="checkbox" /> (requires ROS connection)</td>
+				</tr>
+				<tr>
+					<td width="150">Action topic: </td>
+					<td><input id="input_synthesis_topic" type="text" class="input_field" /></td>
+				</tr>
+				<tr>
+					<td width="150">Action type: </td>
+					<td><input id="input_synthesis_type" type="text" class="input_field" /></td>
+				</tr>
+				<tr>
+					<td width="150">System: </td>
+					<td><input id="input_synthesis_system" type="text" class="input_field" /></td>
 				</tr>
 			</table>
 		</div>

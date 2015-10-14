@@ -769,10 +769,15 @@ UI.Panels.StateProperties = new (function() {
 	}
 
 	this.synthesizeClicked = function() {
-		var initial_condition_list = document.getElementById('input_prop_synthesis_initial').value.replace(/ /g, "").split(",");
-		var goal_list = document.getElementById('input_prop_synthesis_goal').value.replace(/ /g, "").split(",");
+		var initial_condition = document.getElementById('input_prop_synthesis_initial').value;
+		var goal = document.getElementById('input_prop_synthesis_goal').value;
 
-		RC.PubSub.requestBehaviorSynthesis(current_prop_state.getStatePath(), "atlas", goal_list, initial_condition_list, current_prop_state.getOutcomes(),
+		RC.PubSub.requestBehaviorSynthesis(
+			current_prop_state.getStatePath(),
+			UI.Settings.getSynthesisSystem(),
+			goal,
+			initial_condition,
+			current_prop_state.getOutcomes(),
 			function(result) {
 				document.getElementById('label_synthesis_feedback').value = "This will delete the current content!";
 				document.getElementById('panel_prop_sm_synthesis').style.display = "none";

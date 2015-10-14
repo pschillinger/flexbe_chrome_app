@@ -32,13 +32,13 @@ UI.Tools = new (function() {
 		},
 		{
 			desc: "synthesize [sm_name] i: [initial] g: [goal]",
-			match: /^synthesize ([a-zA-Z0-9_]+) i: ?([a-zA-Z0-9_, ]+) g: ?([a-zA-Z0-9_, ]+)$/,
+			match: /^synthesize ([a-zA-Z0-9_]+) i: ?(.+?) g: ?(.+?)$/,
 			impl: function(args) {
 				if (UI.Statemachine.isReadonly()) return;
-				var initial_condition_list = args[2].replace(/ /, "").split(",");
-				var goal_list = args[3].replace(/ /, "").split(",");
+				var initial_condition = args[2];
+				var goal = args[3];
 				var path = UI.Statemachine.getDisplayedSM().getStatePath() + "/" + args[1];
-				RC.PubSub.requestBehaviorSynthesis(path, "atlas", goal_list, initial_condition_list, ['finished', 'failed']);
+				RC.PubSub.requestBehaviorSynthesis(path, UI.Settings.getSynthesisSystem(), goal, initial_condition, ['finished', 'failed']);
 			},
 			text: "Synthesizes a new state machine.",
 			completions: [

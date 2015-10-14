@@ -13,7 +13,11 @@ UI.Settings = new (function() {
 	var package_namespace;
 	var transition_mode;
 	var gridsize;
+
 	var synthesis_enabled;
+	var synthesis_topic;
+	var synthesis_type;
+	var synthesis_system;
 
 	var storeSettings = function() {
 		chrome.storage.local.set({
@@ -25,7 +29,10 @@ UI.Settings = new (function() {
 			'package_namespace': package_namespace,
 			'transition_mode': transition_mode,
 			'gridsize': gridsize,
-			'synthesis_enabled': synthesis_enabled
+			'synthesis_enabled': synthesis_enabled,
+			'synthesis_topic': synthesis_topic,
+			'synthesis_type': synthesis_type,
+			'synthesis_system': synthesis_system
 		});
 	}
 
@@ -44,7 +51,10 @@ UI.Settings = new (function() {
 			'package_namespace': '',
 			'transition_mode': 1,
 			'gridsize': 50,
-			'synthesis_enabled': false
+			'synthesis_enabled': false,
+			'synthesis_topic': '',
+			'synthesis_type': 'flexbe_msgs/BehaviorSynthesisAction',
+			'synthesis_system': ''
 		}, function(items) {
 			behaviors_folder_id = items.behaviors_folder_id;
 			chrome.fileSystem.restoreEntry(items.behaviors_folder_id, function(entry) {
@@ -73,8 +83,15 @@ UI.Settings = new (function() {
 			document.getElementById("select_transition_mode").selectedIndex = items.transition_mode;
 			gridsize = items.gridsize;
 			document.getElementById("input_gridsize").value = items.gridsize;
+
 			synthesis_enabled = items.synthesis_enabled;
 			document.getElementById("cb_synthesis_enabled").checked = items.synthesis_enabled;
+			synthesis_topic = items.synthesis_topic;
+			document.getElementById("input_synthesis_topic").value = items.synthesis_topic;
+			synthesis_type = items.synthesis_type;
+			document.getElementById("input_synthesis_type").value = items.synthesis_type;
+			synthesis_system = items.synthesis_system;
+			document.getElementById("input_synthesis_system").value = items.synthesis_system;
 			updateSynthesisInterface();
 			
 			if (restored_callback != undefined)
@@ -241,12 +258,6 @@ UI.Settings = new (function() {
 		storeSettings();
 	}
 
-	this.synthesisEnabledClicked = function(evt) {
-		synthesis_enabled = evt.target.checked;
-		storeSettings();
-		updateSynthesisInterface();
-	}
-
 	this.getPackageNamespace = function() {
 		return package_namespace;
 	}
@@ -263,8 +274,48 @@ UI.Settings = new (function() {
 		return gridsize;
 	}
 
+
+	// Synthesis
+	//===========
+
+	this.synthesisEnabledClicked = function(evt) {
+		synthesis_enabled = evt.target.checked;
+		storeSettings();
+		updateSynthesisInterface();
+	}
+
+	this.synthesisTopicChanged = function() {
+		var el = document.getElementById('input_synthesis_topic');
+		synthesis_topic = el.value;
+		storeSettings();
+	}
+
+	this.synthesisTypeChanged = function() {
+		var el = document.getElementById('input_synthesis_type');
+		synthesis_type = el.value;
+		storeSettings();
+	}
+
+	this.synthesisSystemChanged = function() {
+		var el = document.getElementById('input_synthesis_system');
+		synthesis_system = el.value;
+		storeSettings();
+	}
+
 	this.isSynthesisEnabled = function() {
 		return synthesis_enabled;
+	}
+
+	this.getSynthesisTopic = function() {
+		return synthesis_topic;
+	}
+
+	this.getSynthesisType = function() {
+		return synthesis_type;
+	}
+
+	this.getSynthesisSystem = function() {
+		return synthesis_system;
 	}
 
 	var updateSynthesisInterface = function() {

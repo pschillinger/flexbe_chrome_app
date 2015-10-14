@@ -123,7 +123,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('input_package_namespace').addEventListener('change', UI.Settings.packageNamespaceChanged);
     document.getElementById('select_transition_mode').addEventListener('change', UI.Settings.transitionEndpointsChanged);
     document.getElementById('input_gridsize').addEventListener('change', UI.Settings.gridsizeChanged);
+
     document.getElementById('cb_synthesis_enabled').addEventListener('change', UI.Settings.synthesisEnabledClicked);
+    document.getElementById('input_synthesis_topic').addEventListener('change', UI.Settings.synthesisTopicChanged);
+    document.getElementById('input_synthesis_type').addEventListener('change', UI.Settings.synthesisTypeChanged);
+    document.getElementById('input_synthesis_system').addEventListener('change', UI.Settings.synthesisSystemChanged);
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////
 

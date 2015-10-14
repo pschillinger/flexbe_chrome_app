@@ -176,7 +176,7 @@ RC.PubSub = new (function() {
 	}
 
 	var synthesis_action_feedback_callback = function(feedback, root, feedback_cb) {
-		console.log(feedback);
+		console.log('Synthesis status: ' + feedback.status + ' (' (feedback.progress * 100) + '%)');
 
 		if(feedback_cb != undefined) feedback_cb(feedback);
 	}
@@ -336,8 +336,8 @@ RC.PubSub = new (function() {
 	this.initializeSynthesisAction = function() {
 		synthesis_action_client = new ROSLIB.ActionClient({
 			ros: ros,
-			serverName: '/vigir_behavior_synthesis',
-			actionName: 'vigir_synthesis_msgs/BehaviorSynthesisAction'
+			serverName: UI.Settings.getSynthesisTopic(),
+			actionName: UI.Settings.getSynthesisType()
 		});
 	}
 
@@ -466,15 +466,15 @@ RC.PubSub = new (function() {
 		RC.Sync.setProgress("Sync", 0.2, false);
 	}
 
-	this.requestBehaviorSynthesis = function(root, system, goals, initial_conditions, outcomes, result_cb, feedback_cb) {
+	this.requestBehaviorSynthesis = function(root, system, goal, initial_condition, outcomes, result_cb, feedback_cb) {
 		var goal = new ROSLIB.Goal({
 			actionClient: synthesis_action_client,
 			goalMessage: {
 				request: {
 					name: root,
 					system: system,
-					goals: goals,
-					initial_conditions: initial_conditions,
+					goal: goal,
+					initial_condition: initial_condition,
 					sm_outcomes: outcomes
 				}
 			}
