@@ -87,12 +87,13 @@ body, html {
 	font-style: italic;
 	font-size: 13pt;
 	text-shadow: -1px -1px 0px #bbb, 1px 1px 0px #fff;
-	width: 150px;
 }
 #label_runtime_status {
+	width: 150px;
 	display: inline-block;
 	padding: 2px;
 	padding-left: 15px;
+	padding-top: 7px;
 	color: #aaa;
 	font-style: italic;
 	font-size: 12pt;
@@ -104,6 +105,35 @@ body, html {
 	color: #aaa;
 	font-style: italic;
 	font-size: 12pt;
+}
+#input_flexbe_namespace {
+	border: 1px solid rgba(0, 0, 0, 0);
+	color: #ddd;
+	width: 135px;
+	background-color: rgba(100, 100, 100, 0);
+	margin-right: 10px;
+	margin-top: 2px;
+	margin-left: 5px;
+	margin-bottom: 0;
+	padding-left: 3px;
+	padding-bottom: 0;
+	text-shadow: -1px -1px 0px #bbb, 1px 1px 0px #fff;
+	font-size: 12pt;
+	text-transform: capitalize;
+}
+#input_flexbe_namespace:hover {
+	border: 1px solid rgba(0, 0, 0, 0);
+	background-color: rgba(255, 255, 255, 0.5);
+	cursor: pointer;
+}
+#input_flexbe_namespace:focus {
+	border: 1px solid rgba(0, 0, 0, 0.3);
+	background-color: rgba(255, 255, 255, 0.5);
+	cursor: text;
+	text-transform: none;
+}
+#input_flexbe_namespace::-webkit-input-placeholder {
+	color: #ddd;
 }
 
 #runtime_status_txt {

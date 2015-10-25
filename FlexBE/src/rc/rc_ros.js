@@ -4,6 +4,7 @@ RC.ROS = new (function() {
 	var ros;
 	var connected = false;
 	var connect_attempts_left = 0;
+	var namespace = "";
 
 	this.getROS = function() {
 		return ros;
@@ -22,7 +23,7 @@ RC.ROS = new (function() {
 		RC.Sync.register("ROS", 90);
 		RC.Sync.setStatus("ROS", RC.Sync.STATUS_ERROR);
 
-		RC.PubSub.initialize(ros);
+		RC.PubSub.initialize(ros, namespace);
 	}
 
 	var setupFailed = function() {
@@ -70,6 +71,16 @@ RC.ROS = new (function() {
 
 	this.isConnected = function() {
 		return connected;
+	}
+
+	this.namespaceChanged = function() {
+		new_namespace = document.getElementById('input_flexbe_namespace').value;
+
+		if (connected) {
+			document.getElementById('input_flexbe_namespace').value = new_namespace;
+		} else {
+			namespace = new_namespace.toLowerCase();
+		}
 	}
 
 }) ();
