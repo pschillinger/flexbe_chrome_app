@@ -133,12 +133,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-chrome.app.window.onClosed.addListener(function() {
+/*chrome.app.window.current().onClosed.addListener(function() {
     // no effect
     if(RC.Controller.isRunning()) {
         RC.PubSub.sendPreemptBehavior();
     }
-});
+});*/
+/*chrome.app.window.current().onbeforeunload = function (evt) {
+    if(RC.Controller.isRunning()) {
+        RC.PubSub.sendPreemptBehavior();
+    }
+}*/
+
+/*window.addEventListener('closed', function() {
+    if(RC.Controller.isRunning()) {
+        RC.PubSub.sendPreemptBehavior();
+    }
+});*/
 
 window.addEventListener('resize', function() {
     UI.Statemachine.recreateDrawingArea();
