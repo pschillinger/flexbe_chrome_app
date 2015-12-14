@@ -59,6 +59,9 @@ ModelGenerator = new (function() {
 			container_sm_def.sm_params.input_keys,
 			container_sm_def.sm_params.output_keys
 		));
+		if (container_sm_def.sm_params.conditions != undefined) {
+			container_sm.setConcurrent(true);
+		}
 		var oc_objs = container_sm.getSMOutcomes();
 		var oc_pos_len = Math.min(oc_objs.length, container_sm_def.oc_positions.length);
 		for (var i = 0; i < oc_pos_len; i++) {
@@ -106,24 +109,41 @@ ModelGenerator = new (function() {
 		
 
 		// add transitions (requires to have all states)
-		for (var i=0; i<container_states.length; i++) {
-			var s_def = container_states[i];
+		if (container_sm.isConcurrent()) {
+			container_sm.setConditions(container_sm_def.sm_params.conditions);
+			// only initial state has autonomy levels
+			var s_def = container_states[0];
 			var state_from = container_sm.getStateByName(s_def.state_name);
 			for (var j=0; j<s_def.transitions_from.length; j++) {
 				var trans_def = s_def.transitions_from[j];
-				var state_to;
-				if (container_sm.getOutcomes().contains(trans_def.target)) {
-					state_to = container_sm.getSMOutcomeByName(trans_def.target);
-				} else {
-					state_to = container_sm.getStateByName(trans_def.target);
-				}
 				var autonomy_idx = state_from.getOutcomes().indexOf(trans_def.outcome);
 				var autonomy = state_from.getAutonomy()[autonomy_idx];
-				var trans = new Transition(state_from, state_to, trans_def.outcome, autonomy);
-				container_sm.addTransition(trans);
+				var trans = container_sm.getTransitions().findElement(function(t) {
+					return t.getFrom().getStateName() == s_def.state_name
+						&& t.getOutcome() == trans_def.outcome;
+				});
+				trans.setAutonomy(autonomy);
+			}
+		} else {
+			for (var i=0; i<container_states.length; i++) {
+				var s_def = container_states[i];
+				var state_from = container_sm.getStateByName(s_def.state_name);
+				for (var j=0; j<s_def.transitions_from.length; j++) {
+					var trans_def = s_def.transitions_from[j];
+					var state_to;
+					if (container_sm.getOutcomes().contains(trans_def.target)) {
+						state_to = container_sm.getSMOutcomeByName(trans_def.target);
+					} else {
+						state_to = container_sm.getStateByName(trans_def.target);
+					}
+					var autonomy_idx = state_from.getOutcomes().indexOf(trans_def.outcome);
+					var autonomy = state_from.getAutonomy()[autonomy_idx];
+					var trans = new Transition(state_from, state_to, trans_def.outcome, autonomy);
+					container_sm.addTransition(trans);
+				}
 			}
 		}
-		
+
 		return container_sm;
 	}
 

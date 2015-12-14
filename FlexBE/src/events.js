@@ -69,6 +69,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('button_close_properties').addEventListener('click', UI.Panels.StateProperties.closePropertiesClicked);
     document.getElementById('button_delete_state').addEventListener('click', UI.Panels.StateProperties.deleteStateClicked);
 
+    document.getElementById('select_container_type').addEventListener('change', UI.Panels.StateProperties.containerTypeChanged);
+
     document.getElementById('cb_display_synthesis').addEventListener('change', UI.Panels.StateProperties.displaySynthesisClicked);
     document.getElementById('button_prop_synthesize').addEventListener('click', UI.Panels.StateProperties.synthesizeClicked);
 

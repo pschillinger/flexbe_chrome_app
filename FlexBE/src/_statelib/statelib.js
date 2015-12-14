@@ -3,6 +3,7 @@ Statelib = new (function() {
 
 	var statelib = [
 		new StateDefinition(":OUTCOME", undefined, "", [], [], [], [], [], [], []),
+		new StateDefinition(":CONDITION", undefined, "", [], [], [], [], [], [], []),
 		new StateDefinition(":INIT", undefined, "", [], [], [], [], [], [], []),
 		new StateDefinition(":CONTAINER", undefined, "", [], [], [], [], [], [], [])
 	];
@@ -27,6 +28,7 @@ Statelib = new (function() {
 	this.resetLib = function() {
 		statelib = [
 			new StateDefinition(":OUTCOME", undefined, "", [], [], [], [], [], [], []),
+			new StateDefinition(":CONDITION", undefined, "", [], [], [], [], [], [], []),
 			new StateDefinition(":INIT", undefined, "", [], [], [], [], [], [], []),
 			new StateDefinition(":CONTAINER", undefined, "", [], [], [], [], [], [], [])
 		];

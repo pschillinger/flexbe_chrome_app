@@ -7,14 +7,27 @@ Statemachine = function(sm_name, sm_definition) {
 	transitions.push(new Transition(new State("INIT", Statelib.getFromLib(":INIT")), undefined, "", 0));
 	var dataflow = [];
 
+	var concurrent = false;
+
 	var initial_state = undefined;
 	var sm_outcomes = [];
 
-	for (var i = 0; i < sm_definition.getOutcomes().length; i++) {
-		var outcome_state = new State(sm_definition.getOutcomes()[i], Statelib.getFromLib(":OUTCOME"));
+	var addSMOutcome = function(outcome) {
+		var outcome_state = new State(outcome + (concurrent? ('#' + sm_outcomes.length) : ''), Statelib.getFromLib(concurrent? ":CONDITION" : ":OUTCOME"));
 		outcome_state.setPosition({x: 30 + sm_outcomes.length * 100, y: UI.Statemachine.getR().height / 2});
 		sm_outcomes.push(outcome_state);
 		outcome_state.setContainer(that);
+	}
+	var generateSMOutcomes = function() {
+		sm_outcomes = [];
+		for (var i = 0; i < sm_definition.getOutcomes().length; i++) {
+			addSMOutcome(sm_definition.getOutcomes()[i]);
+		}
+	}
+	generateSMOutcomes();
+
+	var clearTransitions = function() {
+		states.forEach(that.removeConnectedTransitions);
 	}
 
 	// States
@@ -98,6 +111,20 @@ Statemachine = function(sm_name, sm_definition) {
 		transition.getFrom().connect(transition.getOutcome());
 	}
 
+	this.tryDuplicateOutcome = function(outcome) {
+		outcome_states = sm_outcomes.filter(function(state) {
+			return state.getStateName().startsWith(outcome);
+		});
+		transitions.forEach(function(transition) {
+			if (outcome_states.contains(transition.getTo())) {
+				outcome_states.remove(transition.getTo());
+			}
+		});
+		if (outcome_states.length == 0) {
+			addSMOutcome(outcome);
+		}
+	}
+
 	this.removeTransitionObject = function(transition) {
 		transitions.remove(transition);
 		transition.getFrom().unconnect(transition.getOutcome());
@@ -176,8 +203,10 @@ Statemachine = function(sm_name, sm_definition) {
 	}
 
 	this.addOutcome = function(outcome) {
+		sm_definition.addOutcome(outcome);
 		var outcome_state = new State(outcome, Statelib.getFromLib(":OUTCOME"));
 		outcome_state.setPosition({x: 30 + sm_outcomes.length * 100, y: UI.Statemachine.getR().height / 2});
+		outcome_state.setContainer(that);
 		sm_outcomes.push(outcome_state);
 		that.getOutcomes().push(outcome);
 		that.getOutcomesUnconnected().push(outcome);
@@ -204,6 +233,8 @@ Statemachine = function(sm_name, sm_definition) {
 			that.getOutcomesUnconnected().remove(outcome);
 		else
 			that.getOutcomesConnected().remove(outcome);
+
+		sm_definition.removeOutcome(outcome);
 	}
 
 	this.updateOutcome = function(outcome_old, outcome_new) {
@@ -213,6 +244,55 @@ Statemachine = function(sm_name, sm_definition) {
 		oc_element.setStateName(outcome_new);
 		that.getOutcomes().remove(outcome_old);
 		that.getOutcomes().push(outcome_new);
+	}
+
+	this.isConcurrent = function() {
+		return concurrent;
+	}
+
+	this.setConcurrent = function(new_concurrent) {
+		concurrent = new_concurrent;
+		
+		clearTransitions();
+		generateSMOutcomes();
+	}
+
+	this.getConditions = function() {
+		var conditions = {
+			outcomes: [],
+			transitions: []
+		}
+		transitions.forEach(function(t) {
+			if (t.getOutcome() == "") return;
+			if (conditions.outcomes.contains(t.getTo().getStateName())) {
+				var idx = conditions.outcomes.indexOf(t.getTo().getStateName());
+				conditions.transitions[idx].push([t.getFrom().getStateName(), t.getOutcome()]);
+			} else {
+				conditions.outcomes.push(t.getTo().getStateName());
+				conditions.transitions.push([[t.getFrom().getStateName(), t.getOutcome()]]);
+			}
+		});
+		return conditions;
+	}
+
+	this.setConditions = function(conditions) {
+		var additional_outcomes = [];
+		for (var i = 0; i < conditions.outcomes.length; i++) {
+			var o = conditions.outcomes[i];
+			var t = conditions.transitions[i];
+			if (additional_outcomes.contains(o)) {
+				addSMOutcome(o);
+				t.forEach(function(so) {
+					that.addTransition(new Transition(that.getStateByName(so[0]), sm_outcomes[-1], so[1], 0));
+				});
+			} else {
+				t.forEach(function(so) {
+					that.addTransition(new Transition(that.getStateByName(so[0]), sm_outcomes[i], so[1], 0));
+				});
+				additional_outcomes.push(o);
+			}
+		}
+		additional_outcomes.forEach(addSMOutcome);
 	}
 
 	//

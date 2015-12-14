@@ -29,7 +29,7 @@ UI.Menu = new (function() {
 		[
 			["Add State", "title_add", function() { UI.Menu.addStateClicked(); }],
 			["Add Behavior", "title_add", function() { UI.Menu.addBehaviorClicked(); }],
-			["Add State Machine", "title_add", function() { UI.Menu.addStatemachineClicked(); }]
+			["Add Container", "title_add", function() { UI.Menu.addStatemachineClicked(); }]
 		],
 		[
 			["Data Flow Graph", "dataflow", function() { UI.Statemachine.toggleDataflow(); }],
@@ -216,7 +216,7 @@ UI.Menu = new (function() {
 
 		// for testing
 		var sm_def = new StateMachineDefinition(['finished', 'failed'], [], []);
-		var sm_name_pattern = /Statemachine(?:_(\d+))?/i;
+		var sm_name_pattern = /Container(?:_(\d+))?/i;
 		var current_sm_list = UI.Statemachine.getDisplayedSM().getStates();
 		current_sm_list = current_sm_list.map(function(element) {
 			var result = element.getStateName().match(sm_name_pattern);
@@ -227,7 +227,7 @@ UI.Menu = new (function() {
 		var new_index = current_sm_list.reduce(function(prev, cur) {
 			return prev > cur? prev : cur;
 		}, 0) + 1;
-		var state_name = "Statemachine" + ((new_index>1)? "_" + new_index : "");
+		var state_name = "Container" + ((new_index>1)? "_" + new_index : "");
 		var sm = new Statemachine(state_name, sm_def);
 		UI.Statemachine.getDisplayedSM().addState(sm);
 		UI.Statemachine.refreshView();
@@ -237,7 +237,7 @@ UI.Menu = new (function() {
 		var container_path = sm.getContainer().getStatePath();
 
 		ActivityTracer.addActivity(ActivityTracer.ACT_STATE_ADD,
-			"Added new state machine",
+			"Added new container",
 			function() {
 				var state = Behavior.getStatemachine().getStateByPath(state_path);
 				state.getContainer().removeState(state);

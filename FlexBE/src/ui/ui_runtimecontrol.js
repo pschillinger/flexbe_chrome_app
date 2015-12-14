@@ -140,7 +140,7 @@ UI.RuntimeControl = new (function() {
 			return drawable;
 		}
 
-		if (state_obj.getStateClass() == ":OUTCOME")
+		if (state_obj.getStateClass() == ":OUTCOME" || state_obj.getStateClass() == ":CONDITION")
 			return new Drawable.Outcome(state_obj, R, true);
 
 		return new Drawable.State(state_obj, R, true, mode, active, locked);

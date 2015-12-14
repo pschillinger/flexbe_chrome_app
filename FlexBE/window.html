@@ -594,9 +594,18 @@
 			<div style="font-weight: bold;">
 				<input id="input_prop_sm_name" class="inline_title_text_edit" type="text" />
 			</div>
-			<div style="font-style: italic; padding: 0px 5px; color: gray;">Statemachine</div>
+			<div style="font-style: italic; padding: 0px 5px; margin-top: 5px; color: gray;">
+				Type: 
+				<select id="select_container_type">
+					<option value="statemachine">Statemachine</option>
+					<option value="concurrency">Concurrency</option>
+				</select>
+				<div id="doc_container_type" style="margin-top: 5px;">
+					Sequential execution based on outcomes.
+				</div>
+			</div>
 
-			<br /><input id="button_view_statemachine" type="button" value="Open this Statemachine" />
+			<br /><input id="button_view_statemachine" type="button" value="Open this Container" />
 			<div id="synthesis_display_option" style="display: inline;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<input id="cb_display_synthesis" type="checkbox" /> Display synthesis
 			</div>

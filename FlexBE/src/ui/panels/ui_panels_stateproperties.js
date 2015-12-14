@@ -259,6 +259,14 @@ UI.Panels.StateProperties = new (function() {
 
 		document.getElementById("input_prop_sm_name").value = state.getStateName();
 
+		if (state.isConcurrent()) {
+			document.getElementById("select_container_type").value = "concurrency";
+			document.getElementById("doc_container_type").innerHTML = "Parallel execution of all elements.";
+		} else {
+			document.getElementById("select_container_type").value = "statemachine";
+			document.getElementById("doc_container_type").innerHTML = "Sequential execution based on outcomes.";
+		}
+
 		// Outcomes
 		//----------
 		document.getElementById("panel_prop_sm_outcomes_content").innerHTML = "";
@@ -787,6 +795,17 @@ UI.Panels.StateProperties = new (function() {
 		document.getElementById("input_prop_output_key_add").value = "";
 		UI.Statemachine.refreshView();
 		displayPropertiesForStatemachine(current_prop_state);
+	}
+
+	this.containerTypeChanged = function(evt) {
+		if (this.value == 'concurrency') {
+			current_prop_state.setConcurrent(true);
+			document.getElementById("doc_container_type").innerHTML = "Parallel execution of all elements.";
+		} else {
+			current_prop_state.setConcurrent(false);
+			document.getElementById("doc_container_type").innerHTML = "Sequential execution based on outcomes.";
+		}
+		UI.Statemachine.refreshView();
 	}
 
 	this.displaySynthesisClicked = function(evt) {

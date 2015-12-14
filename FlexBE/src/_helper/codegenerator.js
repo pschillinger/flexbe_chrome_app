@@ -40,7 +40,7 @@ CodeGenerator = new (function() {
 		}
 		// put together
 		code += "import roslib; roslib.load_manifest('" + names.rosnode_name + "')\n";
-		code += "from flexbe_core import Behavior, Autonomy, OperatableStateMachine, Logger\n";
+		code += "from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, Logger\n";
 		code += import_list.join("\n");
 		code += "\n";
 		// add manual imports
@@ -207,12 +207,29 @@ CodeGenerator = new (function() {
 				pos.push("x:" + Math.round(position.x) + " y:" + Math.round(position.y)); 
 			}
 			code += "\t\t# " + pos.join(", ") + "\n";
-			code += "\t\t" + sm_name + " = OperatableStateMachine(outcomes=['" + sm.getOutcomes().join("', '") + "']";
+			if (sm.isConcurrent()) {
+				code += "\t\t" + sm_name + " = ConcurrencyContainer(outcomes=['" + sm.getOutcomes().join("', '") + "']";
+			} else {
+				code += "\t\t" + sm_name + " = OperatableStateMachine(outcomes=['" + sm.getOutcomes().join("', '") + "']";
+			}
 			if (sm.getInputKeys().length > 0) {
 				code += ", input_keys=['" + sm.getInputKeys().join("', '") + "']";
 			}
 			if (sm.getOutputKeys().length > 0) {
 				code += ", output_keys=['" + sm.getOutputKeys().join("', '") + "']";
+			}
+			if (sm.isConcurrent()) {
+				var conditions = sm.getConditions();
+				code += ", conditions=[\n";
+				var list_entries = []
+				for (var i = 0; i < conditions.outcomes.length; i++) {
+					var transitions_list = [];
+					conditions.transitions[i].forEach(function(t) {
+						transitions_list.push("('" + t[0] + "', '" + t[1] + "')");
+					});
+					list_entries.push("\t\t\t\t\t\t\t\t\t\t('" + conditions.outcomes[i].split('#')[0] + "', [" + transitions_list.join(', ') + "])");
+				}
+				code += list_entries.join(',\n') + "\n\t\t\t\t\t\t\t\t\t\t]"
 			}
 			code += ")\n\n";
 		}
@@ -295,6 +312,7 @@ CodeGenerator = new (function() {
 			if (outcome_transition == undefined) throw "outcome '" + s.getOutcomes()[j] + "' in state '" + s.getStateName() + "' is not connected";
 			if (outcome_transition.getTo().getStateName() == s.getStateName()) T.logWarn("Looping transition for outcome '" + s.getOutcomes()[j] + "' in state '" + s.getStateName() + "' detected");
 			var transition_target = outcome_transition.getTo().getStateName();
+			if (outcome_transition.getTo().getStateClass() == ':CONDITION') transition_target = transition_target.split('#')[0];
 			transition_strings.push("'" + s.getOutcomes()[j] + "': '" + transition_target + "'");
 		}
 		code += transition_strings.join(", ");
