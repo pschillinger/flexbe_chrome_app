@@ -110,6 +110,7 @@ ModelGenerator = new (function() {
 
 		// add transitions (requires to have all states)
 		if (container_sm.isConcurrent()) {
+			console.log(container_sm_def.sm_params.conditions);
 			container_sm.setConditions(container_sm_def.sm_params.conditions);
 			// only initial state has autonomy levels
 			var s_def = container_states[0];

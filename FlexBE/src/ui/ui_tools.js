@@ -59,6 +59,45 @@ UI.Tools = new (function() {
 			},
 			text: "Adds a new note to the currently displayed state machine.",
 			completions: [Statelib.getClassList]
+		},
+		{
+			desc: "autoconnect",
+			match: /^autoconnect$/,
+			impl: function() {
+				var getClosestState = function(pos, state) {
+					var dist = undefined;
+					var closest = undefined;
+					sm.getStates().forEach(function(other) {
+						var other_dist = Math.sqrt(Math.pow(other.getPosition().x - pos.x, 2) + Math.pow(other.getPosition().y - pos.y, 2));
+						if ((state == undefined || state.getStateName() != other.getStateName())
+							&& (dist == undefined || dist > other_dist)) {
+							dist = other_dist;
+							closest = other;
+						}
+					});
+					return closest;
+				};
+				var sm = UI.Statemachine.getDisplayedSM();
+				sm.getStates().forEach(function(state) {
+					var unconnected = state.getOutcomesUnconnected().clone();
+					unconnected.forEach(function(outcome, i) {
+						if (sm.getOutcomes().contains(outcome)) {
+							sm.addTransition(new Transition(state, sm.getSMOutcomeByName(outcome), outcome, 0));
+						} else if (i == 0) {
+							var closest = getClosestState(state.getPosition(), state);
+							if (closest != undefined) {
+								sm.addTransition(new Transition(state, closest, outcome, 0));
+							}
+						}
+					});
+				});
+				if (sm.getInitialState() == undefined) {
+					sm.setInitialState(getClosestState({x: 0, y: 0}));
+				}
+				UI.Statemachine.refreshView();
+			},
+			text: "Automatically connects obvious outcomes.",
+			completions: ['autoconnect']
 		}
 	];
 

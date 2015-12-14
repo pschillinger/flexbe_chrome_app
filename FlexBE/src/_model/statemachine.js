@@ -286,8 +286,11 @@ Statemachine = function(sm_name, sm_definition) {
 					that.addTransition(new Transition(that.getStateByName(so[0]), sm_outcomes[-1], so[1], 0));
 				});
 			} else {
+				o_label = sm_outcomes.findElement(function(oc) {
+					return oc.getStateName().startsWith(o + '#');
+				});
 				t.forEach(function(so) {
-					that.addTransition(new Transition(that.getStateByName(so[0]), sm_outcomes[i], so[1], 0));
+					that.addTransition(new Transition(that.getStateByName(so[0]), o_label, so[1], 0));
 				});
 				additional_outcomes.push(o);
 			}
