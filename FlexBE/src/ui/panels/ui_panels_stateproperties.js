@@ -828,6 +828,8 @@ UI.Panels.StateProperties = new (function() {
 	this.synthesizeClicked = function() {
 		var initial_condition = document.getElementById('input_prop_synthesis_initial').value;
 		var goal = document.getElementById('input_prop_synthesis_goal').value;
+		document.getElementById("cb_display_synthesis").checked = false;
+		document.getElementById('panel_prop_sm_synthesis').style.display = "none";
 
 		RC.PubSub.requestBehaviorSynthesis(
 			current_prop_state.getStatePath(),

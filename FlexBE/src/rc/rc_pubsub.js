@@ -220,10 +220,12 @@ RC.PubSub = new (function() {
 				return t.getFrom().getStateName() == sm_instance.getStateName() && state_machine.getOutcomes().contains(t.getOutcome())
 					|| t.getTo() != undefined && t.getTo().getStateName() == sm_instance.getStateName();
 			});
+			var is_initial = sm_instance.getStateName() == root_container.getInitialState().getStateName();
 			root_container.removeState(sm_instance);
 			root_container.addState(state_machine);
+			if (is_initial) root_container.setInitialState(sm_instance);
 			transitions.forEach(function (t) {
-				if (t.getTo().getStateName() == state_machine.getStateName()) t.setTo(state_machine);
+				if (t.getTo() != undefined && t.getTo().getStateName() == state_machine.getStateName()) t.setTo(state_machine);
 				if (t.getFrom().getStateName() == state_machine.getStateName()) t.setFrom(state_machine);
 			});
 			transitions.forEach(root_container.addTransition);
@@ -503,6 +505,8 @@ RC.PubSub = new (function() {
 				}
 			}
 		});
+
+		console.log(goal);
 
 		goal.on('feedback', function(feedback) { synthesis_action_feedback_callback(feedback, root, feedback_cb); });
 		goal.on('result', function(result) { synthesis_action_result_callback(result, root, result_cb); });

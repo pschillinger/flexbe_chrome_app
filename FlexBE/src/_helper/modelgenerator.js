@@ -110,7 +110,6 @@ ModelGenerator = new (function() {
 
 		// add transitions (requires to have all states)
 		if (container_sm.isConcurrent()) {
-			console.log(container_sm_def.sm_params.conditions);
 			container_sm.setConditions(container_sm_def.sm_params.conditions);
 			// only initial state has autonomy levels
 			var s_def = container_states[0];
@@ -163,7 +162,7 @@ ModelGenerator = new (function() {
 					sm_states.push(sm_state_list);
 				}
 				var state_class = 	(s.state_class == ":STATEMACHINE")? 	state_name :
-									(s.state_class == ":BEHAVIOR")?			s.behavior_class :
+									(s.state_class == ":BEHAVIOR")?			Behaviorlib.getByName(s.behavior_class).getStateClass() :
 																			s.state_class;
 				var parameter_values = (s.state_class == ":STATEMACHINE")? undefined : [];
 				for (var i=0; i<s.parameter_names.length; i++) {
