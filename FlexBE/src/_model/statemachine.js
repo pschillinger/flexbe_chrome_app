@@ -204,7 +204,7 @@ Statemachine = function(sm_name, sm_definition) {
 
 	this.addOutcome = function(outcome) {
 		sm_definition.addOutcome(outcome);
-		var outcome_state = new State(outcome, Statelib.getFromLib(":OUTCOME"));
+		var outcome_state = new State(outcome, Statelib.getFromLib(concurrent? ":CONDITION" : ":OUTCOME"));
 		outcome_state.setPosition({x: 30 + sm_outcomes.length * 100, y: UI.Statemachine.getR().height / 2});
 		outcome_state.setContainer(that);
 		sm_outcomes.push(outcome_state);

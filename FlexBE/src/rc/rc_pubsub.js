@@ -220,7 +220,7 @@ RC.PubSub = new (function() {
 				return t.getFrom().getStateName() == sm_instance.getStateName() && state_machine.getOutcomes().contains(t.getOutcome())
 					|| t.getTo() != undefined && t.getTo().getStateName() == sm_instance.getStateName();
 			});
-			var is_initial = sm_instance.getStateName() == root_container.getInitialState().getStateName();
+			var is_initial = root_container.getInitialState() != undefined && sm_instance.getStateName() == root_container.getInitialState().getStateName();
 			root_container.removeState(sm_instance);
 			root_container.addState(state_machine);
 			if (is_initial) root_container.setInitialState(sm_instance);
