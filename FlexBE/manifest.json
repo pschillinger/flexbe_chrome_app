@@ -1,7 +1,7 @@
 {
   "name": "FlexBE Editor - Team ViGIR Edition",
   "description": "Editor to create, modify and control behaviors based on the Flexible Behavior Engine.",
-  "version": "0.20.3",
+  "version": "0.20.4",
   "app": {
     "background": {
       "scripts": ["launcher.js"]

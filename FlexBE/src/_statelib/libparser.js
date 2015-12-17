@@ -46,7 +46,7 @@ LibParser = new (function() {
 			// Has two matches: 1) key 2) list
 		var list_pattern = /(\w+)=\[(.*)\]/i;
 			// Finds conditions to be monitored
-		var monitor_pattern = /^\s*self\.monitor\((?:self|[A-Za-z]+State).([A-Z_0-9]+)\)/igm;
+		var monitor_pattern = /^\s*self\.monitor\(.+?,\s*["']([A-Z_0-9]+)["']\)/igm;
 
 		var name_desc_results = content.match(name_desc_pattern);
 		if (name_desc_results == null) return;
