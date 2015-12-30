@@ -316,7 +316,6 @@ UI.RuntimeControl = new (function() {
 				add_button.addEventListener('click', function() {
 					var button = this;
 					chrome.fileSystem.chooseEntry({type: 'openFile'}, function(entry) {
-						console.log(entry);
 						button.parentNode.parentNode.children[0].children[0].setAttribute("value", entry.name);
 					});
 				});

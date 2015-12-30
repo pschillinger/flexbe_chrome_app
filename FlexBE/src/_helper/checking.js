@@ -169,6 +169,22 @@ Checking = new (function() {
 
 		// outcomes
 		if (state.getOutcomesUnconnected().length > 0) return "outcome " + state.getOutcomesUnconnected()[0] + " of state " + state.getStatePath() + " is unconnected";
+		if (state.getContainer().isConcurrent()) {
+			var outcome_target_list = [];
+			var error_string = undefined;
+			oc_transitions = state.getContainer().getTransitions().filter(function(t) {
+				return t.getFrom().getStateName() == state.getStateName()
+					&& t.getTo().getStateClass() == ":CONDITION";
+			});
+			oc_transitions.forEach(function(t) {
+				if (outcome_target_list.contains(t.getTo().getStateName())) {
+					error_string = "multiple outcomes of state " + state.getStateName() + " point to the same outcome of a concurrency container";
+				} else {
+					outcome_target_list.push(t.getTo().getStateName());
+				}
+			});
+			if (error_string != undefined) return error_string;
+		}
 	}
 
 	this.isValidExpressionSyntax = function(expr, allow_comment) {

@@ -345,7 +345,7 @@ CodeParser = new (function() {
 			conditions: undefined
 		};
 
-		var param_list = sm_params.replace(/\s/g, "").split(/,(?=(outcomes|input_keys|output_keys|conditions))/g);
+		var param_list = sm_params.replace(/([()[\],])\s+/g, "$1").split(/,(?=(outcomes|input_keys|output_keys|conditions))/g);
 		for(var i=0; i<param_list.length; ++i) {
 			var opt = param_list[i].split("=");
 			if (opt.length != 2) continue;

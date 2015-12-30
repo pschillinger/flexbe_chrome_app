@@ -83,6 +83,7 @@ UI.Tools = new (function() {
 					unconnected.forEach(function(outcome, i) {
 						if (sm.getOutcomes().contains(outcome)) {
 							sm.addTransition(new Transition(state, sm.getSMOutcomeByName(outcome), outcome, 0));
+							if (sm.isConcurrent()) sm.tryDuplicateOutcome(outcome);
 						} else if (i == 0) {
 							var closest = getClosestState(state.getPosition(), state);
 							if (closest != undefined) {

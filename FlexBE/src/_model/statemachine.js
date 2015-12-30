@@ -196,7 +196,8 @@ Statemachine = function(sm_name, sm_definition) {
 
 	this.getSMOutcomeByName = function(name) {
 		for(var i=0; i<sm_outcomes.length; ++i) {
-			if (sm_outcomes[i].getStateName() == name)
+			if ((sm_outcomes[i].getStateName() == name)
+			|| (concurrent && name.indexOf('#') == -1 && sm_outcomes[i].getStateName().startsWith(name)))
 				return sm_outcomes[i];
 		}
 		T.debugWarn("Outcome '" + name + "' not found in " + that.getStateName());
