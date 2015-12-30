@@ -55,9 +55,6 @@ Checking = new (function() {
 				if (p.additional.length == 0) return "enum parameter " + p.name + " has no options to choose from";
 				if (!p.additional.contains(p.default)) return "enum parameter " + p.name + " has illegal default value: " + p.default;
 			}
-			if (p.type == 'yaml') {
-				if (p.additional.key == "") return "yaml paramter " + p.name + " needs key specification";
-			}
 		}
 
 		// interface

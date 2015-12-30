@@ -80,9 +80,10 @@ CodeGenerator = new (function() {
 		code += "\t\t# parameters of this behavior\n";
 		var params = Behavior.getBehaviorParameters();
 		for (var i = 0; i < params.length; i++) {
-			var default_value = (params[i].type == "text" || params[i].type == "enum" || params[i].type == "yaml")?
-				"'" + params[i].default + "'"
-				: params[i].default;
+			var default_value = 
+				(params[i].type == "text" || params[i].type == "enum")? "'" + params[i].default + "'" :
+				(params[i].type == "yaml")? "dict()" : 
+				params[i].default;
 			code += "\t\tself.add_parameter('" + params[i].name + "', " + default_value + ")\n";
 		};
 		code += "\n";
