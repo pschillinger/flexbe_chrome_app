@@ -269,7 +269,11 @@ UI.Menu = new (function() {
 			T.logError("Unable to save behavior: " + check_error_string);
 			return;
 		}
+		var warnings = Checking.warnBehavior();
 		BehaviorSaver.saveStateMachine();
+		warnings.forEach(function(w) {
+			T.logWarn("Warning: " + w);
+		});
 		ActivityTracer.addSave();
 	}
 
@@ -316,10 +320,14 @@ UI.Menu = new (function() {
 		if (error_string != undefined) {
 			T.logError("Found error: " + error_string);
 		} else {
+			// generate warnings
+			var warnings = Checking.warnBehavior();
+			warnings.forEach(function(w) {
+				T.logWarn("Warning: " + w);
+			});
+
 			T.logInfo("Behavior is valid!");
 		}
-
-		// generate warnings
 	}
 
 	this.addCommentClicked = function() {

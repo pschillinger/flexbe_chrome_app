@@ -17,6 +17,15 @@ Checking = new (function() {
 		return undefined;
 	}
 
+	this.warnBehavior = function() {
+		var warnings = [];
+
+		warnings.push.apply(warnings, that.warnDashboard());
+		warnings.push.apply(warnings, that.warnStatemachine());
+
+		return warnings;
+	}
+
 	this.checkDashboard = function() {
 		if (Behavior.getBehaviorName() == "") return "behavior name is not set";
 		if (Behavior.getBehaviorDescription() == "") return "behavior description needs to be set";
@@ -79,11 +88,23 @@ Checking = new (function() {
 		return undefined;
 	}
 
+	this.warnDashboard = function() {
+		var warnings = [];
+		if (Behavior.getCreationDate() == "") warnings.push("behavior creation date is not set");
+		if (Behavior.getTags() == "") warnings.push("behavior has no tags for quicker access");
+
+		return warnings;
+	}
+
 	this.checkStatemachine = function() {
 		error = that.checkSingleStatemachine(Behavior.getStatemachine());
 		if (error != undefined) return error;
 
 		return undefined;
+	}
+
+	this.warnStatemachine = function() {
+		return that.warnSingleStatemachine(Behavior.getStatemachine());
 	}
 
 
@@ -108,7 +129,22 @@ Checking = new (function() {
 			if (error_string != undefined) return error_string;
 		}
 
-/* too strict, better use as warning
+		return undefined
+	}
+
+
+	this.warnSingleStatemachine = function(statemachine) {
+		var warnings = [];
+		statemachine.updateDataflow(); // also required by state checking
+
+		var states = statemachine.getStates();
+		for (var i = 0; i < states.length; i++) {
+			if (states[i] instanceof Statemachine) {
+				warnings.push.apply(warnings, that.warnSingleStatemachine(states[i]));
+			}
+			warnings.push.apply(warnings, that.warnSingleState(states[i]));
+		}
+
 		// check output dataflow
 		var dataflow = statemachine.getDataflow();
 		for (var i = 0; i < dataflow.length; i++) {
@@ -117,11 +153,11 @@ Checking = new (function() {
 			if (statemachine.getStateName() == "") {
 				available_userdata = available_userdata.concat(Behavior.getDefaultUserdata().map(function(el) { return el.key; }));
 			}
-			if (d.getTo().getStateClass() == ":OUTCOME" && d.getFrom().getStateName() == "INIT" && !available_userdata.contains(d.getOutcome()))
-				return "state machine " + statemachine.getStatePath() + " has undefined userdata for output key " + d.getOutcome() + " at outcome " + d.getTo().getStateName();
+			if ((d.getTo().getStateClass() == ":OUTCOME" || d.getTo().getStateClass() == ":CONDITION") && d.getFrom().getStateName() == "INIT" && !available_userdata.contains(d.getOutcome()))
+				warnings.push("container " + statemachine.getStatePath() + " has undefined userdata for output key " + d.getOutcome() + " at outcome " + d.getTo().getStateName());
 		}
-*/
-		return undefined
+
+		return warnings;
 	}
 
 	this.checkSingleState = function(state) {
@@ -187,7 +223,17 @@ Checking = new (function() {
 		}
 	}
 
+	this.warnSingleState = function(state) {
+		var warnings = [];
+
+		// unused output keys
+
+		return warnings;
+	}
+
 	this.isValidExpressionSyntax = function(expr, allow_comment) {
+		if (expr.length == 0) return false;
+
 		var opening = ['(', '[', '{', '"', "'"];
 		var closing = [')', ']', '}', '"', "'"];
 
