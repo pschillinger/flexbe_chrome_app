@@ -284,7 +284,7 @@ Statemachine = function(sm_name, sm_definition) {
 			if (additional_outcomes.contains(o)) {
 				addSMOutcome(o);
 				t.forEach(function(so) {
-					that.addTransition(new Transition(that.getStateByName(so[0]), sm_outcomes[-1], so[1], 0));
+					that.addTransition(new Transition(that.getStateByName(so[0]), sm_outcomes[sm_outcomes.length-1], so[1], 0));
 				});
 			} else {
 				o_label = sm_outcomes.findElement(function(oc) {
