@@ -162,9 +162,10 @@ ModelGenerator = new (function() {
 					sm_states.push(sm_state_list);
 				}
 				var state_class = 	(s.state_class == ":STATEMACHINE")? 	state_name :
+									(s.state_class == ":CONCURRENCY")?		state_name :
 									(s.state_class == ":BEHAVIOR")?			Behaviorlib.getByName(s.behavior_class).getStateClass() :
 																			s.state_class;
-				var parameter_values = (s.state_class == ":STATEMACHINE")? undefined : [];
+				var parameter_values = (s.state_class == ":STATEMACHINE" || s.state_class == ":CONCURRENCY")? undefined : [];
 				for (var i=0; i<s.parameter_names.length; i++) {
 					parameter_values.push({key: s.parameter_names[i], value: s.parameter_values[i]});
 				}
@@ -183,8 +184,8 @@ ModelGenerator = new (function() {
 				var state = {
 					state_name: state_name,
 					state_class: state_class,
-					state_pos_x: 30,
-					state_pos_y: 40,
+					state_pos_x: s.position[0] + 30,
+					state_pos_y: s.position[1] + 40,
 					parameter_values: parameter_values,
 					autonomy: autonomy,
 					remapping: remapping,
@@ -192,13 +193,28 @@ ModelGenerator = new (function() {
 				};
 				sm_state_list.sm_states.push(state);
 			}
-			if (s.state_class == ":STATEMACHINE") {
+			if (s.state_class == ":STATEMACHINE" || s.state_class == ":CONCURRENCY") {
+				var conditions = undefined;
+				if (s.state_class == ":CONCURRENCY") {
+					conditions = {
+						outcomes: s.cond_outcome,
+						transitions: []
+					}
+					s.cond_transition.forEach(function(t_msg) {
+						var t = [];
+						for (var i=0; i<t_msg.state_name.length; i++) {
+							t.push([t_msg.state_name[i], t_msg.state_outcome[i]]);
+						}
+						conditions.transitions.push(t);
+					});
+				}
 				sm_defs.push({
 					sm_name: state_name,
 					sm_params: {
 						outcomes: s.outcomes,
-						input_keys: [],
-						output_keys: []
+						input_keys: s.input_keys,
+						output_keys: s.output_keys,
+						conditions: conditions
 					},
 					oc_positions: [],
 					initial: s.initial_state_name 
