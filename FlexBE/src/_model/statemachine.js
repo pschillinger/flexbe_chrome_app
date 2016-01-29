@@ -8,6 +8,7 @@ Statemachine = function(sm_name, sm_definition) {
 	var dataflow = [];
 
 	var concurrent = false;
+	var priority = false;
 
 	var initial_state = undefined;
 	var sm_outcomes = [];
@@ -245,6 +246,14 @@ Statemachine = function(sm_name, sm_definition) {
 		oc_element.setStateName(outcome_new);
 		that.getOutcomes().remove(outcome_old);
 		that.getOutcomes().push(outcome_new);
+	}
+
+	this.isPriority = function() {
+		return priority;
+	}
+
+	this.setPriority = function(new_priority) {
+		priority = new_priority;
 	}
 
 	this.isConcurrent = function() {

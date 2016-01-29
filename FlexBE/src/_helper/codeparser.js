@@ -67,6 +67,8 @@ CodeParser = new (function() {
 	var sm_definition_pattern = /^(?:\s*# ((?:x:-?\d+ y:-?\d+(?:, )?)+))?\s*(\w+) = OperatableStateMachine\(([^)]+)\)/img;
 		// [1] - list of outcome positions, [2] - variable name of the cc, [3] - parameter collection (outcomes, input_keys, output_keys, conditions)
 	var cc_definition_pattern = /^(?:\s*# ((?:x:-?\d+ y:-?\d+(?:, )?)+))?\s*(\w+) = ConcurrencyContainer\(((:?.|\n)*?)\t\]\)\n/img;
+		// [1] - list of outcome positions, [2] - variable name of the sm, [3] - parameter collection (outcomes, input_keys, output_keys)
+	var pc_definition_pattern = /^(?:\s*# ((?:x:-?\d+ y:-?\d+(?:, )?)+))?\s*(\w+) = PriorityContainer\(([^)]+)\)/img;
 		// Matches all variable definitions (including sm! remove those first)
 		// [1] - variable name, [2] - variable value
 	var var_definition_pattern = /^\s*(\w+) = (.+)/img;
@@ -269,7 +271,7 @@ CodeParser = new (function() {
 					pos.push({x: parseInt(xy[0]), y: parseInt(xy[1])});
 				});
 			}
-			sm_defs.push({sm_name: name, sm_params: parseSMIDefinition(params), oc_positions: pos});
+			sm_defs.push({sm_name: name, sm_params: parseSMIDefinition(params), oc_positions: pos, sm_type: 'statemachine'});
 			return "";
 		});
 		// get all cc definitions
@@ -281,7 +283,19 @@ CodeParser = new (function() {
 					pos.push({x: parseInt(xy[0]), y: parseInt(xy[1])});
 				});
 			}
-			sm_defs.push({sm_name: name, sm_params: parseSMIDefinition(params), oc_positions: pos});
+			sm_defs.push({sm_name: name, sm_params: parseSMIDefinition(params), oc_positions: pos, sm_type: 'concurrency'});
+			return "";
+		});
+		// get all pc definitions
+		code = code.replace(pc_definition_pattern, function(s, positions, name, params) {
+			var pos = [];
+			if (positions != undefined && positions != "") {
+				positions.split(", ").forEach(function (element) {
+					var xy = element.replace("x:", "").replace("y:", "").split(" ");
+					pos.push({x: parseInt(xy[0]), y: parseInt(xy[1])});
+				});
+			}
+			sm_defs.push({sm_name: name, sm_params: parseSMIDefinition(params), oc_positions: pos, sm_type: 'priority'});
 			return "";
 		});
 		// get root sm definition

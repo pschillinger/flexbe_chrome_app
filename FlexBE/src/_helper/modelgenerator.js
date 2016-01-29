@@ -59,8 +59,10 @@ ModelGenerator = new (function() {
 			container_sm_def.sm_params.input_keys,
 			container_sm_def.sm_params.output_keys
 		));
-		if (container_sm_def.sm_params.conditions != undefined) {
+		if (container_sm_def.sm_type == "concurrency") {
 			container_sm.setConcurrent(true);
+		} else if (container_sm_def.sm_type == "priority") {
+			container_sm.setPriority(true);
 		}
 		var oc_objs = container_sm.getSMOutcomes();
 		var oc_pos_len = Math.min(oc_objs.length, container_sm_def.oc_positions.length);
@@ -163,9 +165,10 @@ ModelGenerator = new (function() {
 				}
 				var state_class = 	(s.state_class == ":STATEMACHINE")? 	state_name :
 									(s.state_class == ":CONCURRENCY")?		state_name :
+									(s.state_class == ":PRIORITY")?		state_name :
 									(s.state_class == ":BEHAVIOR")?			Behaviorlib.getByName(s.behavior_class).getStateClass() :
 																			s.state_class;
-				var parameter_values = (s.state_class == ":STATEMACHINE" || s.state_class == ":CONCURRENCY")? undefined : [];
+				var parameter_values = (s.state_class == ":STATEMACHINE" || s.state_class == ":CONCURRENCY" || s.state_class == ":PRIORITY")? undefined : [];
 				for (var i=0; i<s.parameter_names.length; i++) {
 					parameter_values.push({key: s.parameter_names[i], value: s.parameter_values[i]});
 				}
@@ -193,7 +196,7 @@ ModelGenerator = new (function() {
 				};
 				sm_state_list.sm_states.push(state);
 			}
-			if (s.state_class == ":STATEMACHINE" || s.state_class == ":CONCURRENCY") {
+			if (s.state_class == ":STATEMACHINE" || s.state_class == ":CONCURRENCY" || s.state_class == ":PRIORITY") {
 				var conditions = undefined;
 				if (s.state_class == ":CONCURRENCY") {
 					conditions = {
@@ -217,6 +220,9 @@ ModelGenerator = new (function() {
 						conditions: conditions
 					},
 					oc_positions: [],
+					sm_type: (s.state_class == ":CONCURRENCY")? "concurrency":
+							 (s.state_class == ":PRIORITY")? "priority" :
+							 "statemachine",
 					initial: s.initial_state_name 
 				});
 			}

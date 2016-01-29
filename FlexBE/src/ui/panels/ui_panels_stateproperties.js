@@ -262,6 +262,9 @@ UI.Panels.StateProperties = new (function() {
 		if (state.isConcurrent()) {
 			document.getElementById("select_container_type").value = "concurrency";
 			document.getElementById("doc_container_type").innerHTML = "Parallel execution of all elements.";
+		} else if (state.isPriority()) {
+			document.getElementById("select_container_type").value = "priority";
+			document.getElementById("doc_container_type").innerHTML = "Execution supersedes all other containers.";
 		} else {
 			document.getElementById("select_container_type").value = "statemachine";
 			document.getElementById("doc_container_type").innerHTML = "Sequential execution based on outcomes.";
@@ -800,9 +803,19 @@ UI.Panels.StateProperties = new (function() {
 	this.containerTypeChanged = function(evt) {
 		if (this.value == 'concurrency') {
 			current_prop_state.setConcurrent(true);
+			current_prop_state.setPriority(false);
 			document.getElementById("doc_container_type").innerHTML = "Parallel execution of all elements.";
+		} else if (this.value == 'priority') {
+			if (current_prop_state.isConcurrent()) {
+				current_prop_state.setConcurrent(false);
+			}
+			current_prop_state.setPriority(true);
+			document.getElementById("doc_container_type").innerHTML = "Execution supersedes all other containers.";
 		} else {
-			current_prop_state.setConcurrent(false);
+			if (current_prop_state.isConcurrent()) {
+				current_prop_state.setConcurrent(false);
+			}
+			current_prop_state.setPriority(false);
 			document.getElementById("doc_container_type").innerHTML = "Sequential execution based on outcomes.";
 		}
 		UI.Statemachine.refreshView();

@@ -40,7 +40,7 @@ CodeGenerator = new (function() {
 		}
 		// put together
 		code += "import roslib; roslib.load_manifest('" + names.rosnode_name + "')\n";
-		code += "from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, Logger\n";
+		code += "from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger\n";
 		code += import_list.join("\n");
 		code += "\n";
 		// add manual imports
@@ -210,6 +210,8 @@ CodeGenerator = new (function() {
 			code += "\t\t# " + pos.join(", ") + "\n";
 			if (sm.isConcurrent()) {
 				code += "\t\t" + sm_name + " = ConcurrencyContainer(outcomes=['" + sm.getOutcomes().join("', '") + "']";
+			} else if (sm.isPriority()) {
+				code += "\t\t" + sm_name + " = PriorityContainer(outcomes=['" + sm.getOutcomes().join("', '") + "']";
 			} else {
 				code += "\t\t" + sm_name + " = OperatableStateMachine(outcomes=['" + sm.getOutcomes().join("', '") + "']";
 			}
