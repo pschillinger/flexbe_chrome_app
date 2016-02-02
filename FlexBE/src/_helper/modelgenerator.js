@@ -77,19 +77,21 @@ ModelGenerator = new (function() {
 		for (var i=0; i<container_states.length; i++) {
 			var s_def = container_states[i];
 			var s;
-			if (s_def.parameter_values == undefined) {
-				// statemachine
+			if (s_def.state_type == "container") {
 				s = that.buildStateMachine(s_def.state_name, s_def.state_class, sm_defs, sm_states, silent);
+			} else if (s_def.state_type == "behavior") {
+				var state_def = Behaviorlib.getByClass(s_def.state_class);
+				if (state_def == undefined) {
+					T.logError("Unable to find behavior definition for: " + s_def.state_class);
+				}
+				s = new BehaviorState(s_def.state_name, state_def);
 			} else {
-				// state
 				var state_def = Statelib.getFromLib(s_def.state_class);
 				if (state_def == undefined) {
-					state_def = Behaviorlib.getByClass(s_def.state_class);
-					s = new BehaviorState(s_def.state_name, state_def);
-				} else {
-					s = new State(s_def.state_name, state_def);
-					s.setParameterValues(helper_getSortedValueList(s.getParameters(), s.getParameterValues(), s_def.parameter_values));
+					T.logError("Unable to find state definition for: " + s_def.state_class);
 				}
+				s = new State(s_def.state_name, state_def);
+				s.setParameterValues(helper_getSortedValueList(s.getParameters(), s.getParameterValues(), s_def.parameter_values));
 			}
 			s.setAutonomy(helper_getSortedValueList(s.getOutcomes(), s.getAutonomy(), s_def.autonomy));
 			s.setInputMapping(helper_getSortedValueList(s.getInputKeys(), s.getInputMapping(), s_def.remapping));
@@ -187,6 +189,9 @@ ModelGenerator = new (function() {
 				var state = {
 					state_name: state_name,
 					state_class: state_class,
+					state_type: (s.state_class == ":BEHAVIOR")? "behavior" :
+								(s.state_class == ":STATEMACHINE" || s.state_class == ":CONCURRENCY" || s.state_class == ":PRIORITY")? "container" :
+								"state",
 					state_pos_x: s.position[0] + 30,
 					state_pos_y: s.position[1] + 40,
 					parameter_values: parameter_values,

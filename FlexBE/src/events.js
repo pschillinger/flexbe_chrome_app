@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('input_db_userdata_value_add').addEventListener('keyup', onEnterFocusChange(UI.Dashboard.addDefaultUserdataClicked, 'input_db_userdata_key_add'));
 
     document.getElementById('button_db_parameter_add').addEventListener('click', UI.Dashboard.addParameterClicked);
+    document.getElementById('input_db_parameter_name_add').addEventListener('keyup', onEnter(UI.Dashboard.addParameterClicked));
     document.getElementById('button_db_parameter_turn').addEventListener('click', UI.Dashboard.turnParameterClicked);
 
 //    document.getElementById('button_db_function_add').addEventListener('click', UI.Dashboard.addPrivateFunctionClicked);

@@ -456,6 +456,7 @@ CodeParser = new (function() {
 
 		// get state class and params
 		var state_class = "";
+		var state_type = "state";
 		var parameter_values = [];
 		var class_result = params[1].match(state_class_pattern);
 		if (class_result != null) {
@@ -477,10 +478,12 @@ CodeParser = new (function() {
 			var behavior_use_result = params[1].match(state_behavior_pattern);
 			if (behavior_use_result != null) {
 				state_class = behavior_use_result[1];
+				state_type = "behavior";
 				parameter_values = [];
 			} else {
 				state_class = params[1];
 				parameter_values = undefined;
+				state_type = "container";
 			}
 		}
 
@@ -544,6 +547,7 @@ CodeParser = new (function() {
 		return {
 			state_name: state_name,
 			state_class: state_class,
+			state_type: state_type,
 			state_pos_x: 30,
 			state_pos_y: 40,
 			parameter_values: parameter_values,		// [key, value]

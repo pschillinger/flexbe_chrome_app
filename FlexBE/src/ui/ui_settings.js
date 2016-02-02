@@ -141,6 +141,7 @@ UI.Settings = new (function() {
 				path_label.type = "text";
 				path_label.value = path;
 				path_label.style.width = "100%";
+				path_label.setAttribute("readonly", "readonly");
 
 				text_cell.appendChild(path_label);
 				remove_cell.appendChild(removeButton);
@@ -168,6 +169,10 @@ UI.Settings = new (function() {
 
 	this.behaviorsChooserClicked = function() {
 		chrome.fileSystem.chooseEntry({type: 'openDirectory'}, function(entry) {
+			if (entry == undefined) {
+				console.log(runtime.lastError);
+				return;
+			}
 			behaviors_folder_id = chrome.fileSystem.retainEntry(entry);
 			chrome.fileSystem.getDisplayPath(entry, function(path) {
 				document.getElementById("input_behaviors_folder").value = path;
@@ -179,6 +184,7 @@ UI.Settings = new (function() {
 
 	this.beChooserClicked = function() {
 		chrome.fileSystem.chooseEntry({type: 'openDirectory'}, function(entry) {
+			if (entry == undefined) return;
 			be_folder_id = chrome.fileSystem.retainEntry(entry);
 			chrome.fileSystem.getDisplayPath(entry, function(path) {
 				document.getElementById("input_be_folder").value = path;
