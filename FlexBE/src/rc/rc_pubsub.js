@@ -211,6 +211,10 @@ RC.PubSub = new (function() {
 								Behavior.getStatemachine().getStateByPath(root_container_path);
 		var root_varname = "";
 		var defs = ModelGenerator.parseInstantiationMsg(result.states);
+		if (defs == undefined) {
+			T.logError('Aborted synthesis because of previous errors.');
+			return;
+		}
 
 		var state_machine = ModelGenerator.buildStateMachine(root_name, root_varname, defs.sm_defs, defs.sm_states, true);
 
