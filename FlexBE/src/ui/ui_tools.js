@@ -3,64 +3,7 @@ UI.Tools = new (function() {
 
 	var command_history = [];
 	var command_history_idx = 0;
-	var command_library = [
-		{
-			desc: "commands",
-			match: /^(cmd|commands|help)$/,
-			impl: function(args) { 
-				printAvailableCommands();
-			},
-			text: "Lists all available commands."
-		},
-		{
-			desc: "findStateUsage [state_class]",
-			match: /^findStateUsage[( ]["']?([a-zA-Z0-9_]+)["']?\)?$/,
-			impl: function(args) {
-				Scripts.findStateUsage(args[1]);
-			},
-			text: "Searches in all behaviors for instantiations of the given class.",
-			completions: [Statelib.getClassList]
-		},
-		{
-			desc: "statemachine [new_name]",
-			match: /^statemachine[( ]["']?([a-zA-Z0-9_]+)["']?\)?$/,
-			impl: function(args) {
-				Tools.createStatemachine(args[1]);
-			},
-			text: "Creates a new state machine with the given name out of all selected states.",
-			completions: [function() { return UI.Statemachine.getSelectedStates().map(function(s) { return s.getStateName(); }); }]
-		},
-		{
-			desc: "synthesize [sm_name] i: [initial] g: [goal]",
-			match: /^synthesize ([a-zA-Z0-9_]+) i: ?(.+?) g: ?(.+?)$/,
-			impl: function(args) {
-				if (UI.Statemachine.isReadonly()) return;
-				var initial_condition = args[2];
-				var goal = args[3];
-				var path = UI.Statemachine.getDisplayedSM().getStatePath() + "/" + args[1];
-				RC.PubSub.requestBehaviorSynthesis(path, UI.Settings.getSynthesisSystem(), goal, initial_condition, ['finished', 'failed']);
-			},
-			text: "Synthesizes a new state machine.",
-			completions: [
-				function() { return UI.Statemachine.getDisplayedSM().getStates().filter(function(s) { return s instanceof Statemachine; }).map(function(sm) { return sm.getStateName(); }) },
-				function() { return ['step', 'stand_prep', 'stand', 'manipulate', 'walk']; },
-				function() { return ['step', 'stand_prep', 'stand', 'manipulate', 'walk']; }
-			]
-		},
-		{
-			desc: "note [text]",
-			match: /^note ([^\n]+)?$/,
-			impl: function(args) {
-				if (UI.Statemachine.isReadonly()) return;
-				var note = new Note(args[1]);
-				note.setContainerPath(UI.Statemachine.getDisplayedSM().getStatePath());
-				Behavior.addCommentNote(note);
-				UI.Statemachine.refreshView();
-			},
-			text: "Adds a new note to the currently displayed state machine.",
-			completions: [Statelib.getClassList]
-		}
-	];
+	var command_library = CommandLib.load();
 
 	Mousetrap.bind("ctrl+space", function() { UI.Tools.toggle(); }, 'keydown');
 	Mousetrap.bind("ctrl+space", function() { UI.Tools.evaluate(); }, 'keyup');
@@ -141,7 +84,8 @@ UI.Tools = new (function() {
 		}
 	}
 
-	var printAvailableCommands = function() {
+
+	this.printAvailableCommands = function() {
 		T.clearLog();
 		T.show();
 		T.logInfo("The following commands are available:");
@@ -149,7 +93,6 @@ UI.Tools = new (function() {
 			T.logInfo(c.desc + '<font style="color: #999; font-style: italic;"> - ' + c.text + '</font>');
 		});
 	}
-
 
 	this.display = function() {
 		if (RC.Controller.isReadonly()) return;

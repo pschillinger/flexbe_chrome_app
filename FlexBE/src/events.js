@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('input_db_userdata_value_add').addEventListener('keyup', onEnterFocusChange(UI.Dashboard.addDefaultUserdataClicked, 'input_db_userdata_key_add'));
 
     document.getElementById('button_db_parameter_add').addEventListener('click', UI.Dashboard.addParameterClicked);
+    document.getElementById('input_db_parameter_name_add').addEventListener('keyup', onEnter(UI.Dashboard.addParameterClicked));
     document.getElementById('button_db_parameter_turn').addEventListener('click', UI.Dashboard.turnParameterClicked);
 
 //    document.getElementById('button_db_function_add').addEventListener('click', UI.Dashboard.addPrivateFunctionClicked);
@@ -70,6 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('button_apply_properties').addEventListener('click', UI.Panels.StateProperties.applyPropertiesClicked);
     document.getElementById('button_close_properties').addEventListener('click', UI.Panels.StateProperties.closePropertiesClicked);
     document.getElementById('button_delete_state').addEventListener('click', UI.Panels.StateProperties.deleteStateClicked);
+
+    document.getElementById('select_container_type').addEventListener('change', UI.Panels.StateProperties.containerTypeChanged);
 
     document.getElementById('cb_display_synthesis').addEventListener('change', UI.Panels.StateProperties.displaySynthesisClicked);
     document.getElementById('button_prop_synthesize').addEventListener('click', UI.Panels.StateProperties.synthesizeClicked);
@@ -135,12 +138,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-chrome.app.window.onClosed.addListener(function() {
+/*chrome.app.window.current().onClosed.addListener(function() {
     // no effect
     if(RC.Controller.isRunning()) {
         RC.PubSub.sendPreemptBehavior();
     }
-});
+});*/
+/*chrome.app.window.current().onbeforeunload = function (evt) {
+    if(RC.Controller.isRunning()) {
+        RC.PubSub.sendPreemptBehavior();
+    }
+}*/
+
+/*window.addEventListener('closed', function() {
+    if(RC.Controller.isRunning()) {
+        RC.PubSub.sendPreemptBehavior();
+    }
+});*/
 
 window.addEventListener('resize', function() {
     UI.Statemachine.recreateDrawingArea();

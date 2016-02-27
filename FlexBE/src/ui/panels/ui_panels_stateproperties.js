@@ -2,6 +2,7 @@ UI.Panels.StateProperties = new (function() {
 	var that = this;
 
 	var current_prop_state;
+	var apply_pulse = undefined;
 
 	var fadeOutBackground = function(id) {
 	 	document.getElementById(id).style.transition = "all 1s ease-out";
@@ -107,6 +108,27 @@ UI.Panels.StateProperties = new (function() {
 		document.getElementById("label_prop_state_class").innerText = state.getStateClass();
 		document.getElementById("label_prop_state_desc").innerText = Statelib.getFromLib(state.getStateClass()).getStateDesc();
 
+		var highlight_apply_button = function() {
+			apply_button = document.getElementById("button_apply_properties");
+			apply_button.style.background = "#fd5";
+	 		
+	 		apply_button.style.transition = "all 0.25s ease-in";
+	 		is_on = false;
+
+	 		var border_pulse = function() {
+	 			if (is_on) {
+	 				apply_button.style.background = "black";
+	 				apply_button.style.color = "white";
+	 			} else {
+	 				apply_button.style.background = "white";
+	 				apply_button.style.color = "black";
+	 			}
+	 			apply_pulse = setTimeout(border_pulse, is_on? 300 : 700);
+	 			is_on = !is_on;
+			}
+			border_pulse();
+		}
+
 		params = state.getParameters();
 		values = state.getParameterValues();
 		if (params.length > 0) {
@@ -134,6 +156,9 @@ UI.Panels.StateProperties = new (function() {
 
 				input_field.addEventListener('blur', function() {
 					this.style.backgroundColor = Checking.isValidExpressionSyntax(this.value, false)? "initial" : "#fca";
+				});
+				input_field.addEventListener('change', function() {
+					highlight_apply_button();
 				});
 			}
 		} else {
@@ -176,6 +201,9 @@ UI.Panels.StateProperties = new (function() {
 				input_field.setAttribute("class", "inline_text_edit");
 				input_field.setAttribute("type", "text");
 				input_field.setAttribute("value", input_mapping[i]);
+				input_field.addEventListener('change', function() {
+					highlight_apply_button();
+				});
 
 				td_input.appendChild(input_field);
 				tr.appendChild(td_label);
@@ -205,6 +233,9 @@ UI.Panels.StateProperties = new (function() {
 				input_field.setAttribute("class", "inline_text_edit");
 				input_field.setAttribute("type", "text");
 				input_field.setAttribute("value", output_mapping[i]);
+				input_field.addEventListener('change', function() {
+					highlight_apply_button();
+				});
 
 				td_input.appendChild(input_field);
 				tr.appendChild(td_label);
@@ -227,6 +258,17 @@ UI.Panels.StateProperties = new (function() {
 		document.getElementById("panel_properties_statemachine").style.display = "block";
 
 		document.getElementById("input_prop_sm_name").value = state.getStateName();
+
+		if (state.isConcurrent()) {
+			document.getElementById("select_container_type").value = "concurrency";
+			document.getElementById("doc_container_type").innerHTML = "Parallel execution of all elements.";
+		} else if (state.isPriority()) {
+			document.getElementById("select_container_type").value = "priority";
+			document.getElementById("doc_container_type").innerHTML = "Execution supersedes all other containers.";
+		} else {
+			document.getElementById("select_container_type").value = "statemachine";
+			document.getElementById("doc_container_type").innerHTML = "Sequential execution based on outcomes.";
+		}
 
 		// Outcomes
 		//----------
@@ -456,12 +498,18 @@ UI.Panels.StateProperties = new (function() {
 		}
 		UI.Panels.setActivePanel(UI.Panels.STATE_PROPERTIES_PANEL);
 		document.activeElement.blur();
+		if (apply_pulse != undefined) clearTimeout(apply_pulse);
+		document.getElementById('button_apply_properties').style.background = "";
+		document.getElementById('button_apply_properties').style.color = "";
 	}
 
 	this.hide = function() {
 		UI.Panels.hidePanelIfActive(UI.Panels.STATE_PROPERTIES_PANEL);
 		current_prop_state = undefined;
 		document.activeElement.blur();
+		if (apply_pulse != undefined) clearTimeout(apply_pulse);
+		document.getElementById('button_apply_properties').style.background = "";
+		document.getElementById('button_apply_properties').style.color = "";
 	}
 
 	this.closePropertiesClicked = function() {
@@ -560,6 +608,7 @@ UI.Panels.StateProperties = new (function() {
 			that.displayStateProperties(current_prop_state);
 			return;
 		}
+		if (apply_pulse != undefined) clearTimeout(apply_pulse);
 		document.getElementById('button_apply_properties').style.transition = "none";
 		document.getElementById('button_apply_properties').style.background = "#9f7";
 
@@ -751,6 +800,27 @@ UI.Panels.StateProperties = new (function() {
 		displayPropertiesForStatemachine(current_prop_state);
 	}
 
+	this.containerTypeChanged = function(evt) {
+		if (this.value == 'concurrency') {
+			current_prop_state.setConcurrent(true);
+			current_prop_state.setPriority(false);
+			document.getElementById("doc_container_type").innerHTML = "Parallel execution of all elements.";
+		} else if (this.value == 'priority') {
+			if (current_prop_state.isConcurrent()) {
+				current_prop_state.setConcurrent(false);
+			}
+			current_prop_state.setPriority(true);
+			document.getElementById("doc_container_type").innerHTML = "Execution supersedes all other containers.";
+		} else {
+			if (current_prop_state.isConcurrent()) {
+				current_prop_state.setConcurrent(false);
+			}
+			current_prop_state.setPriority(false);
+			document.getElementById("doc_container_type").innerHTML = "Sequential execution based on outcomes.";
+		}
+		UI.Statemachine.refreshView();
+	}
+
 	this.displaySynthesisClicked = function(evt) {
 		if (evt.target.checked) {
 			document.getElementById('panel_prop_sm_synthesis').style.display = "block";
@@ -771,6 +841,8 @@ UI.Panels.StateProperties = new (function() {
 	this.synthesizeClicked = function() {
 		var initial_condition = document.getElementById('input_prop_synthesis_initial').value;
 		var goal = document.getElementById('input_prop_synthesis_goal').value;
+		document.getElementById("cb_display_synthesis").checked = false;
+		document.getElementById('panel_prop_sm_synthesis').style.display = "none";
 
 		RC.PubSub.requestBehaviorSynthesis(
 			current_prop_state.getStatePath(),

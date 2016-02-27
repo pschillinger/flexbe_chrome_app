@@ -65,6 +65,10 @@ CodeParser = new (function() {
 		// Matches all state machine definitions (root and subs)
 		// [1] - list of outcome positions, [2] - variable name of the sm, [3] - parameter collection (outcomes, input_keys, output_keys)
 	var sm_definition_pattern = /^(?:\s*# ((?:x:-?\d+ y:-?\d+(?:, )?)+))?\s*(\w+) = OperatableStateMachine\(([^)]+)\)/img;
+		// [1] - list of outcome positions, [2] - variable name of the cc, [3] - parameter collection (outcomes, input_keys, output_keys, conditions)
+	var cc_definition_pattern = /^(?:\s*# ((?:x:-?\d+ y:-?\d+(?:, )?)+))?\s*(\w+) = ConcurrencyContainer\(((:?.|\n)*?)\t\]\)\n/img;
+		// [1] - list of outcome positions, [2] - variable name of the sm, [3] - parameter collection (outcomes, input_keys, output_keys)
+	var pc_definition_pattern = /^(?:\s*# ((?:x:-?\d+ y:-?\d+(?:, )?)+))?\s*(\w+) = PriorityContainer\(([^)]+)\)/img;
 		// Matches all variable definitions (including sm! remove those first)
 		// [1] - variable name, [2] - variable value
 	var var_definition_pattern = /^\s*(\w+) = (.+)/img;
@@ -267,7 +271,31 @@ CodeParser = new (function() {
 					pos.push({x: parseInt(xy[0]), y: parseInt(xy[1])});
 				});
 			}
-			sm_defs.push({sm_name: name, sm_params: parseSMIDefinition(params), oc_positions: pos});
+			sm_defs.push({sm_name: name, sm_params: parseSMIDefinition(params), oc_positions: pos, sm_type: 'statemachine'});
+			return "";
+		});
+		// get all cc definitions
+		code = code.replace(cc_definition_pattern, function(s, positions, name, params) {
+			var pos = [];
+			if (positions != undefined && positions != "") {
+				positions.split(", ").forEach(function (element) {
+					var xy = element.replace("x:", "").replace("y:", "").split(" ");
+					pos.push({x: parseInt(xy[0]), y: parseInt(xy[1])});
+				});
+			}
+			sm_defs.push({sm_name: name, sm_params: parseSMIDefinition(params), oc_positions: pos, sm_type: 'concurrency'});
+			return "";
+		});
+		// get all pc definitions
+		code = code.replace(pc_definition_pattern, function(s, positions, name, params) {
+			var pos = [];
+			if (positions != undefined && positions != "") {
+				positions.split(", ").forEach(function (element) {
+					var xy = element.replace("x:", "").replace("y:", "").split(" ");
+					pos.push({x: parseInt(xy[0]), y: parseInt(xy[1])});
+				});
+			}
+			sm_defs.push({sm_name: name, sm_params: parseSMIDefinition(params), oc_positions: pos, sm_type: 'priority'});
 			return "";
 		});
 		// get root sm definition
@@ -327,10 +355,11 @@ CodeParser = new (function() {
 		var result = {
 			outcomes: [],
 			input_keys: [],
-			output_keys: []
+			output_keys: [],
+			conditions: undefined
 		};
 
-		var param_list = sm_params.replace(/\s/g, "").split(/,(?=(outcomes|input_keys|output_keys))/g);
+		var param_list = sm_params.replace(/([()[\],])\s+/g, "$1").split(/,(?=(outcomes|input_keys|output_keys|conditions))/g);
 		for(var i=0; i<param_list.length; ++i) {
 			var opt = param_list[i].split("=");
 			if (opt.length != 2) continue;
@@ -366,6 +395,23 @@ CodeParser = new (function() {
 					} else {
 						result.output_keys.push(output_list[j]);
 					}
+				}
+			} else if (opt[0] == "conditions") {
+				result.conditions = {
+					outcomes: [],
+					transitions: []
+				};
+				var condition_list = opt[1].replace(/^\[\(/, "").replace(/\)$/, "").split(")]),(");
+				for (var j=0; j<condition_list.length; ++j) {
+					var ot_split = condition_list[j].replace(/\)\]$/, "").split(",[(");
+					result.conditions.outcomes.push(ot_split[0].replace(/'/g, ""));
+					transitions_list = [];
+					var t_split = ot_split[1].split("),(");
+					for (var k=0; k<t_split.length; ++k) {
+						var so_split = t_split[k].split("','");
+						transitions_list.push([so_split[0].replace("'", ""),so_split[1].replace("'", "")]);
+					}
+					result.conditions.transitions.push(transitions_list);
 				}
 			}
 		}
@@ -410,6 +456,7 @@ CodeParser = new (function() {
 
 		// get state class and params
 		var state_class = "";
+		var state_type = "state";
 		var parameter_values = [];
 		var class_result = params[1].match(state_class_pattern);
 		if (class_result != null) {
@@ -431,10 +478,12 @@ CodeParser = new (function() {
 			var behavior_use_result = params[1].match(state_behavior_pattern);
 			if (behavior_use_result != null) {
 				state_class = behavior_use_result[1];
+				state_type = "behavior";
 				parameter_values = [];
 			} else {
 				state_class = params[1];
 				parameter_values = undefined;
+				state_type = "container";
 			}
 		}
 
@@ -498,6 +547,7 @@ CodeParser = new (function() {
 		return {
 			state_name: state_name,
 			state_class: state_class,
+			state_type: state_type,
 			state_pos_x: 30,
 			state_pos_y: 40,
 			parameter_values: parameter_values,		// [key, value]

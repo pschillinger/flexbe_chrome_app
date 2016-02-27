@@ -315,7 +315,7 @@ UI.Statemachine = new (function() {
 		// draw
 		drawings.push(displaySMPath());
 		drawings.push(displayInitialDot());
-
+		
 		for (var i=0; i<states.length; ++i) {
 			var s = states[i];
 			var a = RC.Controller.isRunning() && RC.Controller.isCurrentState(s, true);
@@ -438,6 +438,10 @@ UI.Statemachine = new (function() {
 
 	this.connectTransition = function(state) {
 		if (!connecting) return;
+		if (displayed_sm.isConcurrent() 
+			&& state.getStateClass() != ':CONDITION' 
+			&& drag_transition.getFrom().getStateName() != "INIT") 
+			return;
 
 		var is_initial = drag_transition == displayed_sm.getInitialTransition();
 		var has_transition = displayed_sm.hasTransition(drag_transition);
@@ -453,6 +457,9 @@ UI.Statemachine = new (function() {
 
 			if (!has_transition) {
 				displayed_sm.addTransition(drag_transition);
+			}
+			if (displayed_sm.isConcurrent()) {
+				displayed_sm.tryDuplicateOutcome(state.getStateName().split('#')[0]);
 			}
 		} else {
 			displayed_sm.setInitialState(state);

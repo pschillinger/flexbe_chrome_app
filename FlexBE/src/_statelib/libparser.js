@@ -3,25 +3,34 @@ LibParser = new (function() {
 
 	var lib_folders = [];
 
-	var parseFolder = function(folder, import_path) {
-		Filesystem.getFolderContent(folder, function(entries) {
-			entries.sort().forEach(function(entry, i) {
-				if(entry.isDirectory) {
-					parseFolder(entry, import_path);
-				} else {
-					chrome.fileSystem.getDisplayPath(entry, function(path) {
-						if (!path.endsWith(".py")) return;
-						entry.file(function(file) {
-							var reader = new FileReader();
-							reader.onload = function(e) {
-								var contents = e.target.result;
-								var imports = path.replace(import_path, "").replace(/.py$/i, "").replace(/[\/]/g, ".");
-								parseState(contents, imports);
-							};
-							reader.readAsText(file);
+	var parseFolder = function(folder, import_path, has_init) {
+		Filesystem.checkFileExists(folder, "__init__.py", function(exists) {
+			has_init = has_init || exists;
+			Filesystem.getFolderContent(folder, function(entries) {
+				entries.sort().forEach(function(entry, i) {
+					if(entry.isDirectory) {
+						if (!has_init) {
+							chrome.fileSystem.getDisplayPath(entry, function(path) {
+								parseFolder(entry, path.slice(0, path.lastIndexOf("/") + 1), has_init);
+							});
+						} else {
+							parseFolder(entry, import_path, has_init);
+						}
+					} else if (has_init) {
+						chrome.fileSystem.getDisplayPath(entry, function(path) {
+							if (!path.endsWith(".py")) return;
+							entry.file(function(file) {
+								var reader = new FileReader();
+								reader.onload = function(e) {
+									var contents = e.target.result;
+									var imports = path.replace(import_path, "").replace(/.py$/i, "").replace(/[\/]/g, ".");
+									parseState(contents, imports);
+								};
+								reader.readAsText(file);
+							});
 						});
-					});
-				}
+					}
+				});
 			});
 		});
 	}
@@ -37,7 +46,7 @@ LibParser = new (function() {
 			// Has two matches: 1) key 2) list
 		var list_pattern = /(\w+)=\[(.*)\]/i;
 			// Finds conditions to be monitored
-		var monitor_pattern = /^\s*self\.monitor\((?:self|[A-Za-z]+State).([A-Z_0-9]+)\)/igm;
+		var monitor_pattern = /^\s*self\.monitor\(.+?,\s*["']([A-Z_0-9]+)["']\)/igm;
 
 		var name_desc_results = content.match(name_desc_pattern);
 		if (name_desc_results == null) return;
@@ -207,7 +216,7 @@ LibParser = new (function() {
 		for(var i=0; i<lib_folders.length; ++i) {
 			chrome.fileSystem.restoreEntry(lib_folders[i], function(entry) {
 				chrome.fileSystem.getDisplayPath(entry, function(path) {
-					parseFolder(entry, path.slice(0, path.lastIndexOf("/") + 1));
+					parseFolder(entry, path.slice(0, path.lastIndexOf("/") + 1), false);
 				});
 			});
 		}

@@ -8,6 +8,8 @@ Tools = new (function() {
 		if (s instanceof Statemachine) {
 			var state_def = new StateMachineDefinition(s.getOutcomes(), s.getInputKeys(), s.getOutputKeys());
 			new_state = new Statemachine(s.getStateName(), state_def);
+			new_state.setConcurrent(s.isConcurrent());
+			new_state.setPriority(s.isPriority());
 			s.getStates().forEach(function (element) {
 				pasteStateInto(element, new_state);
 			});
@@ -219,7 +221,7 @@ Tools = new (function() {
 	this.createStatemachine = function(name) {
 		that.cut();
 		if (clipboard.length == 0) {
-			T.clearLogs();
+			T.clearLog();
 			T.show();
 			T.logWarn("No states selected!");
 			return;
@@ -231,6 +233,41 @@ Tools = new (function() {
 		UI.Panels.StateProperties.openStatemachine();
 		that.paste();
 		UI.Statemachine.setDisplayedSM(sm.getContainer());
+	}
+
+	this.autoconnect = function() {
+		var getClosestState = function(pos, state) {
+			var dist = undefined;
+			var closest = undefined;
+			sm.getStates().forEach(function(other) {
+				var other_dist = Math.sqrt(Math.pow(other.getPosition().x - pos.x, 2) + Math.pow(other.getPosition().y - pos.y, 2));
+				if ((state == undefined || state.getStateName() != other.getStateName())
+					&& (dist == undefined || dist > other_dist)) {
+					dist = other_dist;
+					closest = other;
+				}
+			});
+			return closest;
+		};
+		var sm = UI.Statemachine.getDisplayedSM();
+		sm.getStates().forEach(function(state) {
+			var unconnected = state.getOutcomesUnconnected().clone();
+			unconnected.forEach(function(outcome, i) {
+				if (sm.getOutcomes().contains(outcome)) {
+					sm.addTransition(new Transition(state, sm.getSMOutcomeByName(outcome), outcome, 0));
+					if (sm.isConcurrent()) sm.tryDuplicateOutcome(outcome);
+				} else if (i == 0) {
+					var closest = getClosestState(state.getPosition(), state);
+					if (closest != undefined) {
+						sm.addTransition(new Transition(state, closest, outcome, 0));
+					}
+				}
+			});
+		});
+		if (sm.getInitialState() == undefined) {
+			sm.setInitialState(getClosestState({x: 0, y: 0}));
+		}
+		UI.Statemachine.refreshView();
 	}
 
 	this.getClipboard = function() {

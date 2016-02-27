@@ -890,7 +890,7 @@ UI.Dashboard = new (function() {
 			min_input.setAttribute("class", "input_field");
 			min_input.setAttribute("type", "text");
 			min_input.addEventListener("blur", function() {
-				if (this.value.match(/^[0-9]+(\.[0-9]+)?$/i) == undefined) return;
+				if (this.value.match(/^-?[0-9]+(\.[0-9]+)?$/i) == undefined) return;
 				var name = this.getAttribute("name");
 				var additional = Behavior.getBehaviorParameters().findElement(function(element) {
 					return element.name == name;
@@ -912,7 +912,7 @@ UI.Dashboard = new (function() {
 			max_input.setAttribute("class", "input_field");
 			max_input.setAttribute("type", "text");
 			max_input.addEventListener("blur", function() {
-				if (this.value.match(/^[0-9]+(\.[0-9]+)?$/i) == undefined) return;
+				if (this.value.match(/^-?[0-9]+(\.[0-9]+)?$/i) == undefined) return;
 				var name = this.getAttribute("name");
 				var additional = Behavior.getBehaviorParameters().findElement(function(element) {
 					return element.name == name;

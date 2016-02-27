@@ -54,11 +54,20 @@ ModelGenerator = new (function() {
 		var container_sm_def = sm_defs.findElement(function(element) {
 			return element.sm_name == container_sm_var_name;
 		});
+		if (container_sm_def == undefined) {
+			T.logError('Unknown container definition: ' + container_sm_var_name);
+			return new Statemachine(container_name, Statelib.getFromLib(':CONTAINER'));
+		}
 		var container_sm = new Statemachine(container_name, new StateMachineDefinition(
 			container_sm_def.sm_params.outcomes,
 			container_sm_def.sm_params.input_keys,
 			container_sm_def.sm_params.output_keys
 		));
+		if (container_sm_def.sm_type == "concurrency") {
+			container_sm.setConcurrent(true);
+		} else if (container_sm_def.sm_type == "priority") {
+			container_sm.setPriority(true);
+		}
 		var oc_objs = container_sm.getSMOutcomes();
 		var oc_pos_len = Math.min(oc_objs.length, container_sm_def.oc_positions.length);
 		for (var i = 0; i < oc_pos_len; i++) {
@@ -72,19 +81,25 @@ ModelGenerator = new (function() {
 		for (var i=0; i<container_states.length; i++) {
 			var s_def = container_states[i];
 			var s;
-			if (s_def.parameter_values == undefined) {
-				// statemachine
+			if (s_def.state_type == "container") {
 				s = that.buildStateMachine(s_def.state_name, s_def.state_class, sm_defs, sm_states, silent);
+			} else if (s_def.state_type == "behavior") {
+				var state_def = Behaviorlib.getByClass(s_def.state_class);
+				if (state_def == undefined) {
+					T.logError("Unable to find behavior definition for: " + s_def.state_class);
+					T.logInfo("Please check your workspace settings.");
+					continue;
+				}
+				s = new BehaviorState(s_def.state_name, state_def);
 			} else {
-				// state
 				var state_def = Statelib.getFromLib(s_def.state_class);
 				if (state_def == undefined) {
-					state_def = Behaviorlib.getByClass(s_def.state_class);
-					s = new BehaviorState(s_def.state_name, state_def);
-				} else {
-					s = new State(s_def.state_name, state_def);
-					s.setParameterValues(helper_getSortedValueList(s.getParameters(), s.getParameterValues(), s_def.parameter_values));
+					T.logError("Unable to find state definition for: " + s_def.state_class);
+					T.logInfo("Please check your workspace settings.");
+					continue;
 				}
+				s = new State(s_def.state_name, state_def);
+				s.setParameterValues(helper_getSortedValueList(s.getParameters(), s.getParameterValues(), s_def.parameter_values));
 			}
 			s.setAutonomy(helper_getSortedValueList(s.getOutcomes(), s.getAutonomy(), s_def.autonomy));
 			s.setInputMapping(helper_getSortedValueList(s.getInputKeys(), s.getInputMapping(), s_def.remapping));
@@ -106,24 +121,49 @@ ModelGenerator = new (function() {
 		
 
 		// add transitions (requires to have all states)
-		for (var i=0; i<container_states.length; i++) {
-			var s_def = container_states[i];
+		if (container_sm.isConcurrent()) {
+			container_sm.setConditions(container_sm_def.sm_params.conditions);
+			// only initial state has autonomy levels
+			var s_def = container_states[0];
 			var state_from = container_sm.getStateByName(s_def.state_name);
 			for (var j=0; j<s_def.transitions_from.length; j++) {
 				var trans_def = s_def.transitions_from[j];
-				var state_to;
-				if (container_sm.getOutcomes().contains(trans_def.target)) {
-					state_to = container_sm.getSMOutcomeByName(trans_def.target);
-				} else {
-					state_to = container_sm.getStateByName(trans_def.target);
-				}
 				var autonomy_idx = state_from.getOutcomes().indexOf(trans_def.outcome);
 				var autonomy = state_from.getAutonomy()[autonomy_idx];
-				var trans = new Transition(state_from, state_to, trans_def.outcome, autonomy);
-				container_sm.addTransition(trans);
+				var trans = container_sm.getTransitions().findElement(function(t) {
+					return t.getFrom().getStateName() == s_def.state_name
+						&& t.getOutcome() == trans_def.outcome;
+				});
+				if (trans == undefined) {
+					T.logWarn('Missing conditional transition definition for: ' + s_def.state_name + ' > ' + trans_def.outcome);
+					continue;
+				}
+				trans.setAutonomy(autonomy);
+			}
+		} else {
+			for (var i=0; i<container_states.length; i++) {
+				var s_def = container_states[i];
+				var state_from = container_sm.getStateByName(s_def.state_name);
+				for (var j=0; j<s_def.transitions_from.length; j++) {
+					var trans_def = s_def.transitions_from[j];
+					var state_to;
+					if (container_sm.getOutcomes().contains(trans_def.target)) {
+						state_to = container_sm.getSMOutcomeByName(trans_def.target);
+					} else if (!container_sm.isConcurrent()) {
+						state_to = container_sm.getStateByName(trans_def.target);
+					}
+					if (state_to == undefined) {
+						T.logWarn('Unknown transition target of state ' + s_def.state_name + ': ' + trans_def.target);
+						continue;
+					}
+					var autonomy_idx = state_from.getOutcomes().indexOf(trans_def.outcome);
+					var autonomy = state_from.getAutonomy()[autonomy_idx];
+					var trans = new Transition(state_from, state_to, trans_def.outcome, autonomy);
+					container_sm.addTransition(trans);
+				}
 			}
 		}
-		
+
 		return container_sm;
 	}
 
@@ -131,20 +171,57 @@ ModelGenerator = new (function() {
 		var sm_defs = [];
 		var sm_states = [];
 
+		var required_properties = [
+			'state_path', 'state_class',
+			'initial_state_name', 'input_keys', 'output_keys',
+			'cond_outcome', 'cond_transition',
+			'behavior_class',
+			'parameter_names', 'parameter_values',
+			'position',
+			'outcomes', 'transitions', 'autonomy',
+			'userdata_keys', 'userdata_remapping'];
+		var missing_properties = [];
+		for (property of required_properties) {
+			if (!states[0].hasOwnProperty(property)) {
+				missing_properties.push(property);
+			}
+		}
+		if (missing_properties.length > 0) {
+			T.clearLog();
+			T.logError('Missing required properties in message definition:');
+			T.logError(missing_properties.join(', '));
+			T.logInfo('Make sure you use the correct version of the StateInstantiation message.');
+			return undefined;
+		}
+		
+
 		states.forEach(function(s) {
 			var path_split = s.state_path.split("/");
-			var container_name = path_split[path_split.length - 2];
-			var state_name = path_split[path_split.length - 1];
+			var container_name = path_split.slice(0, -1).join('_');
+			var state_name = path_split.slice(-1)[0];
+			var sm_varname = (state_name == '')? '' : container_name + '_' + state_name;
 			if (state_name != "") {
 				var sm_state_list = sm_states.findElement(function(el) { return el.sm_name == container_name; });
 				if (sm_state_list == undefined) {
 					sm_state_list = { sm_name: container_name, sm_states: [] };
 					sm_states.push(sm_state_list);
 				}
-				var state_class = 	(s.state_class == ":STATEMACHINE")? 	state_name :
-									(s.state_class == ":BEHAVIOR")?			s.behavior_class :
-																			s.state_class;
-				var parameter_values = (s.state_class == ":STATEMACHINE")? undefined : [];
+				var state_type = "state";
+				var state_class = s.state_class;
+				if (state_class == ":STATEMACHINE" || state_class == ":CONCURRENCY" || state_class == ":PRIORITY") {
+					state_type = "container";
+					state_class = sm_varname;
+				}
+				if (state_class == ":BEHAVIOR") {
+					state_type = "behavior";
+					behavior_def = Behaviorlib.getByName(s.behavior_class);
+					if (behavior_def == undefined) {
+						T.logWarn('Unknown behavior reference: ' + s.behavior_class);
+						return;
+					}
+					state_class = behavior_def.getStateClass();
+				}
+				var parameter_values = [];
 				for (var i=0; i<s.parameter_names.length; i++) {
 					parameter_values.push({key: s.parameter_names[i], value: s.parameter_values[i]});
 				}
@@ -160,11 +237,20 @@ ModelGenerator = new (function() {
 				for (var i=0; i<s.transitions.length; i++) {
 					transitions_from.push({outcome: s.outcomes[i], target: s.transitions[i]});
 				}
+				var pos_x = 0;
+				var pos_y = 0;
+				if (s.position.length == 2) {
+					pos_x = s.position[0];
+					pos_y = s.position[1];
+				} else {
+					T.logWarn('Invalid position definition for state: ' + state_name);
+				}
 				var state = {
 					state_name: state_name,
 					state_class: state_class,
-					state_pos_x: 30,
-					state_pos_y: 40,
+					state_type: state_type,
+					state_pos_x: pos_x + 30,
+					state_pos_y: pos_y + 40,
 					parameter_values: parameter_values,
 					autonomy: autonomy,
 					remapping: remapping,
@@ -172,15 +258,33 @@ ModelGenerator = new (function() {
 				};
 				sm_state_list.sm_states.push(state);
 			}
-			if (s.state_class == ":STATEMACHINE") {
+			if (s.state_class == ":STATEMACHINE" || s.state_class == ":CONCURRENCY" || s.state_class == ":PRIORITY") {
+				var conditions = undefined;
+				if (s.state_class == ":CONCURRENCY") {
+					conditions = {
+						outcomes: s.cond_outcome,
+						transitions: []
+					}
+					s.cond_transition.forEach(function(t_msg) {
+						var t = [];
+						for (var i=0; i<t_msg.state_name.length; i++) {
+							t.push([t_msg.state_name[i], t_msg.state_outcome[i]]);
+						}
+						conditions.transitions.push(t);
+					});
+				}
 				sm_defs.push({
-					sm_name: state_name,
+					sm_name: sm_varname,
 					sm_params: {
 						outcomes: s.outcomes,
-						input_keys: [],
-						output_keys: []
+						input_keys: s.input_keys,
+						output_keys: s.output_keys,
+						conditions: conditions
 					},
 					oc_positions: [],
+					sm_type: (s.state_class == ":CONCURRENCY")? "concurrency":
+							 (s.state_class == ":PRIORITY")? "priority" :
+							 "statemachine",
 					initial: s.initial_state_name 
 				});
 			}

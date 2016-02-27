@@ -324,7 +324,11 @@ Behavior = new (function() {
 				var transition = transitions.findElement(function(element) {
 					return element.getFrom().getStateName() == s.getStateName() && element.getOutcome() == result.outcomes[i];
 				});
-				result.transitions.push(transition.getTo().getStateName());
+				var target_name = transition.getTo().getStateName();
+				if (s.getContainer().isConcurrent() && transition.getTo().getStateClass() == ':CONDITION') {
+					target_name = target_name.split('#')[0];
+				}
+				result.transitions.push(target_name);
 			}
 		}
 		result.children = [];

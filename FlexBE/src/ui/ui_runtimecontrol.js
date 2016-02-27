@@ -140,7 +140,7 @@ UI.RuntimeControl = new (function() {
 			return drawable;
 		}
 
-		if (state_obj.getStateClass() == ":OUTCOME")
+		if (state_obj.getStateClass() == ":OUTCOME" || state_obj.getStateClass() == ":CONDITION")
 			return new Drawable.Outcome(state_obj, R, true);
 
 		return new Drawable.State(state_obj, R, true, mode, active, locked);
@@ -312,51 +312,35 @@ UI.RuntimeControl = new (function() {
 			} else if (params[i].type == "yaml") {
 				var add_button = document.createElement("input");
 				add_button.setAttribute("type", "button");
-				add_button.setAttribute("value", "Add .yaml");
+				add_button.setAttribute("value", "...");
 				add_button.addEventListener('click', function() {
 					var button = this;
 					chrome.fileSystem.chooseEntry({type: 'openFile'}, function(entry) {
-						var name = Filesystem.getFileName(entry.name, false);
-						var displayname = (name.length > 28)? name.slice(0,25) + "..." : name;
-						var opt = document.createElement("option");
-						opt.setAttribute("value", chrome.fileSystem.retainEntry(entry));
-						opt.setAttribute("title", name);
-						opt.innerHTML = displayname;
-						button.parentNode.parentNode.children[2].children[0].appendChild(opt);
+						button.parentNode.parentNode.children[0].children[0].setAttribute("value", entry.name);
 					});
 				});
 
-				var select = document.createElement("select");
-				select.setAttribute("name", params[i].name);
-				select.setAttribute("key", params[i].additional.key);
+				var file_input = document.createElement("input");
+				file_input.setAttribute("type", "text");
+				file_input.setAttribute("value", params[i].default);
+				file_input.setAttribute("key", params[i].additional.key);
+				file_input.setAttribute("style", "width: 300px");
 
-				var rmv_button = document.createElement("input");
-				rmv_button.setAttribute("type", "button");
-				rmv_button.setAttribute("value", "Remove");
-				rmv_button.addEventListener('click', function() {
-					var select = this.parentNode.parentNode.children[2].children[0];
-					select.options[select.selectedIndex].remove();
-				});
-
+				var file_td = document.createElement("td");
+				file_td.appendChild(file_input);
 				var add_td = document.createElement("td");
 				add_td.appendChild(add_button);
 				var key_label_td = document.createElement("td");
-				key_label_td.innerHTML = "(key: " + params[i].additional.key + ")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-				var select_td = document.createElement("td");
-				select_td.appendChild(select);
-				var rmv_td = document.createElement("td");
-				rmv_td.appendChild(rmv_button);
+				key_label_td.innerHTML = (params[i].additional.key != "")? "(key: " + params[i].additional.key + ")" : "";
 
 				var yaml_tr = document.createElement("tr");
-				yaml_tr.appendChild(add_td);
+				yaml_tr.appendChild(file_td);
+				//yaml_tr.appendChild(add_td);
 				yaml_tr.appendChild(key_label_td);
-				yaml_tr.appendChild(select_td);
-				yaml_tr.appendChild(rmv_td);
 				var yaml_table = document.createElement("table");
 				yaml_table.appendChild(yaml_tr);
 				value_td.appendChild(yaml_table);
 			}
-			value_td
 
 			var hint_td = document.createElement("td");
 			hint_td.setAttribute("width", "25%");
@@ -414,36 +398,10 @@ UI.RuntimeControl = new (function() {
 				result.push({name: name, value: value});
 				checkResult();
 			} else if (type == "yaml") {
-				var list = c.children[1].children[0].children[0].children[2].children[0].options;
-				var key = c.children[1].children[0].children[0].children[2].children[0].getAttribute("key");
-				var value_list = [];
-				var yamlsToGo = list.length;
-				var checkYamlResult = function(yn, tg, vl) {
-					tg -= 1;
-					if (tg == 0) {
-						result.push({name: yn, value: vl.join(", ")});
-						checkResult();
-					}
-				}
-				var inner_loop = function(yaml_name, list, key, value_list, yamlsToGo) {
-					for (var j=0; j<list.length; j++) {
-						chrome.fileSystem.restoreEntry(list[j].value, function(entry) {
-							Filesystem.readFile(entry, function(content) {
-								var yaml_obj = YAML.parse(content);
-								var yaml_value = yaml_obj[key];
-								if (yaml_value == undefined) {
-									T.logWarn("Key " + key + " not found in " + entry.filename + "!");
-									return;
-								} else if (yaml_value instanceof Array) {
-									yaml_value = yaml_value.join(", ");
-								}
-								value_list.push(yaml_value);
-								checkYamlResult(yaml_name, yamlsToGo, value_list);
-							});
-						});
-					}
-				}
-				inner_loop(name, list, key, value_list, yamlsToGo);
+				value = c.children[1].children[0].children[0].children[0].children[0].value;
+				var key = c.children[1].children[0].children[0].children[0].children[0].getAttribute('key');
+				result.push({name: "YAML:" + name, value: value + ":" + key});
+				checkResult();
 			}
 		}
 	}

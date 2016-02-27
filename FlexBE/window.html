@@ -18,6 +18,7 @@
 	<script src="src/_helper/checking.js"></script>
 	<script src="src/_helper/codegenerator.js"></script>
 	<script src="src/_helper/codeparser.js"></script>
+	<script src="src/_helper/command_lib.js"></script>
 	<script src="src/_helper/manifestgenerator.js"></script>
 	<script src="src/_helper/manifestparser.js"></script>
 	<script src="src/_helper/modelgenerator.js"></script>
@@ -408,12 +409,12 @@
 			<table  class="box_table" style="width: 100%; padding-right: 5px; margin-top: 5px">
 				<tr>
 					<td>Behaviors folder: </td>
-					<td><input id="input_behaviors_folder" type="text" class="input_field" value="" /></td>
+					<td><input id="input_behaviors_folder" type="text" class="input_field" value="" readonly /></td>
 					<td><input id="button_behaviors_chooser" type="button" value="..." /></td>
 				</tr>
 				<tr>
 					<td>flexbe_behaviors: </td>
-					<td><input id="input_be_folder" type="text" class="input_field" value="" /></td>
+					<td><input id="input_be_folder" type="text" class="input_field" value="" readonly /></td>
 					<td><input id="button_be_chooser" type="button" value="..." /></td>
 				</tr>
 			</table>
@@ -594,9 +595,19 @@
 			<div style="font-weight: bold;">
 				<input id="input_prop_sm_name" class="inline_title_text_edit" type="text" />
 			</div>
-			<div style="font-style: italic; padding: 0px 5px; color: gray;">Statemachine</div>
+			<div style="font-style: italic; padding: 0px 5px; margin-top: 5px; color: gray;">
+				Type: 
+				<select id="select_container_type">
+					<option value="statemachine">Statemachine</option>
+					<option value="concurrency">Concurrency</option>
+					<option value="priority">Priority</option>
+				</select>
+				<div id="doc_container_type" style="margin-top: 5px;">
+					Sequential execution based on outcomes.
+				</div>
+			</div>
 
-			<br /><input id="button_view_statemachine" type="button" value="Open this Statemachine" />
+			<br /><input id="button_view_statemachine" type="button" value="Open this Container" />
 			<div id="synthesis_display_option" style="display: inline;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<input id="cb_display_synthesis" type="checkbox" /> Display synthesis
 			</div>

@@ -21,7 +21,10 @@ Drawable.Statemachine = function(state_obj, target_paper, readonly, mode, active
 		.dblclick(Drawable.Helper.enterStatemachine);
 	width = Math.max(width, state_name.getBBox().width);
 
-	state_class = paper.text(8, 25, "Statemachine")
+	state_class = paper.text(8, 25, 
+		state_obj.isConcurrent()? "Concurrency":
+		state_obj.isPriority()? "Priority": 
+		"Statemachine")
 		.attr({"text-anchor": 'start', fill: '#555'});
 	if (!readonly) state_class
 		.attr({'cursor': 'pointer'})
