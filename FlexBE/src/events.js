@@ -7,8 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('devbanner').addEventListener('mouseenter', UI.Menu.expandDevbanner);
     document.getElementById('devbanner').addEventListener('mouseleave', UI.Menu.shrinkDevbanner);
 
-    document.getElementById('input_flexbe_namespace').addEventListener('blur', RC.ROS.namespaceChanged);
-
     document.getElementById('button_to_db').addEventListener('click', UI.Menu.toDashboardClicked);
     document.getElementById('button_to_sm').addEventListener('click', UI.Menu.toStatemachineClicked);
     document.getElementById('button_to_rc').addEventListener('click', UI.Menu.toControlClicked);

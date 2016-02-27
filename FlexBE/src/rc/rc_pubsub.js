@@ -361,13 +361,15 @@ RC.PubSub = new (function() {
 		});
 
 		// Action Clients
-		if (UI.Settings.isSynthesisEnabled()) that.initializeSynthesisAction();
+		if (UI.Settings.isSynthesisEnabled()) that.initializeSynthesisAction(ns);
 	}
 
-	this.initializeSynthesisAction = function() {
+	this.initializeSynthesisAction = function(ns) {
+		var topic = UI.Settings.getSynthesisTopic();
+		if (!topic.startsWith('/')) topic = ns + topic;
 		synthesis_action_client = new ROSLIB.ActionClient({
 			ros: ros,
-			serverName: UI.Settings.getSynthesisTopic(),
+			serverName: topic,
 			actionName: UI.Settings.getSynthesisType()
 		});
 	}

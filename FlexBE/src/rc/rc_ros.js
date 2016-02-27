@@ -23,7 +23,15 @@ RC.ROS = new (function() {
 		RC.Sync.register("ROS", 90);
 		RC.Sync.setStatus("ROS", RC.Sync.STATUS_ERROR);
 
-		RC.PubSub.initialize(ros, namespace);
+	    var param = new ROSLIB.Param({
+			ros : ros,
+			name : '~namespace'
+		});
+
+		param.get(function(ns) {
+			if (ns != '') document.getElementById('label_editor_title').innerHTML = ns;
+			RC.PubSub.initialize(ros, ns);
+		});
 	}
 
 	var setupFailed = function() {
@@ -71,16 +79,6 @@ RC.ROS = new (function() {
 
 	this.isConnected = function() {
 		return connected;
-	}
-
-	this.namespaceChanged = function() {
-		new_namespace = document.getElementById('input_flexbe_namespace').value;
-
-		if (connected) {
-			document.getElementById('input_flexbe_namespace').value = new_namespace;
-		} else {
-			namespace = new_namespace.toLowerCase();
-		}
 	}
 
 }) ();
