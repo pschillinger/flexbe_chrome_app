@@ -53,6 +53,8 @@ RC.Controller = new (function() {
 	};
 	var STATE_CONFIGURATION = {
 		onEnter: function() {
+			if (vis_update_timer != undefined) clearTimeout(vis_update_timer);
+			vis_update_timer = undefined;
 			UI.Menu.displayRuntimeStatus('online');
 			UI.RuntimeControl.displayBehaviorConfiguration();
 			RC.Sync.setStatus("ROS", RC.Sync.STATUS_OK);
@@ -117,6 +119,8 @@ RC.Controller = new (function() {
 		},
 		onExit: function() {
 			if (sync_timer != undefined) clearTimeout(sync_timer);
+			if (vis_update_timer != undefined) clearTimeout(vis_update_timer);
+			vis_update_timer = undefined;
 			UI.Statemachine.refreshView();
 			RC.Sync.setProgress("State", 1, false);
 			if (RC.Sync.hasProcess("Transition")) RC.Sync.remove("Transition");
@@ -172,6 +176,20 @@ RC.Controller = new (function() {
 		current_state.isActive = true;
 		exit_state.onExit();
 		current_state.onEnter();
+	}
+
+	var vis_update_timer;
+	var vis_update = function() {
+		if (that.isRunning()) {
+			UI.RuntimeControl.displayState(current_state_path);
+			if (RC.Sync.hasProcess("State"))
+				RC.Sync.setProgress("State", 1, false);
+		}
+
+		if(UI.Menu.isPageStatemachine())
+			UI.Statemachine.refreshView();
+
+		vis_update_timer = setTimeout(vis_update, 1000 / 25);
 	}
 
 	this.initialize = function() {
@@ -266,14 +284,7 @@ RC.Controller = new (function() {
 	this.setCurrentStatePath = function(state_path) {
 		current_state_path = state_path;
 
-		if (that.isRunning()) {
-			UI.RuntimeControl.displayState(current_state_path);
-			if (RC.Sync.hasProcess("State"))
-				RC.Sync.setProgress("State", 1, false);
-		}
-
-		if(UI.Menu.isPageStatemachine())
-			UI.Statemachine.refreshView();
+		if (vis_update_timer == undefined) vis_update();
 	}
 
 	this.setLockedStatePath = function(state_path) {
