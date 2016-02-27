@@ -4,6 +4,7 @@ RC.ROS = new (function() {
 	var ros;
 	var connected = false;
 	var connect_attempts_left = 0;
+	var namespace = "";
 
 	this.getROS = function() {
 		return ros;
@@ -22,7 +23,15 @@ RC.ROS = new (function() {
 		RC.Sync.register("ROS", 90);
 		RC.Sync.setStatus("ROS", RC.Sync.STATUS_ERROR);
 
-		RC.PubSub.initialize(ros);
+	    var param = new ROSLIB.Param({
+			ros : ros,
+			name : '~namespace'
+		});
+
+		param.get(function(ns) {
+			if (ns != '') document.getElementById('label_editor_title').innerHTML = ns;
+			RC.PubSub.initialize(ros, ns);
+		});
 	}
 
 	var setupFailed = function() {

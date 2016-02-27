@@ -12,7 +12,6 @@ RC.PubSub = new (function() {
 	var ros_command_listener;
 
 	var behavior_start_publisher;
-	var mirror_structure_publisher;
 	var transition_command_publisher;
 	var autonomy_level_publisher;
 	var preempt_behavior_publisher;
@@ -259,57 +258,59 @@ RC.PubSub = new (function() {
 	}
 
 
-	this.initialize = function(_ros) {
+	this.initialize = function(_ros, ns) {
 		ros = _ros;
+		if (!ns.startsWith('/')) ns = '/' + ns;
+		if (!ns.endsWith('/')) ns += '/';
 
 
 		// Subscriber
 
 		current_state_listener = new ROSLIB.Topic({ 
 			ros : ros,
-			name : '/flexbe/behavior_update',
+			name : ns + 'flexbe/behavior_update',
 			messageType : 'std_msgs/String'
 		});
 		current_state_listener.subscribe(current_state_callback);
 
 		outcome_request_listener = new ROSLIB.Topic({ 
 			ros : ros,
-			name : '/flexbe/outcome_request',
+			name : ns + 'flexbe/outcome_request',
 			messageType : 'flexbe_msgs/OutcomeRequest'
 		});
 		outcome_request_listener.subscribe(outcome_request_callback);
 
 		behavior_feedback_listener = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/log',
+			name: ns + 'flexbe/log',
 			messageType: 'flexbe_msgs/BehaviorLog',
 		});
 		behavior_feedback_listener.subscribe(behavior_feedback_callback);
 
 		behavior_status_listener = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/status',
+			name: ns + 'flexbe/status',
 			messageType: 'flexbe_msgs/BEStatus',
 		});
 		behavior_status_listener.subscribe(behavior_status_callback);
 
 		command_feedback_listener = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/command_feedback',
+			name: ns + 'flexbe/command_feedback',
 			messageType: 'flexbe_msgs/CommandFeedback',
 		});
 		command_feedback_listener.subscribe(command_feedback_callback);
 
 		onboard_heartbeat_listener = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/heartbeat',
+			name: ns + 'flexbe/heartbeat',
 			messageType: 'std_msgs/Empty',
 		});
 		onboard_heartbeat_listener.subscribe(onboard_heartbeat_callback);
 
 		ros_command_listener = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/uicommand',
+			name: ns + 'flexbe/uicommand',
 			messageType: 'flexbe_msgs/UICommand',
 		});
 		ros_command_listener.subscribe(ros_command_callback);
@@ -319,54 +320,56 @@ RC.PubSub = new (function() {
 
 		behavior_start_publisher = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/request_behavior',
+			name: ns + 'flexbe/request_behavior',
 			messageType: 'flexbe_msgs/BehaviorRequest'
 		});
 
 		transition_command_publisher = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/command/transition',
+			name: ns + 'flexbe/command/transition',
 			messageType: 'flexbe_msgs/OutcomeRequest'
 		});
 
 		autonomy_level_publisher = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/command/autonomy',
+			name: ns + 'flexbe/command/autonomy',
 			messageType: 'std_msgs/UInt8'
 		});
 
 		preempt_behavior_publisher = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/command/preempt',
+			name: ns + 'flexbe/command/preempt',
 			messageType: 'std_msgs/Empty'
 		});
 
 		lock_behavior_publisher = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/command/lock',
+			name: ns + 'flexbe/command/lock',
 			messageType: 'std_msgs/String'
 		});
 
 		unlock_behavior_publisher = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/command/unlock',
+			name: ns + 'flexbe/command/unlock',
 			messageType: 'std_msgs/String'
 		});
 
 		sync_mirror_publisher = new ROSLIB.Topic({ 
 			ros: ros,
-			name: '/flexbe/command/sync',
+			name: ns + 'flexbe/command/sync',
 			messageType: 'std_msgs/Empty'
 		});
 
 		// Action Clients
-		if (UI.Settings.isSynthesisEnabled()) that.initializeSynthesisAction();
+		if (UI.Settings.isSynthesisEnabled()) that.initializeSynthesisAction(ns);
 	}
 
-	this.initializeSynthesisAction = function() {
+	this.initializeSynthesisAction = function(ns) {
+		var topic = UI.Settings.getSynthesisTopic();
+		if (!topic.startsWith('/')) topic = ns + topic;
 		synthesis_action_client = new ROSLIB.ActionClient({
 			ros: ros,
-			serverName: UI.Settings.getSynthesisTopic(),
+			serverName: topic,
 			actionName: UI.Settings.getSynthesisType()
 		});
 	}
@@ -381,7 +384,6 @@ RC.PubSub = new (function() {
 		onboard_heartbeat_listener.unsubscribe();
 
 		behavior_start_publisher.unadvertise();
-		mirror_structure_publisher.unadvertise();
 		transition_command_publisher.unadvertise();
 		autonomy_level_publisher.unadvertise();
 		preempt_behavior_publisher.unadvertise();
