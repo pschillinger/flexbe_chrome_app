@@ -586,11 +586,13 @@ UI.Panels.StateProperties = new (function() {
 	}
 
 	this.openStatemachine = function() {
+		UI.Statemachine.abortTransition();
 		UI.Statemachine.setDisplayedSM(current_prop_state);
 		that.hide();
 	}
 
 	this.openBehavior = function() {
+		UI.Statemachine.abortTransition();
 		UI.Statemachine.setDisplayedSM(current_prop_state.getBehaviorStatemachine());
 		that.hide();
 	}
@@ -843,6 +845,8 @@ UI.Panels.StateProperties = new (function() {
 		var goal = document.getElementById('input_prop_synthesis_goal').value;
 		document.getElementById("cb_display_synthesis").checked = false;
 		document.getElementById('panel_prop_sm_synthesis').style.display = "none";
+
+		UI.Statemachine.abortTransition();
 
 		RC.PubSub.requestBehaviorSynthesis(
 			current_prop_state.getStatePath(),

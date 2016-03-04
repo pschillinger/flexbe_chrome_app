@@ -167,6 +167,10 @@ window.addEventListener('resize', function() {
 //Mousetrap.bind("ctrl+shift+v", function() { Tools.paste(); });
 
 Mousetrap.bind("k", function() { console.log("kkkk"); });
+Mousetrap.bind("esc", function() {
+    UI.Statemachine.abortTransition();
+    UI.Statemachine.removeSelection();
+});
 
 
 chrome.commands.onCommand.addListener(function(command) {

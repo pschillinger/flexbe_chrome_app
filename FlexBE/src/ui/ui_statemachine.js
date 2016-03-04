@@ -79,11 +79,7 @@ UI.Statemachine = new (function() {
 		selecting = false;
 
 		if (selection_area.attr("width") < 10 || selection_area.attr("height") < 10)
-			removeSelection();
-	}
-	var removeSelection = function() {
-		selecting = false;
-		selection_area.attr({x: 0, y: 0, width: 0, height: 0, opacity: 0});
+			that.removeSelection();
 	}
 
 	var beginSelectionMove = function() {
@@ -201,7 +197,7 @@ UI.Statemachine = new (function() {
 		displayed_sm = statemachine;
 		connecting = false;
 		drag_transition = undefined;
-		removeSelection();
+		that.removeSelection();
 
 		if (UI.Menu.isPageStatemachine()) that.refreshView();
 	}
@@ -209,6 +205,11 @@ UI.Statemachine = new (function() {
 	this.resetStatemachine = function() {
 		drawn_sms = [];
 		that.setDisplayedSM(Behavior.getStatemachine());
+	}
+	
+	this.removeSelection = function() {
+		selecting = false;
+		selection_area.attr({x: 0, y: 0, width: 0, height: 0, opacity: 0});
 	}
 
 	this.isConnecting = function() {
@@ -397,7 +398,7 @@ UI.Statemachine = new (function() {
 
 	this.beginTransition = function(state, label) {
 		if (connecting) return;
-		removeSelection();
+		that.removeSelection();
 
 		var autonomy = 0;
 		var autonomy_index = state.getOutcomes().indexOf(label);
@@ -413,7 +414,7 @@ UI.Statemachine = new (function() {
 
 	this.beginInitTransition = function() {
 		if (connecting) return;
-		removeSelection();
+		that.removeSelection();
 
 		if (displayed_sm.getInitialState() != undefined) {
 			previous_transition_end = displayed_sm.getInitialState().getStateName();
@@ -425,6 +426,17 @@ UI.Statemachine = new (function() {
 		drag_transition = displayed_sm.getInitialTransition();
 
 		connecting = true;
+		this.refreshView();
+	}
+
+	this.abortTransition = function() {
+		if (!connecting) return;
+
+		if (drag_transition == displayed_sm.getInitialTransition()) {
+			displayed_sm.setInitialState(displayed_sm.getStateByName(previous_transition_end));
+		}
+
+		connecting = false;
 		this.refreshView();
 	}
 
