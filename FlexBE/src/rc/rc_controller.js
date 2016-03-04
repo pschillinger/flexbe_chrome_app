@@ -179,15 +179,19 @@ RC.Controller = new (function() {
 	}
 
 	var vis_update_timer;
+	var vis_update_required = false;
 	var vis_update = function() {
-		if (that.isRunning()) {
-			UI.RuntimeControl.displayState(current_state_path);
-			if (RC.Sync.hasProcess("State"))
-				RC.Sync.setProgress("State", 1, false);
+		if (vis_update_required) {
+			vis_update_required = false;
+			if (that.isRunning()) {
+				UI.RuntimeControl.displayState(current_state_path);
+				if (RC.Sync.hasProcess("State"))
+					RC.Sync.setProgress("State", 1, false);
+			}
+			console.log('update');
+			if(UI.Menu.isPageStatemachine())
+				UI.Statemachine.refreshView();
 		}
-
-		if(UI.Menu.isPageStatemachine())
-			UI.Statemachine.refreshView();
 
 		vis_update_timer = setTimeout(vis_update, 1000 / 25);
 	}
@@ -284,6 +288,7 @@ RC.Controller = new (function() {
 	this.setCurrentStatePath = function(state_path) {
 		current_state_path = state_path;
 
+		vis_update_required = true;
 		if (vis_update_timer == undefined) vis_update();
 	}
 
