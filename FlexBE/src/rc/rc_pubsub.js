@@ -18,6 +18,7 @@ RC.PubSub = new (function() {
 	var lock_behavior_publisher;
 	var unlock_behavior_publisher;
 	var sync_mirror_publisher;
+	var version_publisher;
 
 	var synthesis_action_client;
 
@@ -359,6 +360,14 @@ RC.PubSub = new (function() {
 			name: ns + 'flexbe/command/sync',
 			messageType: 'std_msgs/Empty'
 		});
+
+		version_publisher = new ROSLIB.Topic({ 
+			ros: ros,
+			name: ns + 'flexbe/ui_version',
+			messageType: 'std_msgs/String',
+			latch: 'True'
+		});
+		version_publisher.publish({data: '' + chrome.runtime.getManifest().version});
 
 		// Action Clients
 		if (UI.Settings.isSynthesisEnabled()) that.initializeSynthesisAction(ns);
