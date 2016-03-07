@@ -32,22 +32,8 @@ Tools = new (function() {
 			var state_def = Statelib.getFromLib(s.getStateClass());
 			new_state = new State(s.getStateName(), state_def);
 		}
-		if (sm.getStateByName(new_state.getStateName()) != undefined) {
-			var old_name = new_state.getStateName();
-			var name_pattern = new RegExp(/^/i.source + old_name + /_Copy(?:_(\d+))?$/i.source);
-			var current_state_list = sm.getStates();
-			current_state_list = current_state_list.map(function(element) {
-				var result = element.getStateName().match(name_pattern);
-				if (result == null) return 0;
-				if (result[1] == undefined) return 1;
-				return parseInt(result[1]);
-			});
-			var new_index = current_state_list.reduce(function(prev, cur) {
-				return prev > cur? prev : cur;
-			}, 0) + 1;
-			new_state.setStateName(old_name + "_Copy"  + ((new_index>1)? "_" + new_index : ""));
-		}
-
+		
+		new_state.setStateName(that.getUniqueName(sm, s.getStateName()));
 		new_state.setParameterValues(s.getParameterValues().clone());
 		new_state.setAutonomy(s.getAutonomy().clone());
 		new_state.setInputMapping(s.getInputMapping().clone());
@@ -268,6 +254,24 @@ Tools = new (function() {
 			sm.setInitialState(getClosestState({x: 0, y: 0}));
 		}
 		UI.Statemachine.refreshView();
+	}
+
+	this.getUniqueName = function(sm, state_name) {
+		if (sm.getStateByName(state_name) != undefined) {
+			var name_pattern = new RegExp(/^/i.source + state_name + /(?:_(\d+))?$/i.source);
+			var current_state_list = sm.getStates();
+			current_state_list = current_state_list.map(function(element) {
+				var result = element.getStateName().match(name_pattern);
+				if (result == null) return 0;
+				if (result[1] == undefined) return 1;
+				return parseInt(result[1]);
+			});
+			var new_index = current_state_list.reduce(function(prev, cur) {
+				return prev > cur? prev : cur;
+			}, 0) + 1;
+			return state_name + ((new_index>1)? "_" + new_index : "");
+		}
+		return state_name;
 	}
 
 	this.getClipboard = function() {

@@ -181,6 +181,7 @@ UI.Menu = new (function() {
 				if (smi.class_name != manifest.class_name) T.logWarn("Class names of behavior " + manifest.name + " do not match!");
 				var be_def = Behaviorlib.getByName(manifest.name);
 				var be = new BehaviorState(manifest.name, be_def);
+				be.setStateName(Tools.getUniqueName(UI.Statemachine.getDisplayedSM(), be.getStateName()));
 				UI.Statemachine.getDisplayedSM().addState(be);
 				UI.Statemachine.refreshView();
 				UI.Panels.StateProperties.displayStateProperties(be);
@@ -214,20 +215,8 @@ UI.Menu = new (function() {
 	this.addStatemachineClicked = function() {
 		if (UI.Statemachine.isReadonly()) return;
 
-		// for testing
 		var sm_def = new StateMachineDefinition(['finished', 'failed'], [], []);
-		var sm_name_pattern = /Container(?:_(\d+))?/i;
-		var current_sm_list = UI.Statemachine.getDisplayedSM().getStates();
-		current_sm_list = current_sm_list.map(function(element) {
-			var result = element.getStateName().match(sm_name_pattern);
-			if (result == null) return 0;
-			if (result[1] == undefined) return 1;
-			return parseInt(result[1]);
-		});
-		var new_index = current_sm_list.reduce(function(prev, cur) {
-			return prev > cur? prev : cur;
-		}, 0) + 1;
-		var state_name = "Container" + ((new_index>1)? "_" + new_index : "");
+		var state_name = Tools.getUniqueName(UI.Statemachine.getDisplayedSM(), "Container");
 		var sm = new Statemachine(state_name, sm_def);
 		UI.Statemachine.getDisplayedSM().addState(sm);
 		UI.Statemachine.refreshView();
