@@ -18,6 +18,8 @@ RC.PubSub = new (function() {
 	var lock_behavior_publisher;
 	var unlock_behavior_publisher;
 	var sync_mirror_publisher;
+	var repeat_behavior_publisher;
+	var pause_behavior_publisher;
 	var version_publisher;
 
 	var synthesis_action_client;
@@ -148,6 +150,23 @@ RC.PubSub = new (function() {
 		}
 		if (msg.command == "autonomy") {
 			RC.Sync.remove("Autonomy");
+		}
+		if (msg.command == "repeat") {
+			if (RC.Sync.hasProcess("Repeat")) {
+				RC.Sync.remove("Repeat");
+			}
+		}
+		if (msg.command == "pause") {
+			if (RC.Sync.hasProcess("Pause")) {
+				UI.RuntimeControl.switchPauseButton();
+				RC.Sync.setProgress("Pause", 1, false);
+			}
+		}
+		if (msg.command == "resume") {
+			if (RC.Sync.hasProcess("Pause")) {
+				UI.RuntimeControl.switchPauseButton();
+				RC.Sync.remove("Pause");
+			}
 		}
 		if (msg.command == "preempt") {
 			if (RC.Sync.hasProcess("Preempt")) {
@@ -361,6 +380,18 @@ RC.PubSub = new (function() {
 			messageType: 'std_msgs/Empty'
 		});
 
+		repeat_behavior_publisher = new ROSLIB.Topic({ 
+			ros: ros,
+			name: ns + 'flexbe/command/repeat',
+			messageType: 'std_msgs/Empty'
+		});
+
+		pause_behavior_publisher = new ROSLIB.Topic({ 
+			ros: ros,
+			name: ns + 'flexbe/command/pause',
+			messageType: 'std_msgs/Bool'
+		});
+
 		version_publisher = new ROSLIB.Topic({ 
 			ros: ros,
 			name: ns + 'flexbe/ui_version',
@@ -465,6 +496,34 @@ RC.PubSub = new (function() {
 			data: level
 		});
 		RC.Sync.setProgress("Autonomy", 0.2, false);
+	}
+
+	this.sendRepeatBehavior = function() {
+		if (ros == undefined) { T.debugWarn("ROS not initialized!"); return; }
+		if (RC.Controller.isRunning()) {
+			RC.Sync.register("Repeat", 30);
+			RC.Sync.setProgress("Repeat", 0.2, false);
+		}
+		repeat_behavior_publisher.publish();
+	}
+
+	this.sendPauseBehavior = function() {
+		if (ros == undefined) { T.debugWarn("ROS not initialized!"); return; }
+		if (RC.Controller.isRunning()) {
+			RC.Sync.register("Pause", 40);
+			RC.Sync.setProgress("Pause", 0.2, false);
+		}
+		pause_behavior_publisher.publish({data: true});
+	}
+
+	this.sendResumeBehavior = function() {
+		if (ros == undefined) { T.debugWarn("ROS not initialized!"); return; }
+		if (RC.Controller.isRunning()) {
+			if (RC.Sync.hasProcess("Pause")) {
+				RC.Sync.setProgress("Pause", 0.4, false);
+			}
+		}
+		pause_behavior_publisher.publish({data: false});
 	}
 
 	this.sendPreemptBehavior = function() {

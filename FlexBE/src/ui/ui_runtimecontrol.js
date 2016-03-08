@@ -20,6 +20,7 @@ UI.RuntimeControl = new (function() {
 
 	var locked_state_path = "";
 
+	var pause_behavior_toggle = true;
 	var sync_ext_toggle = false;
 
 	var updateDrawing = function() {
@@ -530,6 +531,40 @@ UI.RuntimeControl = new (function() {
 		//UI.RuntimeControl.displayBehaviorFeedback(4, "Changed autonomy to: " + ["No","Low","High","Full"][value]);
 	}
 
+	this.repeatBehaviorClicked = function() {
+		if (!RC.Controller.isRunning()) return;
+
+		RC.PubSub.sendRepeatBehavior();
+	}
+
+	this.pauseBehaviorClicked = function() {
+		if (!RC.Controller.isRunning()) return;
+		document.getElementById("button_behavior_pause").setAttribute("disabled", "disabled");
+
+		if (pause_behavior_toggle) {
+			RC.PubSub.sendPauseBehavior();
+		} else {
+			RC.PubSub.sendResumeBehavior();
+		}
+	}
+
+	this.switchPauseButton = function() {
+		pause_behavior_toggle = !pause_behavior_toggle;
+		document.getElementById("button_behavior_pause").removeAttribute("disabled", "disabled");
+
+		if (pause_behavior_toggle) {
+			document.getElementById("button_behavior_pause").setAttribute("value", "Pause");
+		} else {
+			document.getElementById("button_behavior_pause").setAttribute("value", "Resume");
+		}
+	}
+
+	this.resetPauseButton = function() {
+		pause_behavior_toggle = true;
+		document.getElementById("button_behavior_pause").removeAttribute("disabled", "disabled");
+		document.getElementById("button_behavior_pause").setAttribute("value", "Pause");
+	}
+
 	this.preemptBehaviorClicked = function() {
 		if (!RC.Controller.isConnected()) return;
 
@@ -537,16 +572,16 @@ UI.RuntimeControl = new (function() {
 		UI.RuntimeControl.displayBehaviorFeedback(4, "Stopping behavior...");
 		document.getElementById("cb_allow_preempt").checked = false;
 		document.getElementById("button_behavior_preempt").setAttribute("disabled", "disabled");
-		document.getElementById("button_behavior_preempt").style.color = "gray"
+		document.getElementById("button_behavior_preempt").style.color = "gray";
 	}
 
 	this.allowPreemptClicked = function(evt) {
 		if(evt.target.checked) {
 			document.getElementById("button_behavior_preempt").removeAttribute("disabled", "disabled");
-			document.getElementById("button_behavior_preempt").style.color = "red"
+			document.getElementById("button_behavior_preempt").style.color = "red";
 		} else {
 			document.getElementById("button_behavior_preempt").setAttribute("disabled", "disabled");
-			document.getElementById("button_behavior_preempt").style.color = "gray"
+			document.getElementById("button_behavior_preempt").style.color = "gray";
 		}
 	}
 

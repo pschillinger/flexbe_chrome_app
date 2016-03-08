@@ -57,6 +57,7 @@ RC.Controller = new (function() {
 			vis_update_timer = undefined;
 			UI.Menu.displayRuntimeStatus('online');
 			UI.RuntimeControl.displayBehaviorConfiguration();
+			UI.RuntimeControl.resetPauseButton();
 			RC.Sync.setStatus("ROS", RC.Sync.STATUS_OK);
 			RC.Sync.setProgress("ROS", 1, false);
 			UI.Dashboard.unsetReadonly();
@@ -73,6 +74,8 @@ RC.Controller = new (function() {
 			if (RC.Sync.hasProcess("Switch")) RC.Sync.remove("Switch");
 			if (RC.Sync.hasProcess("Changes")) RC.Sync.remove("Changes");
 			if (RC.Sync.hasProcess("Sync")) RC.Sync.remove("Sync");
+			if (RC.Sync.hasProcess("Pause")) RC.Sync.remove("Pause");
+			if (RC.Sync.hasProcess("Repeat")) RC.Sync.remove("Repeat");
 
 			current_state_path = "";
 			locked_state_path = "";
