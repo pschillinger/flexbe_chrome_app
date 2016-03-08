@@ -675,17 +675,25 @@ UI.RuntimeControl = new (function() {
 		} else {
 			lock_button.removeAttribute("disabled");
 			// collect containers but skip top-level container (behavior)
+			var options = [];
 			for(var i=current_states.length-1; i>0; i--) {
 				var option = document.createElement("option");
 				if (i == current_level) {
+					option.setAttribute("selected", "selected");
+				}
+				if (current_states[i] instanceof Statemachine && current_states[i].isConcurrent()) {
+					options = [];
 					option.setAttribute("selected", "selected");
 				}
 				option.setAttribute("path", current_states[i].getStatePath());
 				var txt = current_states[i].getStateName();
 				option.setAttribute("title", txt);
 				option.text = ((txt.length > 18)? txt.slice(0,15) + "..." : txt);
-				selection_box.add(option);
+				options.push(option);
 			}
+			options.forEach(function(option) {
+				selection_box.add(option);
+			});
 		}
 
 		var label_td = document.createElement("td");
