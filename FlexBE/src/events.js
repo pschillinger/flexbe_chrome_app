@@ -105,6 +105,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sync_bar').addEventListener('click', UI.RuntimeControl.toggleSyncExtension);
     document.getElementById('button_behavior_lock').addEventListener('click', UI.RuntimeControl.behaviorLockClicked);
     document.getElementById('selection_rc_autonomy').addEventListener('change', UI.RuntimeControl.autonomySelectionChanged);
+    document.getElementById('button_behavior_repeat').addEventListener('click', UI.RuntimeControl.repeatBehaviorClicked);
+    document.getElementById('button_behavior_pause').addEventListener('click', UI.RuntimeControl.pauseBehaviorClicked);
     document.getElementById('button_behavior_preempt').addEventListener('click', UI.RuntimeControl.preemptBehaviorClicked);
     document.getElementById('cb_allow_preempt').addEventListener('change', UI.RuntimeControl.allowPreemptClicked);
     document.getElementById('button_behavior_sync').addEventListener('click', UI.RuntimeControl.syncMirrorClicked);
