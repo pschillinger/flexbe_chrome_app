@@ -848,11 +848,24 @@ UI.RuntimeControl = new (function() {
 
 	this.displayBehaviorFeedback = function(level, text) {
 		var color = "black";
+		var collapse = UI.Settings.isCollapseInfo();
 		switch(level) {
-			case 1: color = "orange"; break;
-			case 2: color = "navy"; break;
-			case 3: color = "red"; break;
-			case 4: color = "green"; break;
+			case 1:
+				color = "orange";
+				collapse = UI.Settings.isCollapseWarn();
+				break;
+			case 2:
+				color = "navy";
+				collapse = UI.Settings.isCollapseHint();
+				break;
+			case 3:
+				color = "red";
+				collapse = UI.Settings.isCollapseError();
+				break;
+			case 4:
+				color = "green";
+				collapse = false;
+				break;
 		}
 		var currentdate = new Date(); 
 		var time = currentdate.toLocaleTimeString();
@@ -884,11 +897,12 @@ UI.RuntimeControl = new (function() {
 			entry_body.style.color = color;
 			entry_body.style.opacity = "0.8";
 			entry_body.innerHTML = text_body;
+			entry_body.style.display = collapse? "none" : "";
 
 			entry_toggle = document.createElement("font");
 			entry_toggle.style.cursor = "pointer";
-			entry_toggle.innerHTML = " [-]";
-			entry_toggle.title = "hide details";
+			entry_toggle.innerHTML = collapse? " [+]" : " [-]";
+			entry_toggle.title = collapse? "show details" : "hide details";
 			entry_toggle.addEventListener("click", function() {
 				if (entry_toggle.innerHTML == " [-]") {
 					entry_toggle.innerHTML = " [+]";

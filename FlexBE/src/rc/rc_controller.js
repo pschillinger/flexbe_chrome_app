@@ -90,6 +90,10 @@ RC.Controller = new (function() {
 		onEnter: function() {
 			document.getElementById("selection_rc_autonomy").setAttribute("disabled", "disabled");
 			UI.RuntimeControl.displayExternalBehavior();
+			T.clearLog();
+			T.logInfo('Running behavior detected!');
+			T.logInfo('You may go to Runtime Control in order to attach and monitor execution.');
+			T.show();
 		},
 		onExit: function() {
 			document.getElementById("selection_rc_autonomy").removeAttribute("disabled", "disabled");
@@ -101,6 +105,10 @@ RC.Controller = new (function() {
 		onEnter: function() {
 			document.getElementById("selection_rc_autonomy").setAttribute("disabled", "disabled");
 			UI.RuntimeControl.displayExternalBehavior();
+			T.clearLog();
+			T.logInfo('Running behavior detected!');
+			T.logInfo('You may go to Runtime Control in order to attach and monitor execution.');
+			T.show();
 		},
 		onExit: function() {
 			if (RC.Sync.hasProcess("Attach")) RC.Sync.remove("Attach");
