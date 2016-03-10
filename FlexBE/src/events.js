@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('button_rosbridge_disconnect').addEventListener('click', UI.Settings.disconnectRosbridgeClicked);
 
     document.getElementById('input_runtime_timeout').addEventListener('blur', UI.Settings.runtimeTimeoutChanged);
+    document.getElementById('cb_stop_behaviors').addEventListener('change', UI.Settings.stopBehaviorsClicked);
 
     document.getElementById('input_package_namespace').addEventListener('change', UI.Settings.packageNamespaceChanged);
     document.getElementById('select_transition_mode').addEventListener('change', UI.Settings.transitionEndpointsChanged);

@@ -60,7 +60,7 @@ RC.PubSub = new (function() {
 		var ERROR = 11;
 		var READY = 20;
 
-		if (msg.code == STARTED && !RC.Controller.haveBehavior()) {
+		if (msg.code == STARTED && !RC.Controller.haveBehavior() && UI.Settings.isStopBehaviors()) {
 			T.logError("Onboard behavior is still running! Stopping it...");
 			RC.Sync.register("EmergencyStop", 30);
 			RC.Sync.setStatus("EmergencyStop", RC.Sync.STATUS_ERROR);
