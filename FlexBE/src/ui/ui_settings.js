@@ -9,6 +9,7 @@ UI.Settings = new (function() {
 	var rosbridge_port;
 
 	var runtime_timeout;
+	var stop_behaviors;
 
 	var package_namespace;
 	var transition_mode;
@@ -28,6 +29,7 @@ UI.Settings = new (function() {
 			'rosbridge_ip': rosbridge_ip,
 			'rosbridge_port': rosbridge_port,
 			'runtime_timeout': runtime_timeout,
+			'stop_behaviors': stop_behaviors,
 			'package_namespace': package_namespace,
 			'transition_mode': transition_mode,
 			'gridsize': gridsize,
@@ -52,6 +54,7 @@ UI.Settings = new (function() {
 			'rosbridge_ip': 'localhost',
 			'rosbridge_port': '9090',
 			'runtime_timeout': 10,
+			'stop_behaviors': false,
 			'package_namespace': '',
 			'transition_mode': 1,
 			'gridsize': 50,
@@ -82,6 +85,8 @@ UI.Settings = new (function() {
 			
 			runtime_timeout = items.runtime_timeout;
 			document.getElementById("input_runtime_timeout").value = items.runtime_timeout;
+			stop_behaviors = items.stop_behaviors;
+			document.getElementById("cb_stop_behaviors").checked = items.stop_behaviors;
 			
 			package_namespace = items.package_namespace;
 			document.getElementById("input_package_namespace").value = items.package_namespace;
@@ -250,6 +255,15 @@ UI.Settings = new (function() {
 		runtime_timeout = document.getElementById("input_runtime_timeout").value;
 		RC.Controller.onboardTimeout = runtime_timeout;
 		storeSettings();
+	}
+
+	this.stopBehaviorsClicked = function(evt) {
+		stop_behaviors = evt.target.checked;
+		storeSettings();
+	}
+
+	this.isStopBehaviors = function() {
+		return stop_behaviors;
 	}
 
 

@@ -297,6 +297,20 @@
 					Now waiting for confirmation from onboard behavior...
 				</div>
 			</div>
+			<div id="runtime_external_display" class="runtimebox_text">
+				<h1>External Behavior Running</h1>
+				<font style="color: gray">
+					<br />
+					Behavior has been started from a different control instance.<br /><br />
+					You can load the currently running behavior and attach this GUI to it in order to monitor and control execution.
+				</font>
+				<br /><br />
+				<table class="box_table">
+					<tr>
+						<td align="center"><input id="button_behavior_attach_external" type="button" value="Attach" class="big_button" style="color: green; width: 200px;" /></td>
+					</tr>
+				</table>
+			</div>
 			<div id="runtime_offline_display" class="runtimebox_text" style="display: inline;">
 				<h1>No connection!</h1>
 				<font style="color: gray">
@@ -457,6 +471,9 @@
 				<tr>
 					<td width="150">Heartbeat timeout: </td>
 					<td><input id="input_runtime_timeout" type="number" value="10" min="4" max="30" step="1" /> seconds</td>
+				</tr>
+				<tr>
+					<td width="150">Prevent external: </td><td><input id="cb_stop_behaviors" type="checkbox" /> (stops externally started behaviors)</td>
 				</tr>
 			</table>
 		</div>
