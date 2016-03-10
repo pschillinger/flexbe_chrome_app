@@ -18,6 +18,7 @@ RC.PubSub = new (function() {
 	var lock_behavior_publisher;
 	var unlock_behavior_publisher;
 	var sync_mirror_publisher;
+	var attach_behavior_publisher;
 	var repeat_behavior_publisher;
 	var pause_behavior_publisher;
 	var version_publisher;
@@ -34,9 +35,10 @@ RC.PubSub = new (function() {
 		//if (expected_sync_path != undefined && RC.Sync.hasProcess("Sync") && expected_sync_path == msg.data) RC.Sync.remove("Sync");
 
 		RC.Controller.setCurrentStatePath(msg.data);
+
 		if (msg.data == "") {
 			RC.Controller.signalFinished();
-		} else {
+		} else if (!RC.Controller.isExternal()) {
 			RC.Controller.signalRunning();
 		}
 	}
@@ -82,8 +84,13 @@ RC.PubSub = new (function() {
 			RC.Controller.signalFinished();
 			UI.RuntimeControl.displayBehaviorFeedback(4, "No behavior active.");
 		} else if (msg.code == STARTED) {
-			RC.Sync.remove("BehaviorStart");
-			RC.Controller.signalRunning();
+			if (RC.Sync.hasProcess("BehaviorStart")) {
+				RC.Sync.remove("BehaviorStart");
+				RC.Controller.signalRunning();
+			} else {
+				RC.Controller.signalConnected();
+				RC.Controller.signalExternal();
+			}
 		} else if (msg.code == ERROR) {
 			RC.Sync.setProgress("BehaviorStart", 1, false);
 			RC.Sync.setStatus("BehaviorStart", RC.Sync.STATUS_ERROR);
@@ -151,6 +158,17 @@ RC.PubSub = new (function() {
 		if (msg.command == "autonomy") {
 			RC.Sync.remove("Autonomy");
 		}
+		if (msg.command == "attach") {
+			if (RC.Sync.hasProcess("Attach")) {
+				if (msg.args[0] == Behavior.getBehaviorName()) {
+					RC.Controller.signalRunning();
+					RC.Sync.remove("Attach");
+				} else {
+					UI.RuntimeControl.displayBehaviorFeedback(3, "Failed to attach! Please load behavior: " + msg.args[0]);
+					RC.Sync.setStatus("Attach", RC.Sync.STATUS_ERROR);
+				}
+			}
+		}
 		if (msg.command == "repeat") {
 			if (RC.Sync.hasProcess("Repeat")) {
 				RC.Sync.remove("Repeat");
@@ -196,11 +214,9 @@ RC.PubSub = new (function() {
 			}
 		}
 		if (msg.command == "sync") {
-			if (RC.Sync.hasProcess("Sync")) {
-				expected_sync_path = msg.args[0];
-				//RC.Sync.setProgress("Sync", 0.6, false);
-				RC.Sync.remove("Sync");
-			}
+			expected_sync_path = msg.args[0];
+			//RC.Sync.setProgress("Sync", 0.6, false);
+			RC.Sync.remove("Sync");
 		}
 		if (msg.command == "switch") {
 			if (msg.args[0] == "failed") 			RC.Sync.setStatus("Switch", RC.Sync.STATUS_ERROR);
@@ -380,6 +396,12 @@ RC.PubSub = new (function() {
 			messageType: 'std_msgs/Empty'
 		});
 
+		attach_behavior_publisher = new ROSLIB.Topic({ 
+			ros: ros,
+			name: ns + 'flexbe/command/attach',
+			messageType: 'std_msgs/UInt8'
+		});
+
 		repeat_behavior_publisher = new ROSLIB.Topic({ 
 			ros: ros,
 			name: ns + 'flexbe/command/repeat',
@@ -498,6 +520,18 @@ RC.PubSub = new (function() {
 		RC.Sync.setProgress("Autonomy", 0.2, false);
 	}
 
+	this.sendAttachBehavior = function(level) {
+		if (ros == undefined) { T.debugWarn("ROS not initialized!"); return; }
+		if (RC.Controller.isConnected() && RC.Controller.isExternal()) {
+			RC.Sync.register("Attach", 30);
+
+			attach_behavior_publisher.publish({
+				data: level
+			});
+			RC.Sync.setProgress("Attach", 0.2, false);
+		}
+	}
+
 	this.sendRepeatBehavior = function() {
 		if (ros == undefined) { T.debugWarn("ROS not initialized!"); return; }
 		if (RC.Controller.isRunning()) {
@@ -528,7 +562,7 @@ RC.PubSub = new (function() {
 
 	this.sendPreemptBehavior = function() {
 		if (ros == undefined) { T.debugWarn("ROS not initialized!"); return; }
-		if (RC.Controller.isRunning() || RC.Controller.isReadonly()) {
+		if (RC.Controller.isConnected()) {
 			RC.Sync.register("Preempt", 60);
 			RC.Sync.setProgress("Preempt", 0.2, false);
 		}

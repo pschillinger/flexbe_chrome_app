@@ -102,6 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('button_behavior_start').addEventListener('click', UI.RuntimeControl.startBehaviorClicked);
     document.getElementById('button_behavior_params_reset').addEventListener('click', UI.RuntimeControl.resetParameterTableClicked);
 
+    document.getElementById('button_behavior_attach_external').addEventListener('click', UI.RuntimeControl.attachExternalClicked);
+
     document.getElementById('sync_bar').addEventListener('click', UI.RuntimeControl.toggleSyncExtension);
     document.getElementById('button_behavior_lock').addEventListener('click', UI.RuntimeControl.behaviorLockClicked);
     document.getElementById('selection_rc_autonomy').addEventListener('change', UI.RuntimeControl.autonomySelectionChanged);

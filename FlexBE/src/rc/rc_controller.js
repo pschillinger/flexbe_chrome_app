@@ -86,6 +86,29 @@ RC.Controller = new (function() {
 		isActive: false,
 		label: "STATE_CONFIGURATION"
 	};
+	var STATE_EXTERNAL_NO_BEHAVIOR = {
+		onEnter: function() {
+			document.getElementById("selection_rc_autonomy").setAttribute("disabled", "disabled");
+			UI.RuntimeControl.displayExternalBehavior();
+		},
+		onExit: function() {
+			document.getElementById("selection_rc_autonomy").removeAttribute("disabled", "disabled");
+		},
+		isActive: false,
+		label: "STATE_STARTING"
+	};
+	var STATE_EXTERNAL = {
+		onEnter: function() {
+			document.getElementById("selection_rc_autonomy").setAttribute("disabled", "disabled");
+			UI.RuntimeControl.displayExternalBehavior();
+		},
+		onExit: function() {
+			if (RC.Sync.hasProcess("Attach")) RC.Sync.remove("Attach");
+			document.getElementById("selection_rc_autonomy").removeAttribute("disabled", "disabled");
+		},
+		isActive: false,
+		label: "STATE_STARTING"
+	};
 	var STATE_STARTING = {
 		onEnter: function() {
 			document.getElementById("selection_rc_autonomy").setAttribute("disabled", "disabled");
@@ -103,6 +126,11 @@ RC.Controller = new (function() {
 	};
 	var STATE_ACTIVE = {
 		onEnter: function() {
+			// repeat for external
+			ActivityTracer.addExecution();
+			UI.Dashboard.setReadonly();
+			RC.Sync.register("State", 30);
+
 			UI.Menu.displayRuntimeStatus('running');
 			UI.RuntimeControl.displayState(current_state_path);
 			UI.RuntimeControl.displayLockBehavior();
@@ -184,7 +212,7 @@ RC.Controller = new (function() {
 	var vis_update_timer;
 	var vis_update_required = false;
 	var vis_update = function() {
-		if (vis_update_required) {
+		if (vis_update_required && that.isActive()) {
 			vis_update_required = false;
 			if (that.isRunning()) {
 				UI.RuntimeControl.displayState(current_state_path);
@@ -211,12 +239,14 @@ RC.Controller = new (function() {
 		hasTransition(STATE_OFFLINE, 		STATE_NOTHING);
 		hasTransition(STATE_LOCKED, 		STATE_CHANGED);
 		hasTransition(STATE_NEW_VERSION, 	STATE_CHANGED);
+		hasTransition(STATE_EXTERNAL, 		STATE_EXTERNAL_NO_BEHAVIOR);
 	}
 	this.signalBehavior = function() {
-		hasTransition(STATE_NOTHING,		STATE_OFFLINE);
-		hasTransition(STATE_NO_BEHAVIOR,	STATE_CONFIGURATION);
-		hasTransition(STATE_CHANGED,		STATE_NEW_VERSION);
-		hasTransition(STATE_CONFIGURATION,	STATE_CONFIGURATION);
+		hasTransition(STATE_NOTHING,				STATE_OFFLINE);
+		hasTransition(STATE_NO_BEHAVIOR,			STATE_CONFIGURATION);
+		hasTransition(STATE_CHANGED,				STATE_NEW_VERSION);
+		hasTransition(STATE_CONFIGURATION,			STATE_CONFIGURATION);
+		hasTransition(STATE_EXTERNAL_NO_BEHAVIOR,	STATE_EXTERNAL);
 	}
 	this.signalDisconnected = function() {
 		hasTransition(STATE_NO_BEHAVIOR,	STATE_NOTHING);
@@ -226,18 +256,25 @@ RC.Controller = new (function() {
 		hasTransition(STATE_NOTHING,	STATE_NO_BEHAVIOR);
 		hasTransition(STATE_OFFLINE,	STATE_CONFIGURATION);
 	}
+	this.signalExternal = function() {
+		hasTransition(STATE_NO_BEHAVIOR,	STATE_EXTERNAL_NO_BEHAVIOR);
+		hasTransition(STATE_CONFIGURATION,	STATE_EXTERNAL);
+	}
 	this.signalStarted = function() {
 		hasTransition(STATE_CONFIGURATION,	STATE_STARTING);
 	}
 	this.signalRunning = function() {
 		hasTransition(STATE_STARTING,		STATE_ACTIVE);
+		hasTransition(STATE_EXTERNAL,		STATE_ACTIVE);
 	}
 	this.signalFinished = function() {
-		hasTransition(STATE_ACTIVE,			STATE_CONFIGURATION);
-		hasTransition(STATE_LOCKED,			STATE_CONFIGURATION);
-		hasTransition(STATE_CHANGED,		STATE_CONFIGURATION);
-		hasTransition(STATE_NEW_VERSION,	STATE_CONFIGURATION);
-		hasTransition(STATE_STARTING,		STATE_CONFIGURATION);
+		hasTransition(STATE_ACTIVE,					STATE_CONFIGURATION);
+		hasTransition(STATE_LOCKED,					STATE_CONFIGURATION);
+		hasTransition(STATE_CHANGED,				STATE_CONFIGURATION);
+		hasTransition(STATE_NEW_VERSION,			STATE_CONFIGURATION);
+		hasTransition(STATE_STARTING,				STATE_CONFIGURATION);
+		hasTransition(STATE_EXTERNAL_NO_BEHAVIOR,	STATE_CONFIGURATION);
+		hasTransition(STATE_EXTERNAL,				STATE_CONFIGURATION);
 	}
 	this.signalLocked = function() {
 		hasTransition(STATE_ACTIVE,		STATE_LOCKED);
@@ -263,6 +300,9 @@ RC.Controller = new (function() {
 	}
 	this.isActive = function() {
 		return STATE_ACTIVE.isActive;
+	}
+	this.isExternal = function() {
+		return STATE_EXTERNAL.isActive || STATE_EXTERNAL_NO_BEHAVIOR.isActive;
 	}
 	this.isLocked = function() {
 		return STATE_LOCKED.isActive || STATE_CHANGED.isActive || STATE_NEW_VERSION.isActive;

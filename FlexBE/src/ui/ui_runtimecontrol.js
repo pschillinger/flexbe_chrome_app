@@ -416,6 +416,7 @@ UI.RuntimeControl = new (function() {
 
 	var hideDisplays = function() {
 		document.getElementById("runtime_configuration_display").style.display = "none";
+		document.getElementById("runtime_external_display").style.display = "none";
 		document.getElementById("runtime_waiting_display").style.display = "none";
 		document.getElementById("runtime_offline_display").style.display = "none";
 		document.getElementById("runtime_no_behavior_display").style.display = "none";
@@ -496,6 +497,14 @@ UI.RuntimeControl = new (function() {
 			var autonomy_value = parseInt(selection_box.options[selection_box.selectedIndex].value);
 			RC.PubSub.sendBehaviorStart(param_keys, param_vals, autonomy_value); 
 		});
+	}
+
+	this.attachExternalClicked = function() {
+		var selection_box = document.getElementById("selection_rc_autonomy");
+		var autonomy_level = parseInt(selection_box.options[selection_box.selectedIndex].value);
+		RC.PubSub.sendAttachBehavior(autonomy_level);
+
+		UI.RuntimeControl.displayBehaviorFeedback(4, "Attaching to behavior...");
 	}
 
 	this.behaviorLockClicked = function() {
@@ -674,6 +683,11 @@ UI.RuntimeControl = new (function() {
 	this.displayWaitingForBehavior = function() {
 		hideDisplays();
 		document.getElementById("runtime_waiting_display").style.display = "inline";
+	}
+
+	this.displayExternalBehavior = function() {
+		hideDisplays();
+		document.getElementById("runtime_external_display").style.display = "inline";
 	}
 
 	this.displayEngineOffline = function() {
