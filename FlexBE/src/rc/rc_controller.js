@@ -123,6 +123,9 @@ RC.Controller = new (function() {
 			UI.RuntimeControl.displayWaitingForBehavior();
 			ActivityTracer.addExecution();
 			UI.Dashboard.setReadonly();
+			UI.Panels.SelectBehavior.hide();
+			UI.Panels.AddState.hide();
+			UI.Panels.StateProperties.hide();
 
 			RC.Sync.register("State", 30);
 		},
@@ -143,6 +146,9 @@ RC.Controller = new (function() {
 			UI.RuntimeControl.displayState(current_state_path);
 			UI.RuntimeControl.displayLockBehavior();
 			UI.RuntimeControl.refreshView();
+			UI.Panels.SelectBehavior.hide();
+			UI.Panels.AddState.hide();
+			UI.Panels.StateProperties.hide();
 
 			RC.Sync.setProgress("State", 1, false);
 
