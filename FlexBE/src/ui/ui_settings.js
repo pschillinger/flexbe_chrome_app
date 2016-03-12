@@ -9,6 +9,11 @@ UI.Settings = new (function() {
 	var rosbridge_port;
 
 	var runtime_timeout;
+	var stop_behaviors;
+	var collapse_info;
+	var collapse_warn;
+	var collapse_error;
+	var collapse_hint;
 
 	var package_namespace;
 	var transition_mode;
@@ -28,6 +33,11 @@ UI.Settings = new (function() {
 			'rosbridge_ip': rosbridge_ip,
 			'rosbridge_port': rosbridge_port,
 			'runtime_timeout': runtime_timeout,
+			'stop_behaviors': stop_behaviors,
+			'collapse_info': collapse_info,
+			'collapse_warn': collapse_warn,
+			'collapse_error': collapse_error,
+			'collapse_hint': collapse_hint,
 			'package_namespace': package_namespace,
 			'transition_mode': transition_mode,
 			'gridsize': gridsize,
@@ -52,6 +62,11 @@ UI.Settings = new (function() {
 			'rosbridge_ip': 'localhost',
 			'rosbridge_port': '9090',
 			'runtime_timeout': 10,
+			'stop_behaviors': false,
+			'collapse_info': true,
+			'collapse_warn': true,
+			'collapse_error': false,
+			'collapse_hint': false,
 			'package_namespace': '',
 			'transition_mode': 1,
 			'gridsize': 50,
@@ -82,6 +97,16 @@ UI.Settings = new (function() {
 			
 			runtime_timeout = items.runtime_timeout;
 			document.getElementById("input_runtime_timeout").value = items.runtime_timeout;
+			stop_behaviors = items.stop_behaviors;
+			document.getElementById("cb_stop_behaviors").checked = items.stop_behaviors;
+			collapse_info = items.collapse_info;
+			document.getElementById("cb_collapse_info").checked = items.collapse_info;
+			collapse_warn = items.collapse_warn;
+			document.getElementById("cb_collapse_warn").checked = items.collapse_warn;
+			collapse_error = items.collapse_error;
+			document.getElementById("cb_collapse_error").checked = items.collapse_error;
+			collapse_hint = items.collapse_hint;
+			document.getElementById("cb_collapse_hint").checked = items.collapse_hint;
 			
 			package_namespace = items.package_namespace;
 			document.getElementById("input_package_namespace").value = items.package_namespace;
@@ -251,6 +276,40 @@ UI.Settings = new (function() {
 		RC.Controller.onboardTimeout = runtime_timeout;
 		storeSettings();
 	}
+
+	this.stopBehaviorsClicked = function(evt) {
+		stop_behaviors = evt.target.checked;
+		storeSettings();
+	}
+
+	this.collapseInfoClicked = function(evt) {
+		collapse_info = evt.target.checked;
+		storeSettings();
+	}
+
+	this.collapseWarnClicked = function(evt) {
+		collapse_warn = evt.target.checked;
+		storeSettings();
+	}
+
+	this.collapseErrorClicked = function(evt) {
+		collapse_error = evt.target.checked;
+		storeSettings();
+	}
+
+	this.collapseHintClicked = function(evt) {
+		collapse_hint = evt.target.checked;
+		storeSettings();
+	}
+
+	this.isStopBehaviors = function() {
+		return stop_behaviors;
+	}
+
+	this.isCollapseInfo = function() { return collapse_info; }
+	this.isCollapseWarn = function() { return collapse_warn; }
+	this.isCollapseError = function() { return collapse_error; }
+	this.isCollapseHint = function() { return collapse_hint; }
 
 
 	// Editor

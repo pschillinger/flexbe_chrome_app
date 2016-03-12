@@ -20,6 +20,7 @@ UI.RuntimeControl = new (function() {
 
 	var locked_state_path = "";
 
+	var pause_behavior_toggle = true;
 	var sync_ext_toggle = false;
 
 	var updateDrawing = function() {
@@ -415,6 +416,7 @@ UI.RuntimeControl = new (function() {
 
 	var hideDisplays = function() {
 		document.getElementById("runtime_configuration_display").style.display = "none";
+		document.getElementById("runtime_external_display").style.display = "none";
 		document.getElementById("runtime_waiting_display").style.display = "none";
 		document.getElementById("runtime_offline_display").style.display = "none";
 		document.getElementById("runtime_no_behavior_display").style.display = "none";
@@ -497,6 +499,14 @@ UI.RuntimeControl = new (function() {
 		});
 	}
 
+	this.attachExternalClicked = function() {
+		var selection_box = document.getElementById("selection_rc_autonomy");
+		var autonomy_level = parseInt(selection_box.options[selection_box.selectedIndex].value);
+		RC.PubSub.sendAttachBehavior(autonomy_level);
+
+		UI.RuntimeControl.displayBehaviorFeedback(4, "Attaching to behavior...");
+	}
+
 	this.behaviorLockClicked = function() {
 		if (!RC.Controller.isRunning()) return;
 
@@ -530,6 +540,40 @@ UI.RuntimeControl = new (function() {
 		//UI.RuntimeControl.displayBehaviorFeedback(4, "Changed autonomy to: " + ["No","Low","High","Full"][value]);
 	}
 
+	this.repeatBehaviorClicked = function() {
+		if (!RC.Controller.isRunning()) return;
+
+		RC.PubSub.sendRepeatBehavior();
+	}
+
+	this.pauseBehaviorClicked = function() {
+		if (!RC.Controller.isRunning()) return;
+		document.getElementById("button_behavior_pause").setAttribute("disabled", "disabled");
+
+		if (pause_behavior_toggle) {
+			RC.PubSub.sendPauseBehavior();
+		} else {
+			RC.PubSub.sendResumeBehavior();
+		}
+	}
+
+	this.switchPauseButton = function() {
+		pause_behavior_toggle = !pause_behavior_toggle;
+		document.getElementById("button_behavior_pause").removeAttribute("disabled", "disabled");
+
+		if (pause_behavior_toggle) {
+			document.getElementById("button_behavior_pause").setAttribute("value", "Pause");
+		} else {
+			document.getElementById("button_behavior_pause").setAttribute("value", "Resume");
+		}
+	}
+
+	this.resetPauseButton = function() {
+		pause_behavior_toggle = true;
+		document.getElementById("button_behavior_pause").removeAttribute("disabled", "disabled");
+		document.getElementById("button_behavior_pause").setAttribute("value", "Pause");
+	}
+
 	this.preemptBehaviorClicked = function() {
 		if (!RC.Controller.isConnected()) return;
 
@@ -537,16 +581,16 @@ UI.RuntimeControl = new (function() {
 		UI.RuntimeControl.displayBehaviorFeedback(4, "Stopping behavior...");
 		document.getElementById("cb_allow_preempt").checked = false;
 		document.getElementById("button_behavior_preempt").setAttribute("disabled", "disabled");
-		document.getElementById("button_behavior_preempt").style.color = "gray"
+		document.getElementById("button_behavior_preempt").style.color = "gray";
 	}
 
 	this.allowPreemptClicked = function(evt) {
 		if(evt.target.checked) {
 			document.getElementById("button_behavior_preempt").removeAttribute("disabled", "disabled");
-			document.getElementById("button_behavior_preempt").style.color = "red"
+			document.getElementById("button_behavior_preempt").style.color = "red";
 		} else {
 			document.getElementById("button_behavior_preempt").setAttribute("disabled", "disabled");
-			document.getElementById("button_behavior_preempt").style.color = "gray"
+			document.getElementById("button_behavior_preempt").style.color = "gray";
 		}
 	}
 
@@ -641,6 +685,11 @@ UI.RuntimeControl = new (function() {
 		document.getElementById("runtime_waiting_display").style.display = "inline";
 	}
 
+	this.displayExternalBehavior = function() {
+		hideDisplays();
+		document.getElementById("runtime_external_display").style.display = "inline";
+	}
+
 	this.displayEngineOffline = function() {
 		hideDisplays();
 		document.getElementById("runtime_offline_display").style.display = "inline";
@@ -675,17 +724,25 @@ UI.RuntimeControl = new (function() {
 		} else {
 			lock_button.removeAttribute("disabled");
 			// collect containers but skip top-level container (behavior)
+			var options = [];
 			for(var i=current_states.length-1; i>0; i--) {
 				var option = document.createElement("option");
 				if (i == current_level) {
+					option.setAttribute("selected", "selected");
+				}
+				if (current_states[i] instanceof Statemachine && current_states[i].isConcurrent()) {
+					options = [];
 					option.setAttribute("selected", "selected");
 				}
 				option.setAttribute("path", current_states[i].getStatePath());
 				var txt = current_states[i].getStateName();
 				option.setAttribute("title", txt);
 				option.text = ((txt.length > 18)? txt.slice(0,15) + "..." : txt);
-				selection_box.add(option);
+				options.push(option);
 			}
+			options.forEach(function(option) {
+				selection_box.add(option);
+			});
 		}
 
 		var label_td = document.createElement("td");
@@ -791,11 +848,24 @@ UI.RuntimeControl = new (function() {
 
 	this.displayBehaviorFeedback = function(level, text) {
 		var color = "black";
+		var collapse = UI.Settings.isCollapseInfo();
 		switch(level) {
-			case 1: color = "orange"; break;
-			case 2: color = "navy"; break;
-			case 3: color = "red"; break;
-			case 4: color = "green"; break;
+			case 1:
+				color = "orange";
+				collapse = UI.Settings.isCollapseWarn();
+				break;
+			case 2:
+				color = "navy";
+				collapse = UI.Settings.isCollapseHint();
+				break;
+			case 3:
+				color = "red";
+				collapse = UI.Settings.isCollapseError();
+				break;
+			case 4:
+				color = "green";
+				collapse = false;
+				break;
 		}
 		var currentdate = new Date(); 
 		var time = currentdate.toLocaleTimeString();
@@ -827,11 +897,12 @@ UI.RuntimeControl = new (function() {
 			entry_body.style.color = color;
 			entry_body.style.opacity = "0.8";
 			entry_body.innerHTML = text_body;
+			entry_body.style.display = collapse? "none" : "";
 
 			entry_toggle = document.createElement("font");
 			entry_toggle.style.cursor = "pointer";
-			entry_toggle.innerHTML = " [-]";
-			entry_toggle.title = "hide details";
+			entry_toggle.innerHTML = collapse? " [+]" : " [-]";
+			entry_toggle.title = collapse? "show details" : "hide details";
 			entry_toggle.addEventListener("click", function() {
 				if (entry_toggle.innerHTML == " [-]") {
 					entry_toggle.innerHTML = " [+]";

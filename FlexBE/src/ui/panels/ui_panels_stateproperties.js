@@ -293,6 +293,11 @@ UI.Panels.StateProperties = new (function() {
 			remove_button.setAttribute("style", "margin-left: 10px;");
 			remove_button.setAttribute("outcome", state.getOutcomes()[i]);
 			remove_button.addEventListener("click", function() {
+				if (RC.Controller.isReadonly()
+					|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+					|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+					|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+					) return;
 				state.removeOutcome(this.getAttribute("outcome"));
 				var row = this.parentNode;
 				row.parentNode.removeChild(row);
@@ -321,6 +326,11 @@ UI.Panels.StateProperties = new (function() {
 			input_field.setAttribute("value", input_mapping[i]);
 			input_field.setAttribute("input_key", input_keys[i]);
 			input_field.addEventListener("blur", function() {
+				if (RC.Controller.isReadonly()
+					|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+					|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+					|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+					) return;
 				var idx = state.getInputKeys().indexOf(this.getAttribute("input_key"));
 				state.getInputMapping()[idx] = this.value;
 			});
@@ -335,6 +345,11 @@ UI.Panels.StateProperties = new (function() {
 			remove_button.setAttribute("style", "margin-left: 10px;");
 			remove_button.setAttribute("input_key", input_keys[i]);
 			remove_button.addEventListener("click", function() {
+				if (RC.Controller.isReadonly()
+					|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+					|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+					|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+					) return;
 				var idx = state.getInputKeys().indexOf(this.getAttribute("input_key"));
 				state.getInputKeys().remove(this.getAttribute("input_key"));
 				state.getInputMapping().remove(state.getInputMapping()[idx]);
@@ -364,6 +379,11 @@ UI.Panels.StateProperties = new (function() {
 			input_field.setAttribute("value", output_mapping[i]);
 			input_field.setAttribute("output_key", output_keys[i]);
 			input_field.addEventListener("blur", function() {
+				if (RC.Controller.isReadonly()
+					|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+					|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+					|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+					) return;
 				var idx = state.getOutputKeys().indexOf(this.getAttribute("output_key"));
 				state.getOutputMapping()[idx] = this.value;
 			});
@@ -378,6 +398,11 @@ UI.Panels.StateProperties = new (function() {
 			remove_button.setAttribute("style", "margin-left: 10px;");
 			remove_button.setAttribute("output_key", output_keys[i]);
 			remove_button.addEventListener("click", function() {
+				if (RC.Controller.isReadonly()
+					|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+					|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+					|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+					) return;
 				var idx = state.getOutputKeys().indexOf(this.getAttribute("output_key"));
 				state.getOutputKeys().remove(this.getAttribute("output_key"));
 				state.getOutputMapping().remove(state.getOutputMapping()[idx]);
@@ -440,6 +465,11 @@ UI.Panels.StateProperties = new (function() {
 				input_field.setAttribute("value", input_mapping[i]);
 				input_field.setAttribute("input_key", input_keys[i]);
 				input_field.addEventListener("blur", function() {
+					if (RC.Controller.isReadonly()
+						|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+						|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+						|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+						) return;
 					var idx = state.getInputKeys().indexOf(this.getAttribute("input_key"));
 					state.getInputMapping()[idx] = this.value;
 				});
@@ -473,6 +503,11 @@ UI.Panels.StateProperties = new (function() {
 				input_field.setAttribute("value", output_mapping[i]);
 				input_field.setAttribute("output_key", output_keys[i]);
 				input_field.addEventListener("blur", function() {
+					if (RC.Controller.isReadonly()
+						|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+						|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+						|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+						) return;
 					var idx = state.getOutputKeys().indexOf(this.getAttribute("output_key"));
 					state.getOutputMapping()[idx] = this.value;
 				});
@@ -769,7 +804,11 @@ UI.Panels.StateProperties = new (function() {
 
 	this.addSMOutcome = function() {
 		if (document.getElementById("input_prop_outcome_add").value == "") return;
-		if (RC.Controller.isReadonly() || UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()) return;
+		if (RC.Controller.isReadonly()
+			|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+			|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+			|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+			) return;
 
 		current_prop_state.addOutcome(document.getElementById("input_prop_outcome_add").value);
 
@@ -780,7 +819,11 @@ UI.Panels.StateProperties = new (function() {
 
 	this.addSMInputKey = function() {
 		if (document.getElementById("input_prop_input_key_add").value == "") return;
-		if (RC.Controller.isReadonly() || UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()) return;
+		if (RC.Controller.isReadonly()
+			|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+			|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+			|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+			) return;
 
 		current_prop_state.getInputKeys().push(document.getElementById("input_prop_input_key_add").value);
 		current_prop_state.getInputMapping().push(document.getElementById("input_prop_input_key_add").value);
@@ -792,7 +835,11 @@ UI.Panels.StateProperties = new (function() {
 
 	this.addSMOutputKey = function() {
 		if (document.getElementById("input_prop_output_key_add").value == "") return;
-		if (RC.Controller.isReadonly() || UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()) return;
+		if (RC.Controller.isReadonly()
+			|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+			|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+			|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+			) return;
 
 		current_prop_state.getOutputKeys().push(document.getElementById("input_prop_output_key_add").value);
 		current_prop_state.getOutputMapping().push(document.getElementById("input_prop_output_key_add").value);
@@ -803,6 +850,11 @@ UI.Panels.StateProperties = new (function() {
 	}
 
 	this.containerTypeChanged = function(evt) {
+		if(RC.Controller.isReadonly()
+			|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+			|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+			|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+			) return;
 		if (this.value == 'concurrency') {
 			current_prop_state.setConcurrent(true);
 			current_prop_state.setPriority(false);
@@ -841,6 +893,11 @@ UI.Panels.StateProperties = new (function() {
 	}
 
 	this.synthesizeClicked = function() {
+		if(RC.Controller.isReadonly()
+			|| UI.Statemachine.getDisplayedSM().isInsideDifferentBehavior()
+			|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
+			|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
+			) return;
 		var initial_condition = document.getElementById('input_prop_synthesis_initial').value;
 		var goal = document.getElementById('input_prop_synthesis_goal').value;
 		document.getElementById("cb_display_synthesis").checked = false;

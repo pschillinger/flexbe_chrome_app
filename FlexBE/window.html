@@ -297,6 +297,20 @@
 					Now waiting for confirmation from onboard behavior...
 				</div>
 			</div>
+			<div id="runtime_external_display" class="runtimebox_text">
+				<h1>External Behavior Running</h1>
+				<font style="color: gray">
+					<br />
+					Behavior has been started from a different control instance.<br /><br />
+					You can load the currently running behavior and attach this GUI to it in order to monitor and control execution.
+				</font>
+				<br /><br />
+				<table class="box_table">
+					<tr>
+						<td align="center"><input id="button_behavior_attach_external" type="button" value="Attach" class="big_button" style="color: green; width: 200px;" /></td>
+					</tr>
+				</table>
+			</div>
 			<div id="runtime_offline_display" class="runtimebox_text" style="display: inline;">
 				<h1>No connection!</h1>
 				<font style="color: gray">
@@ -373,6 +387,10 @@
 				<option value="3" style="color: red;">Full</option>
 			</select>
 			autonomy.
+			<br /><br />
+			<input id="button_behavior_repeat" type="button" style="width: 100px;" value="Repeat" /> <i>(execute current state again from beginning)</i>
+			<br />
+			<input id="button_behavior_pause" type="button" style="width: 100px;" value="Pause" /> <i>(stay active, but suspend execution)</i>
 			<br /><br />
 			<input id="button_behavior_sync" type="button" value="Sync" style="float: right;" />
 			<input id="cb_allow_preempt" type="checkbox" />
@@ -453,6 +471,17 @@
 				<tr>
 					<td width="150">Heartbeat timeout: </td>
 					<td><input id="input_runtime_timeout" type="number" value="10" min="4" max="30" step="1" /> seconds</td>
+				</tr>
+				<tr>
+					<td width="150">Prevent external: </td><td><input id="cb_stop_behaviors" type="checkbox" /> (stops externally started behaviors)</td>
+				</tr>
+				<tr>
+					<td width="150">Collapse feedback: </td><td>
+						<input id="cb_collapse_info" type="checkbox" /> Info&nbsp;&nbsp;&nbsp;
+						<input id="cb_collapse_warn" type="checkbox" /> Warning&nbsp;&nbsp;&nbsp;
+						<input id="cb_collapse_error" type="checkbox" /> Error&nbsp;&nbsp;&nbsp;
+						<input id="cb_collapse_hint" type="checkbox" /> Hint
+					</td>
 				</tr>
 			</table>
 		</div>

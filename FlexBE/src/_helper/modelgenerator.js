@@ -68,11 +68,6 @@ ModelGenerator = new (function() {
 		} else if (container_sm_def.sm_type == "priority") {
 			container_sm.setPriority(true);
 		}
-		var oc_objs = container_sm.getSMOutcomes();
-		var oc_pos_len = Math.min(oc_objs.length, container_sm_def.oc_positions.length);
-		for (var i = 0; i < oc_pos_len; i++) {
-			oc_objs[i].setPosition(container_sm_def.oc_positions[i]);
-		}
 
 		// add states
 		var container_states = sm_states.findElement(function(element) {
@@ -162,6 +157,11 @@ ModelGenerator = new (function() {
 					container_sm.addTransition(trans);
 				}
 			}
+		}
+		var oc_objs = container_sm.getSMOutcomes();
+		var oc_pos_len = Math.min(oc_objs.length, container_sm_def.oc_positions.length);
+		for (var i = 0; i < oc_pos_len; i++) {
+			oc_objs[i].setPosition(container_sm_def.oc_positions[i]);
 		}
 
 		return container_sm;
