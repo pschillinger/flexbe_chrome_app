@@ -26,13 +26,17 @@ PackageGenerator = new (function() {
 	}
 
 	this.generatePackageXML = function() {
+		var state_dependencies = '';
+		Statelib.getDependencyList().forEach(function(dep) {
+			state_dependencies += '  <run_depend>' + dep + '</run_depend>\n';
+		});
 		return '<package>\n' +
 			'  <name>' + Behavior.createNames().rosnode_name + '</name>\n' +
 			'  <version>1.0.0</version>\n' +
 			'  <description>\n' +
 			'     ' + Behavior.getBehaviorDescription() + '\n' +
 			'  </description>\n' +
-			'  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>\n' +
+			'  <maintainer email="todo@todo.com">' + Behavior.getAuthor() + '</maintainer>\n' +
 			'  <license>BSD</license>\n' +
 			'\n' +
 			'  <url>http://ros.org/wiki/' + Behavior.createNames().rosnode_name + '</url>\n' +
@@ -42,8 +46,7 @@ PackageGenerator = new (function() {
 			'\n' +
 			'  <run_depend>rospy</run_depend>\n' +
 			'  <run_depend>flexbe_core</run_depend>\n' +
-			'  <run_depend>flexbe_states</run_depend>\n' +
-			'  <run_depend>flexbe_argos_states</run_depend>\n' +
+			state_dependencies +
 			'\n' +
 			'</package>';
 	}
