@@ -130,6 +130,22 @@ CommandLib = new (function() {
 				UI.RuntimeControl.behaviorLockClicked();
 			},
 			text: "Applies runtime modifications to the currently locked behavior."
+		},
+		{
+			desc: "edit",
+			match: /^edit ?([^\n]+)?$/,
+			impl: function(args) {
+				var path = (args[1] != undefined)? args[1] : '/';
+				var sm = (path == '/')? Behavior.getStatemachine()
+					: Behavior.getStatemachine().getStateByPath(path);
+				if (sm == undefined || !(sm instanceof Statemachine)) {
+					T.logWarn('Given path ' + path + ' does not refer to a statemachine.');
+					return;
+				}
+				UI.Statemachine.setDisplayedSM(sm);
+				UI.Menu.toStatemachineClicked();
+			},
+			text: "Opens the container given by the specified path in the editor."
 		}
 	];
 

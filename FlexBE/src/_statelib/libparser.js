@@ -187,6 +187,8 @@ LibParser = new (function() {
 			return s;
 		});
 
+		Statelib.addDependency(import_path);
+		
 		Statelib.addToLib(new StateDefinition(
 			state_class,
 			state_doc,

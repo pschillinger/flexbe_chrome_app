@@ -27,9 +27,9 @@ UI.Menu = new (function() {
 	];
 	var button_config_sm = [
 		[
-			["Add State", "title_add", function() { UI.Menu.addStateClicked(); }],
-			["Add Behavior", "title_add", function() { UI.Menu.addBehaviorClicked(); }],
-			["Add Container", "title_add", function() { UI.Menu.addStatemachineClicked(); }]
+			["Add State", "add", function() { UI.Menu.addStateClicked(); }],
+			["Add Behavior", "add", function() { UI.Menu.addBehaviorClicked(); }],
+			["Add Container", "add", function() { UI.Menu.addStatemachineClicked(); }]
 		],
 		[
 			["Data Flow Graph", "dataflow", function() { UI.Statemachine.toggleDataflow(); }],
