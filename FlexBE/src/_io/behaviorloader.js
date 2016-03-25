@@ -12,6 +12,13 @@ BehaviorLoader = new (function() {
 		}
 		applyParsingResult(parsingResult, manifest_data);
 		T.logInfo("Behavior " + parsingResult.behavior_name + " loaded.");
+
+		var error_string = Checking.checkBehavior();
+		if (error_string != undefined) {
+			T.logError("The loaded behavior contains errors! Please fix and save:");
+			T.logError(error_string);
+			RC.Controller.signalChanged();
+		}
 	}
 
 	var applyParsingResult = function(result, manifest) {
