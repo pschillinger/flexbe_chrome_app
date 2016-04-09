@@ -473,7 +473,7 @@
 					<td><input id="input_runtime_timeout" type="number" value="10" min="4" max="30" step="1" /> seconds</td>
 				</tr>
 				<tr title="Make sure that only this GUI (if running) is able to execute behaviors and automatically stop others.">
-					<td width="150">Prevent external: </td><td><input id="cb_stop_behaviors" type="checkbox" /> (stops externally started behaviors)</td>
+					<td width="150">Restrict execution: </td><td><input id="cb_stop_behaviors" type="checkbox" /> (stops externally started behaviors)</td>
 				</tr>
 				<tr title="Multi-line feedback messages of the selected types are automatically collapsed ([+] and [-] button in Behavior Feedback).">
 					<td width="150">Collapse feedback: </td><td>
@@ -495,6 +495,16 @@
 				<tr title="Prefix of ROS package names. Can be used to switch between different systems.">
 					<td width="150">Package namespace: </td>
 					<td><input id="input_package_namespace" type="text" class="input_field" /></td>
+				</tr>
+				<tr title="Type of whitespaces used for indentation in generated sourcecode when a behavior is saved.">
+					<td width="150">Code Indentation: </td>
+					<td><select id="select_code_indentation">
+							<option value="0">Tabs</option>
+							<option value="1">2 Spaces</option>
+							<option value="2">4 Spaces</option>
+							<option value="3">8 Spaces</option>
+						</select>
+					</td>
 				</tr>
 				<tr title="Drawing mode of transition arrows in the editor.">
 					<td width="150">Transition endpoints: </td>

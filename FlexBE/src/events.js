@@ -129,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('cb_stop_behaviors').addEventListener('change', UI.Settings.stopBehaviorsClicked);
 
     document.getElementById('input_package_namespace').addEventListener('change', UI.Settings.packageNamespaceChanged);
+    document.getElementById('select_code_indentation').addEventListener('change', UI.Settings.codeIndentationChanged);
     document.getElementById('select_transition_mode').addEventListener('change', UI.Settings.transitionEndpointsChanged);
     document.getElementById('input_gridsize').addEventListener('change', UI.Settings.gridsizeChanged);
     document.getElementById('cb_commands_enabled').addEventListener('change', UI.Settings.commandsEnabledClicked);
