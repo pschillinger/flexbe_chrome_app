@@ -117,7 +117,7 @@ CodeGenerator = new (function() {
 		for (var i = 0; i < notes.length; i++) {
 			var n = notes[i];
 			code += ws+ws+"# " + (n.isImportant()? "!" : "O") + " " + Math.round(n.getPosition().x) + " " + Math.round(n.getPosition().y) + " " + n.getContainerPath() + "\n";
-			code += ws+ws+"# " + n.getContent().replace("\n", "\|n") + "\n\n";
+			code += ws+ws+"# " + n.getContent().replace(/\n/g, "\|n") + "\n\n";
 		}
 		return code;
 	}
