@@ -5,6 +5,8 @@ CodeGenerator = new (function() {
 	var sm_counter = 0;
 	var sm_names = [];
 
+	var ws = '\t';
+
 	var autonomyMapping = function(autonomy_int) {
 		switch(parseInt(autonomy_int)) {
 			case 0: return "Autonomy.Off";
@@ -63,32 +65,32 @@ CodeGenerator = new (function() {
 		code += "@author: " + Behavior.getAuthor() + "\n";
 		code += "'''\n";
 		code += "class " + names.class_name + "(Behavior):\n";
-		code += "\t'''\n";
-		code += "\t" + Behavior.getBehaviorDescription() + "\n";
-		code += "\t'''\n";
+		code += ws+"'''\n";
+		code += ws+ Behavior.getBehaviorDescription() + "\n";
+		code += ws+"'''\n";
 		return code;
 	}
 
 	var generateInitialization = function() {
 		var code = "";
 		// header
-		code += "\tdef __init__(self):\n";
-		code += "\t\tsuper(" + names.class_name + ", self).__init__()\n";
-		code += "\t\tself.name = '" + names.behavior_name + "'\n";
+		code += ws+"def __init__(self):\n";
+		code += ws+ws+"super(" + names.class_name + ", self).__init__()\n";
+		code += ws+ws+"self.name = '" + names.behavior_name + "'\n";
 		code += "\n";
 		// parameters
-		code += "\t\t# parameters of this behavior\n";
+		code += ws+ws+"# parameters of this behavior\n";
 		var params = Behavior.getBehaviorParameters();
 		for (var i = 0; i < params.length; i++) {
 			var default_value = 
 				(params[i].type == "text" || params[i].type == "enum")? "'" + params[i].default + "'" :
 				(params[i].type == "yaml")? "dict()" : 
 				params[i].default;
-			code += "\t\tself.add_parameter('" + params[i].name + "', " + default_value + ")\n";
+			code += ws+ws+"self.add_parameter('" + params[i].name + "', " + default_value + ")\n";
 		};
 		code += "\n";
 		// contains
-		code += "\t\t# references to used behaviors\n";
+		code += ws+ws+"# references to used behaviors\n";
 		var states = helper_collectAllStates(Behavior.getStatemachine());
 		var contained_behaviors = [];
 		for (var i = 0; i < states.length; i++) {
@@ -97,37 +99,37 @@ CodeGenerator = new (function() {
 			contained_behaviors.push(states[i]);
 		}
 		for (var i=0; i<contained_behaviors.length; ++i) {
-			code += "\t\tself.add_behavior(" + contained_behaviors[i].getStateClass() + ", '" + contained_behaviors[i].getStatePath().substr(1) + "')\n";
+			code += ws+ws+"self.add_behavior(" + contained_behaviors[i].getStateClass() + ", '" + contained_behaviors[i].getStatePath().substr(1) + "')\n";
 		}
 		code += "\n";
 		// manual
-		code += "\t\t# Additional initialization code can be added inside the following tags\n";
-		code += "\t\t# [MANUAL_INIT]";
+		code += ws+ws+"# Additional initialization code can be added inside the following tags\n";
+		code += ws+ws+"# [MANUAL_INIT]";
 		if (Behavior.getManualCodeInit() == "") {
-			code += "\n\t\t\n\t\t";
+			code += "\n"+ws+ws+"\n"+ws+ws;
 		} else {
 			code += Behavior.getManualCodeInit();
 		}
 		code += "# [/MANUAL_INIT]\n";
 		code += "\n";
-		code += "\t\t# Behavior comments:\n\n";
+		code += ws+ws+"# Behavior comments:\n\n";
 		var notes = Behavior.getCommentNotes();
 		for (var i = 0; i < notes.length; i++) {
 			var n = notes[i];
-			code += "\t\t# " + (n.isImportant()? "!" : "O") + " " + Math.round(n.getPosition().x) + " " + Math.round(n.getPosition().y) + " " + n.getContainerPath() + "\n";
-			code += "\t\t# " + n.getContent().replace("\n", "\|n") + "\n\n";
+			code += ws+ws+"# " + (n.isImportant()? "!" : "O") + " " + Math.round(n.getPosition().x) + " " + Math.round(n.getPosition().y) + " " + n.getContainerPath() + "\n";
+			code += ws+ws+"# " + n.getContent().replace(/\n/g, "\|n") + "\n\n";
 		}
 		return code;
 	}
 
 	var generateCreation = function() {
 		var code = "";
-		code += "\tdef create(self):\n";
+		code += ws+"def create(self):\n";
 
 		// private vars
 		for (var i=0; i<Behavior.getPrivateVariables().length; ++i) {
 			var v = Behavior.getPrivateVariables()[i];
-			code += "\t\t" + v.key + " = " + v.value.trim() + "\n";
+			code += ws+ws+ v.key + " = " + v.value.trim() + "\n";
 		}
 
 		// root declaration
@@ -136,8 +138,8 @@ CodeGenerator = new (function() {
 			var position = Behavior.getStatemachine().getSMOutcomes()[i].getPosition();
 			pos.push("x:" + Math.round(position.x) + " y:" + Math.round(position.y)); 
 		}
-		code += "\t\t# " + pos.join(", ") + "\n";
-		code += "\t\t_state_machine = OperatableStateMachine(outcomes=['" + Behavior.getInterfaceOutcomes().join("', '") + "']";
+		code += ws+ws+"# " + pos.join(", ") + "\n";
+		code += ws+ws+"_state_machine = OperatableStateMachine(outcomes=['" + Behavior.getInterfaceOutcomes().join("', '") + "']";
 		if (Behavior.getInterfaceInputKeys().length > 0) {
 			code += ", input_keys=['" + Behavior.getInterfaceInputKeys().join("', '") + "']";
 		}
@@ -149,15 +151,15 @@ CodeGenerator = new (function() {
 		// default userdata
 		for (var i=0; i<Behavior.getDefaultUserdata().length; ++i) {
 			var u = Behavior.getDefaultUserdata()[i];
-			code += "\t\t_state_machine.userdata." + u.key.replace(/"/g, "") + " = " + u.value.trim() + "\n";
+			code += ws+ws+"_state_machine.userdata." + u.key.replace(/"/g, "") + " = " + u.value.trim() + "\n";
 		}
 		code += "\n";
 
 		// manual creation code
-		code += "\t\t# Additional creation code can be added inside the following tags\n";
-		code += "\t\t# [MANUAL_CREATE]";
+		code += ws+ws+"# Additional creation code can be added inside the following tags\n";
+		code += ws+ws+"# [MANUAL_CREATE]";
 		if (Behavior.getManualCodeCreate() == "") {
-			code += "\n\t\t\n\t\t";
+			code += "\n"+ws+ws+"\n"+ws+ws;
 		} else {
 			code += Behavior.getManualCodeCreate();
 		}
@@ -176,16 +178,16 @@ CodeGenerator = new (function() {
 		code += generateStateMachine(Behavior.getStatemachine(), false);
 		code += "\n";
 
-		code += "\t\treturn _state_machine\n";
+		code += ws+ws+"return _state_machine\n";
 		return code;
 	}
 
 	var generateFunctions = function() {
 		var code = "";
-		code += "\t# Private functions can be added inside the following tags\n";
-		code += "\t# [MANUAL_FUNC]";
+		code += ws+"# Private functions can be added inside the following tags\n";
+		code += ws+"# [MANUAL_FUNC]";
 		if (Behavior.getManualCodeFunc() == "") {
-			code += "\n\t\n\t";
+			code += "\n"+ws+"\n"+ws;
 		} else {
 			code += Behavior.getManualCodeFunc();
 		}
@@ -207,13 +209,13 @@ CodeGenerator = new (function() {
 				var position = sm.getSMOutcomes()[i].getPosition();
 				pos.push("x:" + Math.round(position.x) + " y:" + Math.round(position.y)); 
 			}
-			code += "\t\t# " + pos.join(", ") + "\n";
+			code += ws+ws+"# " + pos.join(", ") + "\n";
 			if (sm.isConcurrent()) {
-				code += "\t\t" + sm_name + " = ConcurrencyContainer(outcomes=['" + sm.getOutcomes().join("', '") + "']";
+				code += ws+ws+ sm_name + " = ConcurrencyContainer(outcomes=['" + sm.getOutcomes().join("', '") + "']";
 			} else if (sm.isPriority()) {
-				code += "\t\t" + sm_name + " = PriorityContainer(outcomes=['" + sm.getOutcomes().join("', '") + "']";
+				code += ws+ws+ sm_name + " = PriorityContainer(outcomes=['" + sm.getOutcomes().join("', '") + "']";
 			} else {
-				code += "\t\t" + sm_name + " = OperatableStateMachine(outcomes=['" + sm.getOutcomes().join("', '") + "']";
+				code += ws+ws+ sm_name + " = OperatableStateMachine(outcomes=['" + sm.getOutcomes().join("', '") + "']";
 			}
 			if (sm.getInputKeys().length > 0) {
 				code += ", input_keys=['" + sm.getInputKeys().join("', '") + "']";
@@ -230,14 +232,14 @@ CodeGenerator = new (function() {
 					conditions.transitions[i].forEach(function(t) {
 						transitions_list.push("('" + t[0] + "', '" + t[1] + "')");
 					});
-					list_entries.push("\t\t\t\t\t\t\t\t\t\t('" + conditions.outcomes[i].split('#')[0] + "', [" + transitions_list.join(', ') + "])");
+					list_entries.push(ws+ws+ws+ws+ws+ws+ws+ws+ws+ws+"('" + conditions.outcomes[i].split('#')[0] + "', [" + transitions_list.join(', ') + "])");
 				}
-				code += list_entries.join(',\n') + "\n\t\t\t\t\t\t\t\t\t\t]"
+				code += list_entries.join(',\n') + "\n"+ws+ws+ws+ws+ws+ws+ws+ws+ws+ws+"]"
 			}
 			code += ")\n\n";
 		}
 
-		code += "\t\twith " + sm_name + ":\n";
+		code += ws+ws+"with " + sm_name + ":\n";
 
 		// smach needs to start with initial state
 		var states = sm.getStates();
@@ -266,7 +268,7 @@ CodeGenerator = new (function() {
 	var generateState = function(s, t) {
 		var code = "";
 		// comment section for internal data
-		code += "\t\t\t# x:" + Math.round(s.getPosition().x) + " y:" + Math.round(s.getPosition().y);
+		code += ws+ws+ws+"# x:" + Math.round(s.getPosition().x) + " y:" + Math.round(s.getPosition().y);
 		var internal_param_list = [];
 		for (var j = 0; j < s.getParameters().length; j++) {
 			var p_k = s.getParameters()[j];
@@ -279,20 +281,20 @@ CodeGenerator = new (function() {
 		}
 		code += "\n";
 		
-		code += "\t\t\tOperatableStateMachine.add('" + s.getStateName() + "',\n";
+		code += ws+ws+ws+"OperatableStateMachine.add('" + s.getStateName() + "',\n";
 
 		// class
 		if (s instanceof Statemachine) {
 			var sm_name = sm_names.findElement(function (element) {
 				return element.sm.getStatePath() == s.getStatePath();
 			}).name;
-			code += "\t\t\t\t\t\t\t\t\t\t" + sm_name + ",\n";
+			code += ws+ws+ws+ws+ws+ws+ws+ws+ws+ws+ sm_name + ",\n";
 
 		} else if (s instanceof BehaviorState) {
-			code += "\t\t\t\t\t\t\t\t\t\tself.use_behavior(" + s.getStateClass() + ", '" + s.getStatePath().substr(1) + "'),\n";
+			code += ws+ws+ws+ws+ws+ws+ws+ws+ws+ws+"self.use_behavior(" + s.getStateClass() + ", '" + s.getStatePath().substr(1) + "'),\n";
 
 		} else {
-			code += "\t\t\t\t\t\t\t\t\t\t" + s.getStateClass() + "(";
+			code += ws+ws+ws+ws+ws+ws+ws+ws+ws+ws+ s.getStateClass() + "(";
 			var param_strings = [];
 			for (var j=0; j<s.getParameters().length; ++j) {
 				if (s.getParameters()[j].startsWith("?")) continue;
@@ -303,7 +305,7 @@ CodeGenerator = new (function() {
 		}
 
 		// transitions
-		code += "\t\t\t\t\t\t\t\t\t\ttransitions={";
+		code += ws+ws+ws+ws+ws+ws+ws+ws+ws+ws+"transitions={";
 		var transition_strings = [];
 		var state_transitions = t.filter(function (element) {
 			return element.getFrom().getStateName() == s.getStateName();
@@ -322,7 +324,7 @@ CodeGenerator = new (function() {
 		code += "},\n";
 
 		// autonomy
-		code += "\t\t\t\t\t\t\t\t\t\tautonomy={";
+		code += ws+ws+ws+ws+ws+ws+ws+ws+ws+ws+"autonomy={";
 		var autonomy_strings = [];
 		for (var j=0; j<s.getOutcomes().length; ++j) {
 			autonomy_strings.push("'" + s.getOutcomes()[j] + "': " + autonomyMapping(s.getAutonomy()[j]));
@@ -333,7 +335,7 @@ CodeGenerator = new (function() {
 		// remapping
 		if (s.getInputKeys().length + s.getOutputKeys().length > 0) {
 			code += ",\n";
-			code += "\t\t\t\t\t\t\t\t\t\tremapping={";
+			code += ws+ws+ws+ws+ws+ws+ws+ws+ws+ws+"remapping={";
 			var remapping_strings = [];
 			for (var j=0; j<s.getInputKeys().length; ++j) {
 				remapping_strings.push("'" + s.getInputKeys()[j] + "': '" + s.getInputMapping()[j] + "'");
@@ -359,6 +361,8 @@ CodeGenerator = new (function() {
 		names = Behavior.createNames();
 		sm_counter = 0;
 		sm_names = [];
+		ws = UI.Settings.getCodeIndentation();
+		console.log('Using whitespace: "'+ws+'"')
 
 		// prefix
 		var code = "#!/usr/bin/env python\n";

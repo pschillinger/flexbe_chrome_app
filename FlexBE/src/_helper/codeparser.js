@@ -228,7 +228,7 @@ CodeParser = new (function() {
 					pos_x: parseInt(comments_def[i-4]),
 					pos_y: parseInt(comments_def[i-3]),
 					container: comments_def[i-2],
-					content: comments_def[i-1].replace("\|n", "\n")
+					content: comments_def[i-1].replace(/\|n/g, "\n")
 				});
 			}
 		}

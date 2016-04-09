@@ -16,6 +16,7 @@ UI.Settings = new (function() {
 	var collapse_hint;
 
 	var package_namespace;
+	var code_indentation;
 	var transition_mode;
 	var gridsize;
 	var commands_enabled;
@@ -39,6 +40,7 @@ UI.Settings = new (function() {
 			'collapse_error': collapse_error,
 			'collapse_hint': collapse_hint,
 			'package_namespace': package_namespace,
+			'code_indentation': code_indentation,
 			'transition_mode': transition_mode,
 			'gridsize': gridsize,
 			'commands_enabled': commands_enabled,
@@ -68,6 +70,7 @@ UI.Settings = new (function() {
 			'collapse_error': false,
 			'collapse_hint': false,
 			'package_namespace': '',
+			'code_indentation': 0,
 			'transition_mode': 1,
 			'gridsize': 50,
 			'commands_enabled': false,
@@ -110,6 +113,8 @@ UI.Settings = new (function() {
 			
 			package_namespace = items.package_namespace;
 			document.getElementById("input_package_namespace").value = items.package_namespace;
+			code_indentation = items.code_indentation;
+			document.getElementById("select_code_indentation").selectedIndex = items.code_indentation;
 			transition_mode = items.transition_mode;
 			document.getElementById("select_transition_mode").selectedIndex = items.transition_mode;
 			gridsize = items.gridsize;
@@ -321,6 +326,13 @@ UI.Settings = new (function() {
 		storeSettings();
 	}
 
+	this.codeIndentationChanged = function() {
+		var el = document.getElementById('select_code_indentation');
+		code_indentation = el.selectedIndex;
+		console.log('Set to: '+code_indentation);
+		storeSettings();
+	}
+
 	this.transitionEndpointsChanged = function() {
 		var el = document.getElementById('select_transition_mode');
 		transition_mode = el.selectedIndex;
@@ -346,6 +358,12 @@ UI.Settings = new (function() {
 
 	this.getPackageNamespace = function() {
 		return package_namespace;
+	}
+
+	this.getCodeIndentation = function() {
+		console.log('code indentation: '+code_indentation);
+		var chars = ['\t', '  ', '    ', '        '];
+		return chars[code_indentation];
 	}
 
 	this.isTransitionModeCentered = function() {

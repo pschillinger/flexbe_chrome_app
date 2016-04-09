@@ -132,7 +132,7 @@ CommandLib = new (function() {
 			text: "Applies runtime modifications to the currently locked behavior."
 		},
 		{
-			desc: "edit",
+			desc: "edit [path]",
 			match: /^edit ?([^\n]+)?$/,
 			impl: function(args) {
 				var path = (args[1] != undefined)? args[1] : '/';

@@ -425,12 +425,12 @@
 				The workspace folders defines where new behaviors are saved and from where behaviors can be loaded. Executed behaviors should always be contained in the workspace to get the best support.
 			</font>
 			<table  class="box_table" style="width: 100%; padding-right: 5px; margin-top: 5px">
-				<tr>
+				<tr title="This folder contains all the ROS packages implementing behaviors.">
 					<td>Behaviors folder: </td>
 					<td><input id="input_behaviors_folder" type="text" class="input_field" value="" readonly /></td>
 					<td><input id="button_behaviors_chooser" type="button" value="..." /></td>
 				</tr>
-				<tr>
+				<tr title="This ROS package is the point of reference for behaviors and contains all behavior manifests.">
 					<td>flexbe_behaviors: </td>
 					<td><input id="input_be_folder" type="text" class="input_field" value="" readonly /></td>
 					<td><input id="button_be_chooser" type="button" value="..." /></td>
@@ -445,11 +445,11 @@
 				<i>rosrun rosbridge_server rosbridge_websocket</i>
 			</font>
 			<table  class="box_table" style="width: 100%; padding-right: 5px; margin-top: 5px">
-				<tr>
+				<tr title="IP address (or hostname) where RosBridge is running. A different IP is helpful when running this app on non-ROS devices.">
 					<td>RosBridge IP: </td>
 					<td><input id="input_rosbridge_ip" type="text" class="input_field" value="localhost" /></td>
 				</tr>
-				<tr>
+				<tr title="Port on which RosBridge is listening. Note that each port can only be used once.">
 					<td>RosBridge Port: </td>
 					<td><input id="input_rosbridge_port" type="text" class="input_field" value="9090" /></td>
 				</tr>
@@ -468,14 +468,14 @@
 				Configuration of controlling behaviors during runtime.
 			</font>
 			<table  class="box_table" style="width: 100%; padding-right: 5px; margin-top: 5px">
-				<tr>
+				<tr title="Connection is considered to be lost if no heartbeat message is received for this amount of time.">
 					<td width="150">Heartbeat timeout: </td>
 					<td><input id="input_runtime_timeout" type="number" value="10" min="4" max="30" step="1" /> seconds</td>
 				</tr>
-				<tr>
-					<td width="150">Prevent external: </td><td><input id="cb_stop_behaviors" type="checkbox" /> (stops externally started behaviors)</td>
+				<tr title="Make sure that only this GUI (if running) is able to execute behaviors and automatically stop others.">
+					<td width="150">Restrict execution: </td><td><input id="cb_stop_behaviors" type="checkbox" /> (stops externally started behaviors)</td>
 				</tr>
-				<tr>
+				<tr title="Multi-line feedback messages of the selected types are automatically collapsed ([+] and [-] button in Behavior Feedback).">
 					<td width="150">Collapse feedback: </td><td>
 						<input id="cb_collapse_info" type="checkbox" /> Info&nbsp;&nbsp;&nbsp;
 						<input id="cb_collapse_warn" type="checkbox" /> Warning&nbsp;&nbsp;&nbsp;
@@ -492,11 +492,21 @@
 				Configuration of developing or modifying behaviors.
 			</font>
 			<table  class="box_table" style="width: 100%; padding-right: 5px; margin-top: 5px">
-				<tr>
+				<tr title="Prefix of ROS package names. Can be used to switch between different systems.">
 					<td width="150">Package namespace: </td>
 					<td><input id="input_package_namespace" type="text" class="input_field" /></td>
 				</tr>
-				<tr>
+				<tr title="Type of whitespaces used for indentation in generated sourcecode when a behavior is saved.">
+					<td width="150">Code Indentation: </td>
+					<td><select id="select_code_indentation">
+							<option value="0">Tabs</option>
+							<option value="1">2 Spaces</option>
+							<option value="2">4 Spaces</option>
+							<option value="3">8 Spaces</option>
+						</select>
+					</td>
+				</tr>
+				<tr title="Drawing mode of transition arrows in the editor.">
 					<td width="150">Transition endpoints: </td>
 					<td><select id="select_transition_mode">
 							<option value="0">Centered</option>
@@ -505,15 +515,15 @@
 						</select>
 					</td>
 				</tr>
-				<tr>
+				<tr title="Size of the state arrangement aid grid when holding down Shift in the editor.">
 					<td width="150">Grid size: </td>
 					<td><input id="input_gridsize" type="number" min="10" max="200" step="10" /> px</td>
 				</tr>
-				<tr>
+				<tr title="If enabled, any ROS node can send UI commands (those typed after pressing enter) by publishing to /flexbe/ui_command.">
 					<td width="150">Allow ROS commands: </td>
 					<td><input id="cb_commands_enabled" type="checkbox" /> (requires ROS connection)</td>
 				</tr>
-				<tr>
+				<tr title="If not empty, UI command messages are only accepted if their keys match. This helps to only let authorized nodes execute commands.">
 					<td width="150">ROS command key: </td>
 					<td><input id="input_commands_key" type="password" class="input_field" /></td>
 				</tr>
@@ -526,19 +536,19 @@
 				Incorporate any compatible external synthesis tool in order to automatically generate state machines.
 			</font>
 			<table  class="box_table" style="width: 100%; padding-right: 5px; margin-top: 5px">
-				<tr>
+				<tr title="If enabled, adds a synthesis interface to the property panel of containers in the editor in order to send synthesis requests.">
 					<td width="150">Enable synthesis: </td>
 					<td><input id="cb_synthesis_enabled" type="checkbox" /> (requires ROS connection)</td>
 				</tr>
-				<tr>
+				<tr title="The topic used by the action server of the synthesis node.">
 					<td width="150">Action topic: </td>
 					<td><input id="input_synthesis_topic" type="text" class="input_field" /></td>
 				</tr>
-				<tr>
+				<tr title="Message type of the action interface. Needs to be interpretable by this app (see tutorial).">
 					<td width="150">Action type: </td>
 					<td><input id="input_synthesis_type" type="text" class="input_field" /></td>
 				</tr>
-				<tr>
+				<tr title="Optional system identification string passed to the synthesis node when sending requests.">
 					<td width="150">System: </td>
 					<td><input id="input_synthesis_system" type="text" class="input_field" /></td>
 				</tr>
