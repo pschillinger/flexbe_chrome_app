@@ -134,21 +134,6 @@ UI.Menu = new (function() {
 		setMenuButtons(button_config_se);
 	}
 
-	this.expandDevbanner = function() {
-		var banner = document.getElementById("devbanner");
-		banner.innerHTML = "<h2>Early Development Version</h2>" +
-			"Please handle with care and report any issues you encounter so I can consider them for future improvements. Thank you!<br />" +
-			"<br />" + 
-			"<h2>Current State</h2>" + 
-			"Don't execute unsaved behaviors and don't modify behaviors during execution even if possible.";
-	}
-
-	this.shrinkDevbanner = function() {
-		var banner = document.getElementById("devbanner");
-		banner.innerHTML = "<h2>Early Development Version</h2>" +
-			"Please hover here for further information.";
-	}
-
 	this.displayRuntimeStatus = function(status) {
 		txt = document.getElementById("runtime_status_txt");
 		txt.innerHTML = status;

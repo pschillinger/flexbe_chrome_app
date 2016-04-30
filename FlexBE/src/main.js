@@ -20,4 +20,6 @@ window.onload = function() {
 
 	// Restore local settings (including statelib)
 	UI.Settings.restoreSettings(onSettingsLoaded);
+
+	UI.Feed.initialize();
 }

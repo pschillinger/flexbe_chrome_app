@@ -57,6 +57,7 @@
 	<script src="src/rc/rc_sync.js"></script>
 	<script src="src/ui/ui.js"></script>
 	<script src="src/ui/ui_dashboard.js"></script>
+	<script src="src/ui/ui_feed.js"></script>
 	<script src="src/ui/ui_menu.js"></script>
 	<script src="src/ui/ui_runtimecontrol.js"></script>
 	<script src="src/ui/ui_settings.js"></script>
@@ -85,7 +86,7 @@
 		<table cellpadding="0" cellspacing="0"><tr><td>
 			<div id="editor_title">
 				<table cellpadding="0" cellspacing="0"><tr><td>
-					<div id="label_editor_title">Flex<b>BE Editor</b></div>
+					<div id="label_editor_title">Flex<b>BE&nbsp;&nbsp;App</b></div>
 				</td></tr><tr><td>
 					<div id="label_runtime_status">Onboard Status:</div>
 				</td></tr><tr><td>
@@ -108,12 +109,53 @@
 		</td></tr></table>	
 	</div>
 
-	<div id="devbanner">
-		<h2>Early Development Version</h2>
-		Please hover here for further information.
+	<div id="flexbe_about">
+		<table cellpadding="0" cellspacing="0" border="0" style="position:absolute; right:0px">
+			<tr><td align="center" colspan="2">
+				<img src="img/logo_borderless.png" style="height:50px; margin-right:3px">
+			</td></tr><tr><td>
+				Version: <font id="flexbe_version_label">0.0.0</font>
+			</td><td>
+				<img id="flexbe_version_status" src="img/version_offline.png" title="Checking latest release...">
+			</td></tr>
+		</table>
 	</div>
-	<div id="devlogo"></div>
-	<div id="devcredit">Developer: Philipp Schillinger</div>
+	<div id="feed_area">
+		<div id="msg_notify_update" class="feed_message" style="display:none; background-color: #FFC">
+			<table cellpadding="0" cellspacing="0" border="0" style="width:100%">
+				<tr><td style="width:20px">
+					<img src="img/warning.png">
+				</td><td style="vertical-align: middle">
+					<h2>New release available!</h2>
+				</td><td style="width:20px">
+					<img id="msg_notify_update_close" src="img/close.png">
+				</td></tr>
+				<tr><td colspan="3" style="padding:2px; padding-top:5px;">
+					Update the FlexBE repo and drag the file <i>FlexBE.crx</i> onto Chrome's extensions page.
+				</td></tr>
+			</table>
+		</div>
+		<div id="msg_about" class="feed_message" style="display:none">
+			<table cellpadding="0" cellspacing="0" border="0" style="width:100%">
+				<tr><td style="width:20px">
+					<img src="img/information.png">
+				</td><td style="vertical-align: middle">
+					<h2>About FlexBE</h2>
+				</td><td style="width:20px">
+					<img id="msg_about_close" src="img/close.png">
+				</td></tr>
+				<tr><td colspan="3" style="padding:2px; padding-top:5px;">
+					More Infos: <a href="http://flexbe.github.io" target="_blank">flexbe.github.io</a><br />
+					Developer: Philipp Schillinger<br />
+					Development supported by:<br />
+					<img src="img/team_vigir_logo.png" style="height:30px" />&nbsp;&nbsp;&nbsp;
+					<img src="img/argonauts_logo.png" style="height:30px" />
+					<br />
+					<a href="https://github.com/pschillinger/flexbe_chrome_app/issues" target="_blank">Report a Bug!</a><br />
+				</td></tr>
+			</table>
+		</div>
+	</div>
 
 	<div id="properties_autocomplete" class="sidepanel_autocomplete" style="display: none;" idx="0"></div>
 

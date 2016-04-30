@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var onEnterFocusChange = function (cb, id) { return onEnter(function() { cb(); document.getElementById(id).focus(); }); };
 
 // General
-    document.getElementById('devbanner').addEventListener('mouseenter', UI.Menu.expandDevbanner);
-    document.getElementById('devbanner').addEventListener('mouseleave', UI.Menu.shrinkDevbanner);
+    document.getElementById('flexbe_about').addEventListener('mouseenter', UI.Feed.showAbout);
+    document.getElementById('flexbe_about').addEventListener('mouseleave', UI.Feed.hideAbout);
 
     document.getElementById('button_to_db').addEventListener('click', UI.Menu.toDashboardClicked);
     document.getElementById('button_to_sm').addEventListener('click', UI.Menu.toStatemachineClicked);
