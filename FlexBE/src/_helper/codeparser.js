@@ -66,7 +66,7 @@ CodeParser = new (function() {
 		// [1] - list of outcome positions, [2] - variable name of the sm, [3] - parameter collection (outcomes, input_keys, output_keys)
 	var sm_definition_pattern = /^(?:\s*# ((?:x:-?\d+ y:-?\d+(?:, )?)+))?\s*(\w+) = OperatableStateMachine\(([^)]+)\)/img;
 		// [1] - list of outcome positions, [2] - variable name of the cc, [3] - parameter collection (outcomes, input_keys, output_keys, conditions)
-	var cc_definition_pattern = /^(?:\s*# ((?:x:-?\d+ y:-?\d+(?:, )?)+))?\s*(\w+) = ConcurrencyContainer\(((?:.|\n)*?)(\s|\t)\]\)\n/img;
+	var cc_definition_pattern = /^(?:\s*# ((?:x:-?\d+ y:-?\d+(?:, )?)+))?\s*(\w+) = ConcurrencyContainer\(((?:.|\n)*?)\s\]\)\n/img;
 		// [1] - list of outcome positions, [2] - variable name of the sm, [3] - parameter collection (outcomes, input_keys, output_keys)
 	var pc_definition_pattern = /^(?:\s*# ((?:x:-?\d+ y:-?\d+(?:, )?)+))?\s*(\w+) = PriorityContainer\(([^)]+)\)/img;
 		// Matches all variable definitions (including sm! remove those first)
