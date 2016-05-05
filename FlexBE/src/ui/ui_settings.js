@@ -142,6 +142,8 @@ UI.Settings = new (function() {
 			synthesis_system = items.synthesis_system;
 			document.getElementById("input_synthesis_system").value = items.synthesis_system;
 			updateSynthesisInterface();
+
+			Behaviorlib.parseLib();
 			
 			if (restored_callback != undefined)
 				restored_callback();
@@ -194,6 +196,58 @@ UI.Settings = new (function() {
 				var msg = document.getElementById('msg_empty_statelib');
 				if (msg != undefined) msg.parentNode.removeChild(msg);
 			}
+		});
+	}
+
+	this.importConfiguration = function() {
+		chrome.fileSystem.chooseEntry({
+			type: 'openFile',
+			accepts: [{
+				description: 'Configuration (.json)',
+				extensions: ['json']
+			}]
+		}, function(entry) {
+			if (chrome.runtime.lastError) {
+				return;
+			}
+			UI.Panels.setActivePanel(UI.Panels.NO_PANEL);
+			Filesystem.readFile(entry, function(content) {
+				var config = JSON.parse(content);
+				console.log(config);
+				chrome.storage.local.set(config, function() {
+					document.getElementById('state_library_folder_table').innerHTML = "";
+					that.restoreSettings();
+				});
+			});
+		});
+	}
+
+	this.exportConfiguration = function() {
+		chrome.fileSystem.chooseEntry({
+			type: 'saveFile',
+			suggestedName: 'flexbe_config.json',
+			accepts: [{
+				description: 'Configuration (.json)',
+				extensions: ['json']
+			}]
+		}, function(entry) {
+			if (chrome.runtime.lastError) {
+				return;
+			}
+			chrome.storage.local.get(null, function(config) {
+				var truncated = false;
+				var content = JSON.stringify(config);
+				entry.createWriter(function(writer) {
+					writer.onerror = function(error) { T.logError("Error when exporting configuration: " + error); };
+					writer.onwriteend = function() { 
+						if (!truncated) {
+							truncated = true;
+							this.truncate(this.position);
+						}
+					};
+					writer.write(new Blob([content], {type: 'text/plain'}));
+				}, function(e) { T.logError("Error when exporting configuration: " + error); });
+			});
 		});
 	}
 

@@ -56,8 +56,8 @@ UI.Menu = new (function() {
 			["Show Terminal", "title_terminal", function() { UI.Menu.terminalClicked(); }]
 		],
 		[
-			["Connect to ROS", "link", function() { UI.Settings.connectRosbridgeClicked(); }],
-			["Disconnect from ROS", "link_break", function() { UI.Settings.disconnectRosbridgeClicked(); }]
+			["Import Configuration", "settings_import", function() { UI.Settings.importConfiguration(); }],
+			["Export Configuration", "settings_export", function() { UI.Settings.exportConfiguration(); }]
 		]
 	];
 

@@ -14,7 +14,6 @@ window.onload = function() {
 
 	// Initialize runtime control
 	var onSettingsLoaded = function() {
-		Behaviorlib.parseLib();
 		RC.ROS.trySetupConnection();
 	}
 
