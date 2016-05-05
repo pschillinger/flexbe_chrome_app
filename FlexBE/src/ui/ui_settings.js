@@ -50,6 +50,7 @@ UI.Settings = new (function() {
 			'synthesis_type': synthesis_type,
 			'synthesis_system': synthesis_system
 		});
+		displaySettingsHints();
 	}
 
 
@@ -81,13 +82,21 @@ UI.Settings = new (function() {
 			'synthesis_system': ''
 		}, function(items) {
 			behaviors_folder_id = items.behaviors_folder_id;
-			chrome.fileSystem.restoreEntry(items.behaviors_folder_id, function(entry) {
+			chrome.fileSystem.restoreEntry(behaviors_folder_id, function(entry) {
+				if (chrome.runtime.lastError) {
+					behaviors_folder_id = '';
+					return;
+				}
 				chrome.fileSystem.getDisplayPath(entry, function(path) {
 					document.getElementById("input_behaviors_folder").value = path;
 				});
 			});
 			be_folder_id = items.be_folder_id;
-			chrome.fileSystem.restoreEntry(items.be_folder_id, function(entry) {
+			chrome.fileSystem.restoreEntry(be_folder_id, function(entry) {
+				if (chrome.runtime.lastError) {
+					be_folder_id = '';
+					return;
+				}
 				chrome.fileSystem.getDisplayPath(entry, function(path) {
 					document.getElementById("input_be_folder").value = path;
 				});
@@ -136,6 +145,55 @@ UI.Settings = new (function() {
 			
 			if (restored_callback != undefined)
 				restored_callback();
+
+			displaySettingsHints();
+		});
+	}
+
+	var displaySettingsHints = function() {
+		if (behaviors_folder_id == '') {
+			var button_el = document.getElementById('button_behaviors_chooser');
+			var hint = button_el.parentNode.parentNode.getAttribute('title');
+			var action_el = document.createElement('input');
+			action_el.setAttribute('type', "button");
+			action_el.setAttribute('value', "Choose behaviors folder...");
+			action_el.addEventListener('click', function() {
+				UI.Menu.toSettingsClicked();
+				that.behaviorsChooserClicked();
+			});
+			UI.Feed.displayCustomMessage('msg_behaviors_folder_id', 1, 'Required setting missing!', 'No behaviors folder configured:<br /><i>' + hint + '</i><br />', action_el);
+		} else {
+			var msg = document.getElementById('msg_behaviors_folder_id');
+			if (msg != undefined) msg.parentNode.removeChild(msg);
+		}
+		if (be_folder_id == '') {
+			var button_el = document.getElementById('button_be_chooser');
+			var hint = button_el.parentNode.parentNode.getAttribute('title');
+			var action_el = document.createElement('input');
+			action_el.setAttribute('type', "button");
+			action_el.setAttribute('value', "Set flexbe_behaviors folder...");
+			action_el.addEventListener('click', function() {
+				UI.Menu.toSettingsClicked();
+				that.beChooserClicked();
+			});
+			UI.Feed.displayCustomMessage('msg_be_folder_id', 1, 'Required setting missing!', 'No flexbe_behaviors folder configured:<br /><i>' + hint + '</i><br />', action_el);
+		} else {
+			var msg = document.getElementById('msg_be_folder_id');
+			if (msg != undefined) msg.parentNode.removeChild(msg);
+		}
+		chrome.storage.local.get({libFolders: []}, function(items) {
+			if (items.libFolders.length == 0) {
+				var action_el = document.createElement('input');
+				action_el.setAttribute('type', "button");
+				action_el.setAttribute('value', "Go to Configuration");
+				action_el.addEventListener('click', function() {
+					UI.Menu.toSettingsClicked();
+				});
+				UI.Feed.displayCustomMessage('msg_empty_statelib', 1, 'No states known', 'The list of available states is empty. You can add folders to the State Library.<br />', action_el);
+			} else {
+				var msg = document.getElementById('msg_empty_statelib');
+				if (msg != undefined) msg.parentNode.removeChild(msg);
+			}
 		});
 	}
 
@@ -149,10 +207,12 @@ UI.Settings = new (function() {
 
 	this.applyStateLibraryClicked = function() {
 		LibParser.parseLibFolders();
+		displaySettingsHints();
 	}
 
 	this.displayStateLibraryFolderEntry = function(path_id) {
 		chrome.fileSystem.restoreEntry(path_id, function(entry) {
+			if (entry == undefined) return;
 			chrome.fileSystem.getDisplayPath(entry, function(path) {
 				var removeButton = document.createElement("input");
 				removeButton.type = "button";

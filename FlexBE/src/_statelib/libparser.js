@@ -217,6 +217,10 @@ LibParser = new (function() {
 		T.logInfo("Parsing available states...");
 		for(var i=0; i<lib_folders.length; ++i) {
 			chrome.fileSystem.restoreEntry(lib_folders[i], function(entry) {
+				if (chrome.runtime.lastError) {
+					that.removeLibFolder(lib_folders[i]);
+					return;
+				}
 				chrome.fileSystem.getDisplayPath(entry, function(path) {
 					parseFolder(entry, path.slice(0, path.lastIndexOf("/") + 1), false);
 				});
