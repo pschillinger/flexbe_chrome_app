@@ -167,6 +167,10 @@ UI.Statemachine = new (function() {
 		if (UI.Menu.isPageStatemachine()) that.refreshView();
 	}
 
+	this.isDataflow = function() {
+		return dataflow_displayed;
+	}
+
 	this.toggleComments = function() {
 		comments_displayed = !comments_displayed;
 
@@ -356,7 +360,19 @@ UI.Statemachine = new (function() {
 		if (dataflow_displayed) {
 			for (var i=0; i<dataflow.length; ++i) {
 				var d = dataflow[i];
-				var dt = new Drawable.Transition(d, R, true, drawings, false, false, Drawable.Transition.PATH_STRAIGHT, '#000');
+				var color = '#000';
+				if (d.getFrom().getStateName() == "INIT" && !displayed_sm.isInsideDifferentBehavior()) {
+					var available_userdata = (displayed_sm == Behavior.getStatemachine())?
+						Behavior.getDefaultUserdata().map(function(obj) { return obj.key; }) :
+						displayed_sm.getInputKeys();
+					if (!available_userdata.contains(d.getOutcome())) {
+						color = '#900';
+						d.setAutonomy(-1);
+					} else {
+						d.setAutonomy(0);
+					}
+				}
+				var dt = new Drawable.Transition(d, R, true, drawings, false, false, Drawable.Transition.PATH_STRAIGHT, color);
 				new_transitions.forEach(function(ot) {
 					if (dt.obj.getFrom().getStateName() == ot.obj.getFrom().getStateName() && dt.obj.getTo().getStateName() == ot.obj.getTo().getStateName()) {
 						dt.merge(ot);

@@ -334,6 +334,7 @@ UI.Panels.StateProperties = new (function() {
 					) return;
 				var idx = state.getInputKeys().indexOf(this.getAttribute("input_key"));
 				state.getInputMapping()[idx] = this.value;
+				if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 			});
 			var input_field_td = document.createElement("td");
 			input_field_td.appendChild(input_field);
@@ -356,6 +357,7 @@ UI.Panels.StateProperties = new (function() {
 				state.getInputMapping().remove(state.getInputMapping()[idx]);
 				var row = this.parentNode;
 				row.parentNode.removeChild(row);
+				if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 			});
 
 			var row = document.createElement("tr");
@@ -387,6 +389,7 @@ UI.Panels.StateProperties = new (function() {
 					) return;
 				var idx = state.getOutputKeys().indexOf(this.getAttribute("output_key"));
 				state.getOutputMapping()[idx] = this.value;
+				if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 			});
 			var input_field_td = document.createElement("td");
 			input_field_td.appendChild(input_field);
@@ -409,6 +412,7 @@ UI.Panels.StateProperties = new (function() {
 				state.getOutputMapping().remove(state.getOutputMapping()[idx]);
 				var row = this.parentNode;
 				row.parentNode.removeChild(row);
+				if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 			});
 
 			var row = document.createElement("tr");
@@ -473,6 +477,7 @@ UI.Panels.StateProperties = new (function() {
 						) return;
 					var idx = state.getInputKeys().indexOf(this.getAttribute("input_key"));
 					state.getInputMapping()[idx] = this.value;
+					if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 				});
 				var input_field_td = document.createElement("td");
 				input_field_td.appendChild(input_field);
@@ -511,6 +516,7 @@ UI.Panels.StateProperties = new (function() {
 						) return;
 					var idx = state.getOutputKeys().indexOf(this.getAttribute("output_key"));
 					state.getOutputMapping()[idx] = this.value;
+					if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 				});
 				var input_field_td = document.createElement("td");
 				input_field_td.appendChild(input_field);
