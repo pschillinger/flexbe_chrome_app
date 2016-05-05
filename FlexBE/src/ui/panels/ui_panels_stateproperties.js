@@ -23,7 +23,7 @@ UI.Panels.StateProperties = new (function() {
 		el.addEventListener('mouseover', function() {
 			var rect = this.getBoundingClientRect();
 			var tt = document.createElement("div");
-			tt.setAttribute("style", "left: 710px; top: " + rect.top + "px; display: block;");
+			tt.setAttribute("style", "right: 370px; top: " + rect.top + "px; display: block;");
 			tt.setAttribute("class", "sidepanel_tooltip");
 			tt.setAttribute("id", "properties_tooltip");
 			tt.innerHTML = "";
