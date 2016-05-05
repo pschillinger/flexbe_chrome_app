@@ -78,6 +78,11 @@ BehaviorLoader = new (function() {
 
 		resetEditor();
 
+		if (UI.Settings.getBEFolderID() == '') {
+			console.log('Unable to load behavior: No flexbe_behaviors folder set!');
+			return;
+		}
+
 		chrome.fileSystem.restoreEntry(UI.Settings.getBehaviorsFolderID(), function(entry) {
 			Filesystem.checkFolderExists(entry, manifest.rosnode_name, function(exists) {
 				if (exists) {
@@ -108,6 +113,10 @@ BehaviorLoader = new (function() {
 	}
 
 	this.loadBehaviorInterface = function(manifest, callback) {
+		if (UI.Settings.getBEFolderID() == '') {
+			console.log('Unable to load behavior interface: No flexbe_behaviors folder set!');
+			return;
+		}
 		chrome.fileSystem.restoreEntry(UI.Settings.getBehaviorsFolderID(), function(entry) {
 			Filesystem.checkFolderExists(entry, manifest.rosnode_name, function(exists) {
 				if (exists) {
@@ -143,6 +152,10 @@ BehaviorLoader = new (function() {
 	}
 
 	this.parseBehaviorSM = function(manifest, callback) {
+		if (UI.Settings.getBEFolderID() == '') {
+			console.log('Unable to parse behavior statemachine: No flexbe_behaviors folder set!');
+			return;
+		}
 		chrome.fileSystem.restoreEntry(UI.Settings.getBehaviorsFolderID(), function(entry) {
 			Filesystem.checkFolderExists(entry, manifest.rosnode_name, function(exists) {
 				if (exists) {
@@ -191,6 +204,11 @@ BehaviorLoader = new (function() {
 
 		var todo_counter = 0;
 		var be_list = []; // {name, description, filename}
+
+		if (UI.Settings.getBEFolderID() == '') {
+			console.log('Unable to parse behavior list: No flexbe_behaviors folder set!');
+			return;
+		}
 
 		chrome.fileSystem.restoreEntry(UI.Settings.getBEFolderID(), function(be_folder) {
 			be_folder.getDirectory("behaviors", { create: true },

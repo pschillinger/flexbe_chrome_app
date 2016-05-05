@@ -9,10 +9,16 @@ Checking = new (function() {
 
 	this.checkBehavior = function() {
 		var error = that.checkDashboard();
-		if (error != undefined) return error;
+		if (error != undefined) {
+			UI.Menu.toDashboardClicked();
+			return error;
+		}
 
 		error = that.checkStatemachine();
-		if (error != undefined) return error;
+		if (error != undefined) {
+			UI.Menu.toStatemachineClicked();
+			return error;
+		}
 
 		return undefined;
 	}
@@ -112,9 +118,15 @@ Checking = new (function() {
 		statemachine.updateDataflow(); // also required by state checking
 
 		var states = statemachine.getStates();
-		if (states.length == 0) return "state machine " + statemachine.getStatePath() + " contains no states";
+		if (states.length == 0) {
+			UI.Statemachine.setDisplayedSM(statemachine);
+			return "state machine " + statemachine.getStatePath() + " contains no states";
+		}
 
-		if (statemachine.getInitialState() == undefined) return "state machine " + statemachine.getStatePath() + " has no initial state";
+		if (statemachine.getInitialState() == undefined) {
+			UI.Statemachine.setDisplayedSM(statemachine);
+			return "state machine " + statemachine.getStatePath() + " has no initial state";
+		}
 
 		for (var i = 0; i < states.length; i++) {
 			var error_string = undefined;
@@ -126,7 +138,10 @@ Checking = new (function() {
 			error_string = that.checkSingleState(states[i]);
 			// do not have to perform inner checks on embedded behaviors (-> readonly)
 
-			if (error_string != undefined) return error_string;
+			if (error_string != undefined)  {
+				UI.Statemachine.setDisplayedSM(statemachine);
+				return error_string;
+			}
 		}
 
 		return undefined
@@ -199,8 +214,10 @@ Checking = new (function() {
 			if (state.getContainer().getStateName() == "") {
 				available_userdata = available_userdata.concat(Behavior.getDefaultUserdata().map(function(el) { return el.key; }));
 			}
-			if (!available_userdata.contains(sm_dataflow[i].getOutcome()))
+			if (!available_userdata.contains(sm_dataflow[i].getOutcome())) {
+				if (!UI.Statemachine.isDataflow()) UI.Statemachine.toggleDataflow();
 				return "input key " + sm_dataflow[i].getOutcome() + " of state " + state.getStatePath() + " could be undefined";
+			}
 		}
 
 		// outcomes

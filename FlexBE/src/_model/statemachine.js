@@ -162,7 +162,10 @@ Statemachine = function(sm_name, sm_definition) {
 	this.updateDataflow = function() {
 		dataflow = [];
 		states.forEach(function(state) {
+			var added_keys = []
 			state.getInputMapping().forEach(function(key) {
+				if (added_keys.contains(key)) return;
+				added_keys.push(key);
 				addDataEdgeForPredecessors(state, state, key, []);
 			});
 		});

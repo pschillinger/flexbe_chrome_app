@@ -42,8 +42,8 @@ UI.Menu = new (function() {
 			["Reset", "cross", function() { ActivityTracer.resetToSave(); }]
 		],
 		[
-			["Write Comment", "note_add", function() { UI.Menu.addCommentClicked(); }],
-			["Toggle Comments", "note", function() { UI.Statemachine.toggleComments(); }]
+			["Hide Comments", "note", function() { UI.Statemachine.toggleComments(); }],
+			["Write Comment", "note_add", function() { UI.Menu.addCommentClicked(); }]
 		]
 	];
 	var button_config_rc = [
@@ -56,8 +56,8 @@ UI.Menu = new (function() {
 			["Show Terminal", "title_terminal", function() { UI.Menu.terminalClicked(); }]
 		],
 		[
-			["Connect to ROS", "link", function() { UI.Settings.connectRosbridgeClicked(); }],
-			["Disconnect from ROS", "link_break", function() { UI.Settings.disconnectRosbridgeClicked(); }]
+			["Import Configuration", "settings_import", function() { UI.Settings.importConfiguration(); }],
+			["Export Configuration", "settings_export", function() { UI.Settings.exportConfiguration(); }]
 		]
 	];
 
@@ -76,6 +76,7 @@ UI.Menu = new (function() {
 				tr = document.createElement("tr");
 				td = document.createElement("td");
 				td.setAttribute("class", "tool_button");
+				td.setAttribute("id", "tool_button " + button[0]);
 				td.innerHTML = 
 					'<table cellpadding="0" cellspacing="0"><tr><td valign="middle">' +
 						'<img src="img/' + button[1] + '.png" />' +

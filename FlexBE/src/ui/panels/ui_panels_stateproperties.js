@@ -23,7 +23,7 @@ UI.Panels.StateProperties = new (function() {
 		el.addEventListener('mouseover', function() {
 			var rect = this.getBoundingClientRect();
 			var tt = document.createElement("div");
-			tt.setAttribute("style", "left: 710px; top: " + rect.top + "px; display: block;");
+			tt.setAttribute("style", "right: 370px; top: " + rect.top + "px; display: block;");
 			tt.setAttribute("class", "sidepanel_tooltip");
 			tt.setAttribute("id", "properties_tooltip");
 			tt.innerHTML = "";
@@ -109,6 +109,7 @@ UI.Panels.StateProperties = new (function() {
 		document.getElementById("label_prop_state_desc").innerText = Statelib.getFromLib(state.getStateClass()).getStateDesc();
 
 		var highlight_apply_button = function() {
+			if (apply_pulse != undefined) return;
 			apply_button = document.getElementById("button_apply_properties");
 			apply_button.style.background = "#fd5";
 	 		
@@ -333,6 +334,7 @@ UI.Panels.StateProperties = new (function() {
 					) return;
 				var idx = state.getInputKeys().indexOf(this.getAttribute("input_key"));
 				state.getInputMapping()[idx] = this.value;
+				if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 			});
 			var input_field_td = document.createElement("td");
 			input_field_td.appendChild(input_field);
@@ -355,6 +357,7 @@ UI.Panels.StateProperties = new (function() {
 				state.getInputMapping().remove(state.getInputMapping()[idx]);
 				var row = this.parentNode;
 				row.parentNode.removeChild(row);
+				if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 			});
 
 			var row = document.createElement("tr");
@@ -386,6 +389,7 @@ UI.Panels.StateProperties = new (function() {
 					) return;
 				var idx = state.getOutputKeys().indexOf(this.getAttribute("output_key"));
 				state.getOutputMapping()[idx] = this.value;
+				if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 			});
 			var input_field_td = document.createElement("td");
 			input_field_td.appendChild(input_field);
@@ -408,6 +412,7 @@ UI.Panels.StateProperties = new (function() {
 				state.getOutputMapping().remove(state.getOutputMapping()[idx]);
 				var row = this.parentNode;
 				row.parentNode.removeChild(row);
+				if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 			});
 
 			var row = document.createElement("tr");
@@ -472,6 +477,7 @@ UI.Panels.StateProperties = new (function() {
 						) return;
 					var idx = state.getInputKeys().indexOf(this.getAttribute("input_key"));
 					state.getInputMapping()[idx] = this.value;
+					if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 				});
 				var input_field_td = document.createElement("td");
 				input_field_td.appendChild(input_field);
@@ -510,6 +516,7 @@ UI.Panels.StateProperties = new (function() {
 						) return;
 					var idx = state.getOutputKeys().indexOf(this.getAttribute("output_key"));
 					state.getOutputMapping()[idx] = this.value;
+					if (UI.Statemachine.isDataflow()) UI.Statemachine.refreshView();
 				});
 				var input_field_td = document.createElement("td");
 				input_field_td.appendChild(input_field);
@@ -639,15 +646,20 @@ UI.Panels.StateProperties = new (function() {
 			|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
 			) {
 
-			document.getElementById('button_apply_properties').style.transition = "none";
-			document.getElementById('button_apply_properties').style.background = "#f63";
-			window.setTimeout(function() { fadeOutBackground('button_apply_properties'); }, 100);
+			window.setTimeout(function() {
+				document.getElementById('button_apply_properties').style.transition = "none";
+				document.getElementById('button_apply_properties').style.background = "#f63";
+			}, 100);
+			window.setTimeout(function() {
+				fadeOutBackground('button_apply_properties');
+			}, 200);
 			that.displayStateProperties(current_prop_state);
 			return;
 		}
-		if (apply_pulse != undefined) clearTimeout(apply_pulse);
-		document.getElementById('button_apply_properties').style.transition = "none";
-		document.getElementById('button_apply_properties').style.background = "#9f7";
+		if (apply_pulse != undefined) {
+			clearTimeout(apply_pulse);
+			apply_pulse = undefined;
+		}
 
 		var autonomy_old = current_prop_state.getAutonomy().clone();
 		var input_old = current_prop_state.getInputMapping().clone();
@@ -690,7 +702,14 @@ UI.Panels.StateProperties = new (function() {
 
 		var state_path = current_prop_state.getStatePath();
 
-		window.setTimeout(function() { fadeOutBackground('button_apply_properties'); }, 100);
+
+		window.setTimeout(function() {
+			document.getElementById('button_apply_properties').style.transition = "none";
+			document.getElementById('button_apply_properties').style.background = "#9f7";
+		}, 100);
+		window.setTimeout(function() {
+			fadeOutBackground('button_apply_properties');
+		}, 200);
 		UI.Statemachine.refreshView();
 
 		UI.Panels.StateProperties.displayStateProperties(current_prop_state);
