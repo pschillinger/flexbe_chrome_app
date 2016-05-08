@@ -404,10 +404,12 @@ UI.Statemachine = new (function() {
 		selection_area.toFront();
 
 		// update menu button toggle state
-		var dfgButton = document.getElementById("tool_button Data Flow Graph");
-		dfgButton.setAttribute("style", dataflow_displayed? "background: #ccc" : "");
-		var hcButton = document.getElementById("tool_button Hide Comments");
-		hcButton.setAttribute("style", !comments_displayed? "background: #ccc" : "");
+		if (UI.Menu.isPageStatemachine()) {
+			var dfgButton = document.getElementById("tool_button Data Flow Graph");
+			dfgButton.setAttribute("style", dataflow_displayed? "background: #ccc" : "");
+			var hcButton = document.getElementById("tool_button Hide Comments");
+			hcButton.setAttribute("style", !comments_displayed? "background: #ccc" : "");
+		}
 	}
 
 	this.getDrawnState = function(state) {
