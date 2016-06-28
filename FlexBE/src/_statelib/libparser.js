@@ -62,21 +62,29 @@ LibParser = new (function() {
 				if (l.match(/^(--|>#|#>)/)) {
 					if (last_argument != undefined) argument_doc.push(last_argument);
 					var arg_split = l.match(/^(--|>#|#>)\s+([^\s]+)\s+([^\s]+)\s+(.+)$/);
-					last_argument = {
-						symbol: arg_split[1],
-						name: arg_split[2],
-						type: arg_split[3],
-						desc: arg_split[4]
-					};
+					if (arg_split == null || arg_split.length < 5) {
+						T.logWarn('Entry in ' + state_class + ' does not fit documentation format: ' + l);
+					} else {
+						last_argument = {
+							symbol: arg_split[1],
+							name: arg_split[2],
+							type: arg_split[3],
+							desc: arg_split[4]
+						};
+					}
 				} else if (l.startsWith("<=")) {
 					if (last_argument != undefined) argument_doc.push(last_argument);
 					var arg_split = l.match(/^(<=)\s+([^\s]+)\s+(.+)$/);
-					last_argument = {
-						symbol: arg_split[1],
-						name: arg_split[2],
-						type: "",
-						desc: arg_split[3]
-					};
+					if (arg_split == null || arg_split.length < 4) {
+						T.logWarn('Entry in ' + state_class + ' does not fit documentation format: ' + l);
+					} else {
+						last_argument = {
+							symbol: arg_split[1],
+							name: arg_split[2],
+							type: "",
+							desc: arg_split[3]
+						};
+					}
 				} else if (last_argument != undefined) {
 					last_argument['desc'] += " " + l;
 				} else {
