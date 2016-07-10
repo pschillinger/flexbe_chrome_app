@@ -22,6 +22,7 @@ RC.PubSub = new (function() {
 	var repeat_behavior_publisher;
 	var pause_behavior_publisher;
 	var version_publisher;
+	var ros_notification_publisher;
 
 	var synthesis_action_client;
 
@@ -132,17 +133,21 @@ RC.PubSub = new (function() {
 
 	var ros_command_callback = function (msg) {
 		console.log('got message!')
-		if (!UI.Settings.isCommandsEnabled()) return;
+		if (!UI.Settings.isCommandsEnabled()) {
+			that.sendRosNotification('');
+			return;
+		}
 		if (UI.Settings.getCommandsKey() != '' && msg.key != UI.Settings.getCommandsKey()) {
 			T.clearLog();
 			T.logError('Captured unauthorized command execution attempt!');
 			T.logInfo('You should disable ROS commands in the configuration view and check "rostopic info /flexbe/uicommand" for suspicious publishers.');
+			that.sendRosNotification('');
 			return;
 		}
 
 		T.clearLog();
 		T.logInfo('Executing received command: ' + msg.command);
-		UI.Tools.tryExecuteCommand(msg.command);
+		UI.Tools.startRosCommand(msg.command);
 		T.show();
 	}
 
@@ -225,6 +230,7 @@ RC.PubSub = new (function() {
 			if (msg.args[0] == "start")				RC.Sync.setProgress("Switch", 0.4);
 			if (msg.args[0] == "prepared")			RC.Sync.setProgress("Switch", 0.6);
 		}
+		UI.Tools.notifyRosCommand(msg.command);
 	}
 
 	var synthesis_action_feedback_callback = function(feedback, root, feedback_cb) {
@@ -422,6 +428,12 @@ RC.PubSub = new (function() {
 		});
 		version_publisher.publish({data: '' + chrome.runtime.getManifest().version});
 
+		ros_notification_publisher = new ROSLIB.Topic({ 
+			ros: ros,
+			name: ns + 'flexbe/uinotification',
+			messageType: 'std_msgs/String'
+		});
+
 		// Action Clients
 		if (UI.Settings.isSynthesisEnabled()) that.initializeSynthesisAction(ns);
 	}
@@ -598,6 +610,14 @@ RC.PubSub = new (function() {
 		}
 		sync_mirror_publisher.publish();
 		RC.Sync.setProgress("Sync", 0.2, false);
+	}
+
+	this.sendRosNotification = function(cmd) {
+		if (ros == undefined) { T.debugWarn("ROS not initialized!"); return; }
+		
+		ros_notification_publisher.publish({
+			data: cmd
+		});
 	}
 
 	this.requestBehaviorSynthesis = function(root, system, goal, initial_condition, outcomes, result_cb, feedback_cb) {

@@ -5,6 +5,8 @@ UI.Tools = new (function() {
 	var command_history_idx = 0;
 	var command_library = CommandLib.load();
 
+	var last_ros_command = undefined; 
+
 	Mousetrap.bind("ctrl+space", function() { UI.Tools.toggle(); }, 'keydown');
 	Mousetrap.bind("ctrl+space", function() { UI.Tools.evaluate(); }, 'keyup');
 	Mousetrap.bind("enter", function() { that.displayCommandInput(); }, 'keyup');
@@ -214,15 +216,13 @@ UI.Tools = new (function() {
 
 			command_history.push(cmd);
 			command_history_idx = command_history.length;
-			var found_command = false;
 
 			for (var i = 0; i < command_library.length; i++) {
 				var c = command_library[i];
 				var args = cmd.match(c.match);
 				if (args != null) {
 					c.impl(args);
-					found_command = true;
-					break;
+					return true;
 				}
 			}
 
@@ -235,6 +235,7 @@ UI.Tools = new (function() {
 		} catch (err) {
 			T.logError(err.toString());
 		}
+		return false;
 	}
 
 	this.commandListener = function(event) {
@@ -369,6 +370,18 @@ UI.Tools = new (function() {
 	this.saveClicked = function() {
 		UI.Menu.saveBehaviorClicked();
 		that.hide();
+	}
+
+	this.startRosCommand = function(cmd) {
+		last_ros_command = cmd;
+		that.tryExecuteCommand(cmd);
+	}
+
+	this.notifyRosCommand = function(cmd) {
+		if (last_ros_command != undefined && last_ros_command.startsWith(cmd)) {
+			RC.PubSub.sendRosNotification(last_ros_command);
+			last_ros_command = undefined;
+		}
 	}
 
 }) ();
