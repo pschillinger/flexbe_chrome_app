@@ -16,6 +16,7 @@ UI.Statemachine = new (function() {
 	var background = undefined;
 	var dataflow_displayed = false;
 	var comments_displayed = true;
+	var outcomes_displayed = true;
 
 	var drawn_sms = [];
 	var grid = [];
@@ -177,6 +178,12 @@ UI.Statemachine = new (function() {
 		if (UI.Menu.isPageStatemachine()) that.refreshView();
 	}
 
+	this.toggleOutcomes = function() {
+		outcomes_displayed = !outcomes_displayed;
+
+		if (UI.Menu.isPageStatemachine()) that.refreshView();
+	}
+
 	this.getR = function() {
 		return R;
 	}
@@ -334,7 +341,7 @@ UI.Statemachine = new (function() {
 		}
 		for (var i=0; i<sm_outcomes.length; ++i) {
 			o = sm_outcomes[i];
-			var obj = new Drawable.Outcome(o, R, false);
+			var obj = new Drawable.Outcome(o, R, false, !outcomes_displayed);
 			drawings.push(obj);
 		}
 
@@ -344,7 +351,8 @@ UI.Statemachine = new (function() {
 		for (var i=0; i<transitions.length; ++i) {
 			var t = transitions[i];
 			if (t.getTo() == undefined) continue;
-			var dt = new Drawable.Transition(t, R, transitions_readonly, drawings, false, dataflow_displayed, Drawable.Transition.PATH_CURVE);
+			var draw_outline = dataflow_displayed || !outcomes_displayed && (t.getTo().getStateClass() == ":OUTCOME" || t.getTo().getStateClass() == ":CONDITION")
+			var dt = new Drawable.Transition(t, R, transitions_readonly, drawings, false, draw_outline, Drawable.Transition.PATH_CURVE);
 			new_transitions.forEach(function(ot) {
 				if (dt.obj.getFrom().getStateName() == ot.obj.getFrom().getStateName() && dt.obj.getTo().getStateName() == ot.obj.getTo().getStateName()) {
 					dt.merge(ot);
@@ -407,6 +415,8 @@ UI.Statemachine = new (function() {
 		if (UI.Menu.isPageStatemachine()) {
 			var dfgButton = document.getElementById("tool_button Data Flow Graph");
 			dfgButton.setAttribute("style", dataflow_displayed? "background: #ccc" : "");
+			var hocButton = document.getElementById("tool_button Fade Outcomes");
+			hocButton.setAttribute("style", !outcomes_displayed? "background: #ccc" : "");
 			var hcButton = document.getElementById("tool_button Hide Comments");
 			hcButton.setAttribute("style", !comments_displayed? "background: #ccc" : "");
 		}

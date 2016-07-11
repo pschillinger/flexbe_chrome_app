@@ -44,6 +44,9 @@ UI.Menu = new (function() {
 		[
 			["Hide Comments", "note", function() { UI.Statemachine.toggleComments(); }],
 			["Write Comment", "note_add", function() { UI.Menu.addCommentClicked(); }]
+		],
+		[
+			["Fade Outcomes", "outcome", function() { UI.Statemachine.toggleOutcomes(); }]
 		]
 	];
 	var button_config_rc = [
