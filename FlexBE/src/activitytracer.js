@@ -142,6 +142,12 @@ ActivityTracer = new (function() {
 		}
 	}
 
+	this.doNotTrace = function(operation) {
+		logging_enabled = false;
+		operation();
+		logging_enabled = true;
+	}
+
 	this.printCurrentHistory = function() {
 		for (var i = activity_list.length - 1; i >= 0; i--) {
 			if (activity_list[i] == undefined) break;

@@ -46,7 +46,9 @@ UI.Menu = new (function() {
 			["Write Comment", "note_add", function() { UI.Menu.addCommentClicked(); }]
 		],
 		[
-			["Fade Outcomes", "outcome", function() { UI.Statemachine.toggleOutcomes(); }]
+			["Fade Outcomes", "outcome", function() { UI.Statemachine.toggleOutcomes(); }],
+			["Auto-Connect", "autoconnect", function() { Tools.autoconnect(); }],
+			["Group Selection", "group_selection", function() { Tools.groupSelection(); }]
 		]
 	];
 	var button_config_rc = [
@@ -218,6 +220,9 @@ UI.Menu = new (function() {
 			"Added new container",
 			function() {
 				var state = Behavior.getStatemachine().getStateByPath(state_path);
+				if (UI.Statemachine.getDisplayedSM().getStatePath() == state.getStatePath()) {
+					UI.Statemachine.setDisplayedSM(state.getContainer());
+				}
 				state.getContainer().removeState(state);
 				if (UI.Panels.StateProperties.isCurrentState(state)) {
 					UI.Panels.StateProperties.hide();

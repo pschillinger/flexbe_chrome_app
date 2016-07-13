@@ -23,7 +23,7 @@ CommandLib = new (function() {
 		},
 		{
 			desc: "statemachine [new_name]",
-			match: /^statemachine[( ]["']?([a-zA-Z0-9_]+)["']?\)?$/,
+			match: /^statemachine[( ]?["']?([a-zA-Z0-9_]+)?["']?\)?$/,
 			impl: function(args) {
 				if (UI.Statemachine.isReadonly()) return;
 				Tools.createStatemachine(args[1]);
