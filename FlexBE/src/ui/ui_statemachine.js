@@ -6,12 +6,16 @@ UI.Statemachine = new (function() {
 	var displayed_sm = undefined;
 	var selection_area = undefined;
 	var selection_set = undefined;
+	var pan_origin = {x: 0, y: 0};
+	var pan_shift = {x: 0, y: 0};
 
 	var drawings = [];
 	var drag_transition;
 	var previous_transition_end;
 	var connecting = false;
 	var selecting = false;
+	var allow_panning = false;
+	var panning = false;
 	var mouse_pos = undefined;
 	var background = undefined;
 	var dataflow_displayed = false;
@@ -21,8 +25,30 @@ UI.Statemachine = new (function() {
 	var drawn_sms = [];
 	var grid = [];
 
-	Mousetrap.bind("shift", function() { displayGrid() }, 'keydown');
-	Mousetrap.bind("shift", function() { hideGrid() }, 'keyup');
+	Mousetrap.bind("shift", function() {
+		displayGrid();
+		background.attr({'cursor': 'move'});
+		allow_panning = true;
+	}, 'keydown');
+	Mousetrap.bind("shift", function() {
+		hideGrid();
+		background.attr({'cursor': 'auto'});
+		allow_panning = false;
+		panning = false;
+	}, 'keyup');
+
+	Mousetrap.bind("shift+space", function() {
+		if (allow_panning) {
+			hideGrid();
+			drawings.forEach(function(entry) {
+				if (entry.obj instanceof State && entry.obj.getStateClass() == ':CONTAINER') return;
+				var d = entry.drawing;
+				d.translate(-pan_shift.x, -pan_shift.y);
+			});
+			pan_shift = {x: 0, y: 0};
+			if (!panning) displayGrid();
+		}
+	});
 
 	var updateMousePos = function(event) {
 		var bnds = event.target.getBoundingClientRect();
@@ -39,10 +65,11 @@ UI.Statemachine = new (function() {
 
 	var displayGrid = function() {
 		var gridsize = UI.Settings.getGridsize();
-		for (var i = gridsize; i < R.width; i += gridsize) {
+		var offset = {x: UI.Statemachine.getPanShift().x % gridsize, y: UI.Statemachine.getPanShift().y % gridsize};
+		for (var i = offset.x; i < R.width; i += gridsize) {
 			grid.push(R.path("M" + i + ",0L" + i + "," + R.height).attr({stroke: '#ddd'}));
 		}
-		for (var i = gridsize; i < R.height; i += gridsize) {
+		for (var i = offset.y; i < R.height; i += gridsize) {
 			grid.push(R.path("M0," + i + "L" + R.width + "," + i).attr({stroke: '#ddd'}));
 		}
 	}
@@ -52,30 +79,65 @@ UI.Statemachine = new (function() {
 	}
 
 	var beginSelection = function(x, y, event) {
-		if (connecting) return;
-		selecting = true;
+		if (allow_panning) {
+			panning = true;
+			pan_origin.x = x;
+			pan_origin.y = y;
 
-		var mx = mouse_pos.attr("cx");
-		var my = mouse_pos.attr("cy");
+			that.removeSelection();
+			hideGrid();
 
-		selection_area.attr({opacity: 1, x: mx, y: my, width: 0, height: 0}).toFront();
+		} else {
+			if (connecting) return;
+			selecting = true;
+
+			var mx = mouse_pos.attr("cx");
+			var my = mouse_pos.attr("cy");
+
+			selection_area.attr({opacity: 1, x: mx, y: my, width: 0, height: 0}).toFront();
+		}
 	}
 	var updateSelection = function(dx, dy, x, y, event) {
-		if (!selecting) return;
+		if (panning) {
+			var shift = {x: x - pan_origin.x, y: y - pan_origin.y};
+			pan_shift.x += shift.x;
+			if (pan_shift.x > 0) {
+				pan_shift.x -= shift.x;
+				shift.x = 0;
+			}
+			pan_shift.y += shift.y;
+			if (pan_shift.y > 0) {
+				pan_shift.y -= shift.y;
+				shift.y = 0;
+			}
+			drawings.forEach(function(el) {
+				if (el.obj instanceof State && el.obj.getStateClass() == ':CONTAINER') return;
+				var d = el.drawing;
+				d.translate(shift.x, shift.y);
+			});
+			pan_origin.x = x;
+			pan_origin.y = y;
 
-		var xoffset = 0, yoffset = 0;
-		if (dx < 0) {
-			xoffset = dx;
-			dx = -1 * dx;
+		} 
+		if (selecting) {
+			var xoffset = 0, yoffset = 0;
+			if (dx < 0) {
+				xoffset = dx;
+				dx = -dx;
+			}
+			if (dy < 0) {
+				yoffset = dy;
+				dy = -dy;
+			}
+			selection_area.transform("T" + xoffset + "," + yoffset);
+			selection_area.attr({width: dx, height: dy});
 		}
-		if (dy < 0) {
-			yoffset = dy;
-			dy = -1 * dy;
-		}
-		selection_area.transform("T" + xoffset + "," + yoffset);
-		selection_area.attr({width: dx, height: dy});
 	}
 	var endSelection = function(event) {
+		if (panning) {
+			displayGrid();
+			panning = false;
+		}
 		if (!selecting) return;
 		selecting = false;
 
@@ -120,7 +182,7 @@ UI.Statemachine = new (function() {
 	}
 
 	var displaySMPath = function() {
-		return new Drawable.ContainerPath(displayed_sm, R, smDisplayHandler);
+		return new Drawable.ContainerPath(displayed_sm, R, smDisplayHandler, background.attr('fill'));
 	}
 
 	var smDisplayHandler = function() {
@@ -196,6 +258,10 @@ UI.Statemachine = new (function() {
 		return mouse_pos;
 	}
 
+	this.getPanShift = function() {
+		return pan_shift;
+	}
+
 	this.getAllDrawings = function() {
 		return drawings;
 	}
@@ -209,6 +275,7 @@ UI.Statemachine = new (function() {
 		connecting = false;
 		drag_transition = undefined;
 		that.removeSelection();
+		pan_shift = {x: 0, y: 0};
 
 		if (UI.Menu.isPageStatemachine()) that.refreshView();
 	}
@@ -325,7 +392,6 @@ UI.Statemachine = new (function() {
 		drawings = [];
 
 		// draw
-		drawings.push(displaySMPath());
 		drawings.push(displayInitialDot());
 		
 		for (var i=0; i<states.length; ++i) {
@@ -411,6 +477,8 @@ UI.Statemachine = new (function() {
 		background.toBack();
 		selection_area.toFront();
 
+		drawings.push(displaySMPath());
+
 		// update menu button toggle state
 		if (UI.Menu.isPageStatemachine()) {
 			var dfgButton = document.getElementById("tool_button Data Flow Graph");
@@ -420,6 +488,12 @@ UI.Statemachine = new (function() {
 			var hcButton = document.getElementById("tool_button Hide Comments");
 			hcButton.setAttribute("style", !comments_displayed? "background: #ccc" : "");
 		}
+		// apply current pan shift
+		drawings.forEach(function(entry) {
+			if (entry.obj instanceof State && entry.obj.getStateClass() == ':CONTAINER') return;
+			var d = entry.drawing;
+			d.translate(pan_shift.x, pan_shift.y);
+		});
 	}
 
 	this.getDrawnState = function(state) {

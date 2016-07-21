@@ -1,4 +1,4 @@
-Drawable.ContainerPath = function(container_obj, target_paper, click_handler) {
+Drawable.ContainerPath = function(container_obj, target_paper, click_handler, color) {
 	var that = this;
 
 	var paper = target_paper;
@@ -6,6 +6,14 @@ Drawable.ContainerPath = function(container_obj, target_paper, click_handler) {
 	var offset = 10;
 	var containers = [];
 	var set = paper.set();
+
+	var bg = paper.rect(0,0,10,20)
+		.attr({'stroke-opacity': 0});
+	if (color != undefined) bg
+		.attr({'fill': color, 'fill-opacity': 0.8, 'stroke-opacity': 0});
+	else bg
+		.attr({'fill-opacity': 0});
+	set.push(bg);
 
 	containers.push(container_obj);
 	while(containers[containers.length - 1].getContainer() != undefined) {
@@ -33,6 +41,7 @@ Drawable.ContainerPath = function(container_obj, target_paper, click_handler) {
 			set.push(separator);
 		}
 	}
+	bg.attr({'width': offset});
 
 	return {
 		drawing: set,
