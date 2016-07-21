@@ -164,7 +164,7 @@ Drawable.Helper = new (function() {
 		if (move_distance < 1) return;
 
 		ActivityTracer.addActivity(ActivityTracer.ACT_STATE_CHANGE,
-			"Moved " + state.getStateName() + " for " + move_distance + " px",
+			"Moved " + state.getStateName().split('#')[0] + " for " + move_distance + " px",
 			function() {
 				var container = (container_path == "")? Behavior.getStatemachine() : Behavior.getStatemachine().getStateByPath(container_path);
 				var state = container.getStateByName(state_name);

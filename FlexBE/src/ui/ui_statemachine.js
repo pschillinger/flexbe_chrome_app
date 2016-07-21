@@ -517,7 +517,7 @@ UI.Statemachine = new (function() {
 		ActivityTracer.addActivity(ActivityTracer.ACT_TRANSITION,
 			is_initial?
 			"Set initial state to " + state.getStateName()
-			: "Connected outcome " + outcome + " of " + drag_transition.getFrom().getStateName() + " with " + state.getStateName(),
+			: "Connected outcome " + outcome + " of " + drag_transition.getFrom().getStateName() + " with " + state.getStateName().split('#')[0],
 			function() {
 				var container = (container_path == "")? Behavior.getStatemachine() : Behavior.getStatemachine().getStateByPath(container_path);
 				var target = container.getStateByName(undo_end);
@@ -540,7 +540,7 @@ UI.Statemachine = new (function() {
 			function() {
 				var container = (container_path == "")? Behavior.getStatemachine() : Behavior.getStatemachine().getStateByPath(container_path);
 				var target = container.getStateByName(redo_end);
-				if (target == undefined && container.getOutcomes().contains(redo_end)) target = container.getSMOutcomeByName(redo_end);
+				if (target == undefined && container.getOutcomes().contains(redo_end.split('#')[0])) target = container.getSMOutcomeByName(redo_end);
 				if (is_initial) {
 					container.setInitialState(target);
 				} else {

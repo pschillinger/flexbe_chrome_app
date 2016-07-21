@@ -137,8 +137,6 @@ Statemachine = function(sm_name, sm_definition) {
 		});
 		if (trans != undefined) {
 			transitions.remove(trans);
-		} else {
-			T.debugWarn("Transition to remove from state '" + state.getStateName() + "', outcome '" + outcome + "', not found in " + that.getStateName());
 		}
 	}
 	this.removeConnectedTransitions = function(state) {
@@ -196,6 +194,9 @@ Statemachine = function(sm_name, sm_definition) {
 	// Interface
 	this.getSMOutcomes = function() {
 		return sm_outcomes;
+	}
+	this.setSMOutcomes = function(_sm_outcomes) {
+		sm_outcomes = _sm_outcomes;
 	}
 
 	this.getSMOutcomeByName = function(name) {
@@ -331,10 +332,6 @@ Statemachine = function(sm_name, sm_definition) {
 	this.setTransitions = function(_transitions) {
 		T.debugWarn("DEPRECATED: " + "setTransitions");
 		transitions = _transitions;
-	}
-	this.setSMOutcomes = function(_sm_outcomes) {
-		T.debugWarn("DEPRECATED: " + "setSMOutcomes");
-		sm_outcomes = _sm_outcomes;
 	}
 
 };

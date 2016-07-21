@@ -1,7 +1,7 @@
 {
   "name": "FlexBE App",
   "description": "User Interface to create, modify and control behaviors based on the FlexBE behavior engine.",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "app": {
     "background": {
       "scripts": ["launcher.js"]
