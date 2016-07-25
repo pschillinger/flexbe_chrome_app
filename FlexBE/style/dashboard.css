@@ -2,7 +2,7 @@
 	position: absolute;
 	top: 80px;
 	left: 0;
-	height: calc(100% - 80px);
+	height: calc(100% - 100px);
 	width: 100%;
 	padding-top: 10px;
 	padding-bottom: 10px;

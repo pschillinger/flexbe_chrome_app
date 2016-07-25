@@ -7,6 +7,7 @@ CommandLib = new (function() {
 			match: /^(cmd|commands|help)$/,
 			impl: function(args) { 
 				UI.Tools.printAvailableCommands();
+				UI.Tools.notifyRosCommand('commands');
 			},
 			text: "Lists all available commands."
 		},
@@ -15,16 +16,18 @@ CommandLib = new (function() {
 			match: /^findStateUsage[( ]["']?([a-zA-Z0-9_]+)["']?\)?$/,
 			impl: function(args) {
 				Scripts.findStateUsage(args[1]);
+				UI.Tools.notifyRosCommand('findStateUsage');
 			},
 			text: "Searches in all behaviors for instantiations of the given class.",
 			completions: [function() { return Statelib.getClassList(); }]
 		},
 		{
 			desc: "statemachine [new_name]",
-			match: /^statemachine[( ]["']?([a-zA-Z0-9_]+)["']?\)?$/,
+			match: /^statemachine[( ]?["']?([a-zA-Z0-9_]+)?["']?\)?$/,
 			impl: function(args) {
 				if (UI.Statemachine.isReadonly()) return;
 				Tools.createStatemachine(args[1]);
+				UI.Tools.notifyRosCommand('statemachine');
 			},
 			text: "Creates a new state machine with the given name out of all selected states.",
 			completions: [function() { return UI.Statemachine.getSelectedStates().map(function(s) { return s.getStateName(); }); }]
@@ -37,7 +40,7 @@ CommandLib = new (function() {
 				var initial_condition = args[2];
 				var goal = args[3];
 				var path = UI.Statemachine.getDisplayedSM().getStatePath() + "/" + args[1];
-				RC.PubSub.requestBehaviorSynthesis(path, UI.Settings.getSynthesisSystem(), goal, initial_condition, ['finished', 'failed']);
+				RC.PubSub.requestBehaviorSynthesis(path, UI.Settings.getSynthesisSystem(), goal, initial_condition, ['finished', 'failed'], function() { UI.Tools.notifyRosCommand('synthesize'); });
 			},
 			text: "Synthesizes a new state machine.",
 			completions: [
@@ -56,6 +59,7 @@ CommandLib = new (function() {
 				note.setContainerPath(UI.Statemachine.getDisplayedSM().getStatePath());
 				Behavior.addCommentNote(note);
 				UI.Statemachine.refreshView();
+				UI.Tools.notifyRosCommand('note');
 			},
 			text: "Adds a new note to the currently displayed state machine."
 		},
@@ -65,6 +69,7 @@ CommandLib = new (function() {
 			impl: function(args) {
 				if (UI.Statemachine.isReadonly()) return;
 				Tools.autoconnect();
+				UI.Tools.notifyRosCommand('autoconnect');
 			},
 			text: "Automatically connects obvious outcomes."
 		},
@@ -75,6 +80,7 @@ CommandLib = new (function() {
 				if (UI.Statemachine.isReadonly()) return;
 				UI.Statemachine.applyGraphLayout();
 				UI.Statemachine.refreshView();
+				UI.Tools.notifyRosCommand('autolayout');
 			},
 			text: "Applies a force-based graph layout to arrange states."
 		},
@@ -144,6 +150,7 @@ CommandLib = new (function() {
 				}
 				UI.Statemachine.setDisplayedSM(sm);
 				UI.Menu.toStatemachineClicked();
+				UI.Tools.notifyRosCommand('edit');
 			},
 			text: "Opens the container given by the specified path in the editor."
 		}

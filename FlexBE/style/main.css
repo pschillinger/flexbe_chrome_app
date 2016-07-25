@@ -153,10 +153,10 @@ body, html {
 	vertical-align: top;
 }
 
-/*#flexbe_about:hover {
-	height: 300px;
-	width: 270px;
-}*/
+#flexbe_about:hover {
+	color: #000;
+	cursor: help;
+}
 
 
 #feed_area {

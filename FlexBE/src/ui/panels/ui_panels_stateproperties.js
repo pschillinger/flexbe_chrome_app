@@ -280,10 +280,6 @@ UI.Panels.StateProperties = new (function() {
 
 			var input_field = document.createElement("td");
 			input_field.innerHTML = "<select class='select_box'>"
-				+"<option value='0' " + ((state.getAutonomy()[i] == 0)? "selected='selected'" : "") + " style='color: black;'>Off</option>"
-				+"<option value='1' " + ((state.getAutonomy()[i] == 1)? "selected='selected'" : "") + " style='color: blue;'>Low</option>"
-				+"<option value='2' " + ((state.getAutonomy()[i] == 2)? "selected='selected'" : "") + " style='color: green;'>High</option>"
-				+"<option value='3' " + ((state.getAutonomy()[i] == 3)? "selected='selected'" : "") + " style='color: red;'>Full</option>"
 				+"<option value='-1' " + ((state.getAutonomy()[i] == -1)? "selected='selected'" : "") + " style='color: gray; font-style: italic;'>Inherit</option>"
 				+"</select>";
 
@@ -442,10 +438,6 @@ UI.Panels.StateProperties = new (function() {
 			for (var i=0; i<outcome_list_complete.length; ++i) {
 				document.getElementById("panel_prop_be_autonomy_content").innerHTML += "<tr><td>" + outcome_list_complete[i] + ": </td>"
 					+"<td><select class='select_box'>"
-					+"<option value='0' " + ((autonomy_list_complete[i] == 0)? "selected='selected'" : "") + " style='color: black;'>Off</option>"
-					+"<option value='1' " + ((autonomy_list_complete[i] == 1)? "selected='selected'" : "") + " style='color: blue;'>Low</option>"
-					+"<option value='2' " + ((autonomy_list_complete[i] == 2)? "selected='selected'" : "") + " style='color: green;'>High</option>"
-					+"<option value='3' " + ((autonomy_list_complete[i] == 3)? "selected='selected'" : "") + " style='color: red;'>Full</option>"
 					+"<option value='-1' " + ((autonomy_list_complete[i] == -1)? "selected='selected'" : "") + " style='color: gray; font-style: italic;'>Inherit</option>"
 					+"</select></td></tr>";
 			}
@@ -829,11 +821,31 @@ UI.Panels.StateProperties = new (function() {
 			|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
 			) return;
 
-		current_prop_state.addOutcome(document.getElementById("input_prop_outcome_add").value);
+		var container_path = current_prop_state.getStatePath();
+		var new_outcome = document.getElementById("input_prop_outcome_add").value;
+		current_prop_state.addOutcome(new_outcome);
 
 		document.getElementById("input_prop_outcome_add").value = "";
 		UI.Statemachine.refreshView();
 		displayPropertiesForStatemachine(current_prop_state);
+
+		ActivityTracer.addActivity(ActivityTracer.ACT_STATE_CHANGE,
+			"Added outcome to container " + current_prop_state.getStateName(),
+			function() { // undo
+				var container = Behavior.getStatemachine().getStateByPath(container_path);
+				container.removeOutcome(new_outcome);
+				UI.Statemachine.refreshView();
+				if (container == current_prop_state)
+					displayPropertiesForStatemachine(current_prop_state);
+			},
+			function() { // redo
+				var container = Behavior.getStatemachine().getStateByPath(container_path);
+				container.addOutcome(new_outcome);
+				UI.Statemachine.refreshView();
+				if (container == current_prop_state)
+					displayPropertiesForStatemachine(current_prop_state);
+			}
+		);
 	}
 
 	this.addSMInputKey = function() {
@@ -844,12 +856,38 @@ UI.Panels.StateProperties = new (function() {
 			|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
 			) return;
 
-		current_prop_state.getInputKeys().push(document.getElementById("input_prop_input_key_add").value);
-		current_prop_state.getInputMapping().push(document.getElementById("input_prop_input_key_add").value);
+		var container_path = current_prop_state.getStatePath();
+		var new_input_key = document.getElementById("input_prop_input_key_add").value;
+		current_prop_state.getInputKeys().push(new_input_key);
+		current_prop_state.getInputMapping().push(new_input_key);
 
 		document.getElementById("input_prop_input_key_add").value = "";
-		UI.Statemachine.refreshView();
+		if (UI.Statemachine.isDataflow()) 
+			UI.Statemachine.refreshView();
 		displayPropertiesForStatemachine(current_prop_state);
+
+		ActivityTracer.addActivity(ActivityTracer.ACT_STATE_CHANGE,
+			"Added input key to container " + current_prop_state.getStateName(),
+			function() { // undo
+				var container = Behavior.getStatemachine().getStateByPath(container_path);
+				var idx = container.getInputKeys().indexOf(new_input_key);
+				container.getInputKeys().splice(idx, 1);
+				container.getInputMapping().splice(idx, 1);
+				if (UI.Statemachine.isDataflow()) 
+					UI.Statemachine.refreshView();
+				if (container == current_prop_state)
+					displayPropertiesForStatemachine(current_prop_state);
+			},
+			function() { // redo
+				var container = Behavior.getStatemachine().getStateByPath(container_path);
+				container.getInputKeys().push(new_input_key);
+				container.getInputMapping().push(new_input_key);
+				if (UI.Statemachine.isDataflow()) 
+					UI.Statemachine.refreshView();
+				if (container == current_prop_state)
+					displayPropertiesForStatemachine(current_prop_state);
+			}
+		);
 	}
 
 	this.addSMOutputKey = function() {
@@ -860,12 +898,38 @@ UI.Panels.StateProperties = new (function() {
 			|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
 			) return;
 
-		current_prop_state.getOutputKeys().push(document.getElementById("input_prop_output_key_add").value);
-		current_prop_state.getOutputMapping().push(document.getElementById("input_prop_output_key_add").value);
+		var container_path = current_prop_state.getStatePath();
+		var new_output_key = document.getElementById("input_prop_output_key_add").value;
+		current_prop_state.getOutputKeys().push(new_output_key);
+		current_prop_state.getOutputMapping().push(new_output_key);
 
 		document.getElementById("input_prop_output_key_add").value = "";
-		UI.Statemachine.refreshView();
+		if (UI.Statemachine.isDataflow()) 
+			UI.Statemachine.refreshView();
 		displayPropertiesForStatemachine(current_prop_state);
+
+		ActivityTracer.addActivity(ActivityTracer.ACT_STATE_CHANGE,
+			"Added output key to container " + current_prop_state.getStateName(),
+			function() { // undo
+				var container = Behavior.getStatemachine().getStateByPath(container_path);
+				var idx = container.getOutputKeys().indexOf(new_input_key);
+				container.getOutputKeys().splice(idx, 1);
+				container.getOutputMapping().splice(idx, 1);
+				if (UI.Statemachine.isDataflow()) 
+					UI.Statemachine.refreshView();
+				if (container == current_prop_state)
+					displayPropertiesForStatemachine(current_prop_state);
+			},
+			function() { // redo
+				var container = Behavior.getStatemachine().getStateByPath(container_path);
+				container.getOutputKeys().push(new_input_key);
+				container.getOutputMapping().push(new_input_key);
+				if (UI.Statemachine.isDataflow()) 
+					UI.Statemachine.refreshView();
+				if (container == current_prop_state)
+					displayPropertiesForStatemachine(current_prop_state);
+			}
+		);
 	}
 
 	this.containerTypeChanged = function(evt) {
@@ -874,24 +938,82 @@ UI.Panels.StateProperties = new (function() {
 			|| RC.Controller.isLocked() && RC.Controller.isStateLocked(current_prop_state.getStatePath())
 			|| RC.Controller.isOnLockedPath(current_prop_state.getStatePath())
 			) return;
-		if (this.value == 'concurrency') {
-			current_prop_state.setConcurrent(true);
-			current_prop_state.setPriority(false);
-			document.getElementById("doc_container_type").innerHTML = "Parallel execution of all elements.";
-		} else if (this.value == 'priority') {
-			if (current_prop_state.isConcurrent()) {
-				current_prop_state.setConcurrent(false);
+		
+		var select_box = this;
+
+		var changeType = function(container, to, concurrent, priority) {
+			select_box.value = to;
+			if (to == 'concurrency') {
+				container.setConcurrent(true);
+				container.setPriority(false);
+				document.getElementById("doc_container_type").innerHTML = "Parallel execution of all elements.";
+			} else if (to == 'priority') {
+				if (concurrent) {
+					container.setConcurrent(false);
+				}
+				container.setPriority(true);
+				document.getElementById("doc_container_type").innerHTML = "Execution supersedes all other containers.";
+			} else {
+				if (concurrent) {
+					container.setConcurrent(false);
+				}
+				container.setPriority(false);
+				document.getElementById("doc_container_type").innerHTML = "Sequential execution based on outcomes.";
 			}
-			current_prop_state.setPriority(true);
-			document.getElementById("doc_container_type").innerHTML = "Execution supersedes all other containers.";
-		} else {
-			if (current_prop_state.isConcurrent()) {
-				current_prop_state.setConcurrent(false);
-			}
-			current_prop_state.setPriority(false);
-			document.getElementById("doc_container_type").innerHTML = "Sequential execution based on outcomes.";
 		}
+
+		var prev_concurrent = current_prop_state.isConcurrent();
+		var prev_priority = current_prop_state.isPriority();
+		var prev_type = prev_concurrent? 'concurrency' :
+						prev_priority? 'priority' :
+						'statemachine';
+		var new_type = this.value;
+
+		var container_path = current_prop_state.getStatePath();
+		var transitions = current_prop_state.getTransitions().clone();
+		var initial_name = current_prop_state.getInitialState() != undefined?
+			current_prop_state.getInitialState().getStateName() :
+			"";
+		var old_sm_outcomes = current_prop_state.getSMOutcomes();
+
+		changeType(current_prop_state, new_type, prev_concurrent, prev_priority);
 		UI.Statemachine.refreshView();
+
+		var new_concurrent = current_prop_state.isConcurrent();
+		var new_priority = current_prop_state.isPriority();
+
+		ActivityTracer.addActivity(ActivityTracer.ACT_STATE_CHANGE,
+			"Changed container " + current_prop_state.getStateName() + " from " + prev_type + " to " + new_type,
+			function() { // undo
+				var container = Behavior.getStatemachine().getStateByPath(container_path);
+				changeType(container, prev_type, new_concurrent, new_priority);
+				if (new_concurrent != prev_concurrent) {
+					container.setSMOutcomes(old_sm_outcomes);
+					transitions.forEach(function(t) {
+						if (t.getOutcome() == "" && t.getFrom().getStateName() == "INIT") {
+							var old_target = t.getTo();
+							if (initial_name != "") {
+								container.setInitialState(container.getStateByName(initial_name));
+							}
+						} else {
+							t.setFrom(container.getStateByName(t.getFrom().getStateName()));
+							var target = container.getStateByName(t.getTo().getStateName());
+							if (target == undefined) {
+								target = container.getSMOutcomeByName(t.getTo().getStateName());
+							}
+							t.setTo(target);
+							container.addTransition(t);
+						}
+					});
+				}
+				UI.Statemachine.refreshView();
+			},
+			function() { // redo
+				var container = Behavior.getStatemachine().getStateByPath(container_path);
+				changeType(container, new_type, prev_concurrent, prev_priority);
+				UI.Statemachine.refreshView();
+			}
+		);
 	}
 
 	this.displaySynthesisClicked = function(evt) {

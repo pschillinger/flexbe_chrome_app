@@ -78,9 +78,10 @@ Drawable.Helper = new (function() {
 
 	this.snapToCenter = function(x, y, w, h) {
 		var gridsize = UI.Settings.getGridsize();
+		var offset = {x: UI.Statemachine.getPanShift().x % gridsize, y: UI.Statemachine.getPanShift().y % gridsize};
 		return {
-			x: Raphael.snapTo(gridsize, x, gridsize / 2 + 1) - w/2 + gridsize,
-			y: Raphael.snapTo(gridsize, y, gridsize / 2 + 1) - h/2
+			x: Raphael.snapTo(gridsize, x, gridsize / 2 + 1) - w/2 + gridsize + offset.x,
+			y: Raphael.snapTo(gridsize, y, gridsize / 2 + 1) - h/2 + offset.y
 		};
 	}
 
@@ -138,10 +139,10 @@ Drawable.Helper = new (function() {
 	// Raphael func
 	// state - object representing the state
 	this.startFnc = function() {
-		lx = this.data("state").getPosition().x;
-		ly = this.data("state").getPosition().y;
-		ox = this.data("state").getPosition().x;
-		oy = this.data("state").getPosition().y;
+		lx = this.data("state").getPosition().x + UI.Statemachine.getPanShift().x;
+		ly = this.data("state").getPosition().y + UI.Statemachine.getPanShift().y;
+		ox = this.data("state").getPosition().x + UI.Statemachine.getPanShift().x;
+		oy = this.data("state").getPosition().y + UI.Statemachine.getPanShift().y;
 	}
 
 	// Raphael func
@@ -151,7 +152,9 @@ Drawable.Helper = new (function() {
 		var container = state.getContainer();
 		var state_name = state.getStateName();
 		var old_pos = state.getPosition();
-		var new_pos = evt.shiftKey? that.snapToCenter(lx, ly, this.data("box").attr("width"), this.data("box").attr("height")) : {x: lx, y: ly};
+		var new_pos = UI.Statemachine.getDragIndicator().attr(['x', 'y']);
+		new_pos.x -= UI.Statemachine.getPanShift().x;
+		new_pos.y -= UI.Statemachine.getPanShift().y;
 
 		UI.Statemachine.getDragIndicator().attr({x: 0, y: 0, opacity: 0, width: 1, height: 1});
 		state.setPosition(new_pos);
@@ -164,7 +167,7 @@ Drawable.Helper = new (function() {
 		if (move_distance < 1) return;
 
 		ActivityTracer.addActivity(ActivityTracer.ACT_STATE_CHANGE,
-			"Moved " + state.getStateName() + " for " + move_distance + " px",
+			"Moved " + state.getStateName().split('#')[0] + " for " + move_distance + " px",
 			function() {
 				var container = (container_path == "")? Behavior.getStatemachine() : Behavior.getStatemachine().getStateByPath(container_path);
 				var state = container.getStateByName(state_name);

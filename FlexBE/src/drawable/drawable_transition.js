@@ -14,7 +14,7 @@ Drawable.Transition = function(transition_obj, target_paper, readonly, drawings,
 
 	var text_color = color;
 	if (outline) {
-		color = '#DDD';
+		color = '#EEE';
 	} else if (color == undefined) {
 		color = highlight? transition_highlight_color : transition_colors[Math.max(0, transition_obj.getAutonomy())];
 		text_color = transition_text_colors[Math.max(0, transition_obj.getAutonomy())];
@@ -101,6 +101,8 @@ Drawable.Transition = function(transition_obj, target_paper, readonly, drawings,
 		.attr({'cursor': 'pointer'})
 		.data("transition", transition_obj)
 		.click(resetTransition);
+	if (outline) line
+		.toBack();
 
 	var set_obj = paper.set();
 	set_obj.push(line);

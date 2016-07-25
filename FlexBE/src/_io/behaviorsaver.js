@@ -120,6 +120,7 @@ BehaviorSaver = new (function() {
 			T.logInfo("Save successful!");
 			UI.Panels.Terminal.hide();
 			Behaviorlib.parseLib();
+			UI.Tools.notifyRosCommand('save');
 		}
 		var scedit = document.getElementById("behavior_sourcecode_edit");
 		var n = Behavior.createNames();
