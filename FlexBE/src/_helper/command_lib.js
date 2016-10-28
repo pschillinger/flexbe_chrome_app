@@ -94,6 +94,32 @@ CommandLib = new (function() {
 			text: "Saves the current behavior."
 		},
 		{
+			desc: "load [behavior]",
+			match: /^load ([^\n]+)$/,
+			impl: function(args) {
+                var manifest = Behaviorlib.getByName(args[1]).getBehaviorManifest();
+                BehaviorLoader.loadBehavior(manifest);
+                var scedit = document.getElementById("behavior_sourcecode_edit");
+                scedit.setAttribute("cmd", 'rosed ' + manifest.rosnode_name + ' ' + manifest.codefile_name+ '\n');
+                scedit.style.display = "block";
+				UI.Menu.toDashboardClicked();
+			},
+			text: "Loads a behavior."
+		},
+		{
+			desc: "attach [autonomy_level]",
+			match: /^attach ?(-?\d+)?$/,
+			impl: function(args) {
+                var selection_box = document.getElementById("selection_rc_autonomy");
+				var autonomy_level = (args[1] != undefined)? parseInt(args[1]) : parseInt(selection_box.options[selection_box.selectedIndex].value);
+                RC.PubSub.sendAttachBehavior(autonomy_level);
+
+                UI.RuntimeControl.displayBehaviorFeedback(4, "Attaching to behavior...");
+				UI.Menu.toControlClicked();
+			},
+			text: "Saves the current behavior."
+		},
+		{
 			desc: "lock [level]",
 			match: /^lock ?(-?\d+)?$/,
 			impl: function(args) {
