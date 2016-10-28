@@ -226,7 +226,7 @@ UI.Tools = new (function() {
 				}
 			}
 
-			if (cmd != "" && !found_command) {
+			if (cmd != "") {
 				T.clearLog();
 				T.show();
 				T.logWarn("Command not recognized: " + cmd);
