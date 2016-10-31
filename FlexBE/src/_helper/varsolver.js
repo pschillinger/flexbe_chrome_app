@@ -63,6 +63,9 @@ VarSolver = new (function() {
 	this.getStringValues = function(target_var, force) {
 		var resolved = that.resolveAsList(target_var);
 		var result = [];
+		if (resolved.length == 1 && resolved[0] == "") {
+			return result;
+		}
 		for (var i = 0; i < resolved.length; i++) {
 			var match_result = resolved[i].match(/^["'](.*)["']/);
 			if (match_result != null) {

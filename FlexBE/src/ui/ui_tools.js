@@ -208,12 +208,6 @@ UI.Tools = new (function() {
 
 	this.tryExecuteCommand = function(cmd) {
 		try {
-			/*var result = eval(document.getElementById("tool_input_command").value);
-			if (result != undefined) {
-				T.logInfo(result.toString());
-				T.show();
-			}*/
-
 			command_history.push(cmd);
 			command_history_idx = command_history.length;
 
@@ -226,7 +220,7 @@ UI.Tools = new (function() {
 				}
 			}
 
-			if (cmd != "" && !found_command) {
+			if (cmd != "") {
 				T.clearLog();
 				T.show();
 				T.logWarn("Command not recognized: " + cmd);

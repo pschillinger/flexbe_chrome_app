@@ -13,7 +13,7 @@ State = function(state_name, state_def) {
 			var param_val_new = (new_vals.length > pidx)? VarSolver.getStringValues(new_vals[pidx], true) : [];
 
 			if (param_val_new === false) {
-				T.logError("Only strings or a list of strings is allowed as outcomes.");
+				T.logWarn("Only strings or a list of strings is allowed as outcomes.");
 				param_val_new = [];
 			}
 			resolved_parameter_outcome_values.push(param_val_new);
@@ -62,7 +62,7 @@ State = function(state_name, state_def) {
 			var param_val_new = (new_vals.length > pidx)? VarSolver.getStringValues(new_vals[pidx], true) : [];
 
 			if (param_val_new === false) {
-				T.logError("Only strings or a list of strings is allowed as input keys.");
+				T.logWarn("Only strings or a list of strings is allowed as input keys.");
 				param_val_new = [];
 			}
 			resolved_parameter_input_values.push(param_val_new);
@@ -102,7 +102,7 @@ State = function(state_name, state_def) {
 			var param_val_new = (new_vals.length > pidx)? VarSolver.getStringValues(new_vals[pidx], true) : [];
 
 			if (param_val_new === false) {
-				T.logError("Only strings or a list of strings is allowed as output keys.");
+				T.logWarn("Only strings or a list of strings is allowed as output keys.");
 				param_val_new = [];
 			}
 			resolved_parameter_output_values.push(param_val_new);
