@@ -525,7 +525,7 @@ UI.RuntimeControl = new (function() {
 		}
 	}
 
-	this.autonomySelectionChanged = function() {
+	this.updateAutonomySelectionBoxColor = function() {
 		var selection_box = document.getElementById("selection_rc_autonomy");
 		var value = parseInt(selection_box.options[selection_box.selectedIndex].value);
 		switch (value) {
@@ -534,6 +534,12 @@ UI.RuntimeControl = new (function() {
 			case 2: selection_box.style.color = "green"; break;
 			case 3: selection_box.style.color = "red"; break;
 		}
+	}
+
+	this.autonomySelectionChanged = function() {
+		var selection_box = document.getElementById("selection_rc_autonomy");
+		var value = parseInt(selection_box.options[selection_box.selectedIndex].value);
+		this.updateAutonomySelectionBoxColor();
 		if (RC.Controller.isConnected()) {
 			RC.PubSub.sendAutonomyLevel(value);
 		}

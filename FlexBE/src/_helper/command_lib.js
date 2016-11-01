@@ -124,6 +124,15 @@ CommandLib = new (function() {
 
 				UI.RuntimeControl.displayBehaviorFeedback(4, "Attaching to behavior...");
 				UI.Menu.toControlClicked();
+
+				// update the autonomy level selection box to reflect the newly set level
+				for (var optionIndex = 0; optionIndex < selection_box.options.length; optionIndex++) {
+				    if (parseInt(selection_box.options[optionIndex].value) == autonomy_level) {
+				        selection_box.selectedIndex = optionIndex;
+				        break;
+				    }
+				}
+				UI.RuntimeControl.updateAutonomySelectionBoxColor();
 			},
 			text: "Attaches the GUI to a running behavior if possible."
 		},
