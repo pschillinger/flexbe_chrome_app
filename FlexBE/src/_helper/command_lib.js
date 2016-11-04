@@ -114,15 +114,20 @@ CommandLib = new (function() {
 			desc: "attach [autonomy_level]",
 			match: /^attach ?(-?\d+)?$/,
 			impl: function(args) {
-				if (!RC.Controller.isExternal()) {
-					T.logWarn('No behavior running to attach to.');
-					return;
-				}
 				var selection_box = document.getElementById("selection_rc_autonomy");
 				var autonomy_level = (args[1] != undefined)? parseInt(args[1]) : parseInt(selection_box.options[selection_box.selectedIndex].value);
-				RC.PubSub.sendAttachBehavior(autonomy_level);
+				if (!RC.Controller.isActive()) {
+					if (!RC.Controller.isExternal()) {
+						T.logWarn('No behavior running to attach to.');
+						return;
+					}
+					RC.PubSub.sendAttachBehavior(autonomy_level);
 
-				UI.RuntimeControl.displayBehaviorFeedback(4, "Attaching to behavior...");
+					UI.RuntimeControl.displayBehaviorFeedback(4, "Attaching to behavior...");
+				} else {
+					T.logInfo('Already attached, only updating autonomy level.');
+					UI.Tools.notifyRosCommand('attach');
+				}
 				UI.Menu.toControlClicked();
 
 				// update the autonomy level selection box to reflect the newly set level
