@@ -1,4 +1,4 @@
-BehaviorStateDefinition = function(manifest, outcomes, input_keys, output_keys) {
+BehaviorStateDefinition = function(manifest, outcomes, input_keys, output_keys, bsm_loaded_callback) {
 	var that = this;
 
 	var autonomy = [];
@@ -13,6 +13,7 @@ BehaviorStateDefinition = function(manifest, outcomes, input_keys, output_keys) 
 
 	BehaviorLoader.parseBehaviorSM(behavior_manifest, function(parsing_result) {
 		bsm_parsing_result = parsing_result;
+		if (bsm_loaded_callback != undefined) bsm_loaded_callback();
 	});
 
 	this.__proto__ = new StateDefinition(manifest.class_name, new Documentation(manifest.description),

@@ -41,4 +41,15 @@ Behaviorlib = new (function() {
 		});
 	}
 
+	this.updateEntry = function(be_entry, callback) {
+		BehaviorLoader.loadBehaviorInterface(be_entry.getBehaviorManifest(), function(ifc) {
+			if (be_entry.getBehaviorManifest().class_name != ifc.class_name) {
+				T.logwarn("Inconsistent class name for: " + be_entry.getBehaviorManifest().class_name + " / " + ifc.class_name);
+				return;
+			}
+			behaviorlib.remove(be_entry);
+			behaviorlib.push(new BehaviorStateDefinition(be_entry.getBehaviorManifest(), ifc.smi_outcomes, ifc.smi_input, ifc.smi_output, callback));
+		});
+	}
+
 }) ();

@@ -108,7 +108,33 @@ CommandLib = new (function() {
 				scedit.style.display = "block";
 				UI.Menu.toDashboardClicked();
 			},
-			text: "Loads the behavior with the given name."
+			text: "Loads the behavior with the given name.",
+			completions: [
+				function() { return Behaviorlib.getBehaviorList(); }
+			]
+		},
+		{
+			desc: "update [behavior]",
+			match: /^update ([^\n]+)$/,
+			impl: function(args) {
+				if (RC.Controller.isReadonly()) {
+					T.logWarn("Cannot update a behavior while executing another one.");
+					return;	
+				}
+				var be_name = args[1];
+				if (be_name == Behavior.getBehaviorName()) {
+					T.logWarn("Cannot update the behavior which is currently loaded. Please use 'load "+be_name+"' instead.");
+					return;
+				}
+				Behaviorlib.updateEntry(Behaviorlib.getByName(be_name), function() {
+					// TODO: update behavior state machine where required
+					UI.Tools.notifyRosCommand('update');
+				});
+			},
+			text: "Updates the implementation of a behavior in the background (except the one currently loaded).",
+			completions: [
+				function() { return Behaviorlib.getBehaviorList().filter(function(be) { return be != Behavior.getBehaviorName(); }); }
+			]
 		},
 		{
 			desc: "attach [autonomy_level]",
