@@ -52,6 +52,7 @@ Statemachine = function(sm_name, sm_definition) {
 		}
 		//T.debugWarn("State '" + name + "' not found in " + that.getStateName());
 	}
+	
 	this.getStateByPath = function(path) {
 		var path_elements = path.split("/");
 
@@ -73,6 +74,34 @@ Statemachine = function(sm_name, sm_definition) {
 			child = child.getBehaviorStatemachine();
 		}
 		return child.getStateByPath(path.slice(that.getStateName().length + 1));
+	}
+	
+	this.replaceSubBehaviors = function(be_definition) {
+		var behavior_name = be_definition.getBehaviorName();
+		
+		// T.logInfo("replaceSubBehaviors " + behavior_name);
+		
+		for(var i=0; i<states.length; ++i) {
+			var child = states[i];
+			
+			// T.logInfo("checking child " + i + ": " + child.getStateName());
+			
+			if (child instanceof BehaviorState) { 
+				// T.logInfo("child is BehaviorState with behavior name " + child.getBehaviorName());
+			
+				// child is a behavior => replace if it is of the given type, otherwise descend recursively
+				if(child.getBehaviorName() == behavior_name) {
+					child.setBehaviorStatemachine(be_definition.cloneBehaviorStatemachine());
+				} else {
+					child.getBehaviorStatemachine().replaceSubBehaviors(be_definition);
+				}
+			} else if (child instanceof Statemachine) {
+				// T.logInfo("child is Statemachine");
+				
+				// child is statemachine itself => descend recursively
+				child.replaceSubBehaviors(be_definition);
+			} // otherwise it is a simple state => ignore
+		}
 	}
 
 	this.addState = function(state) {
