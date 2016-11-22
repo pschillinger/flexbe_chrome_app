@@ -85,14 +85,6 @@ CommandLib = new (function() {
 			text: "Applies a force-based graph layout to arrange states."
 		},
 		{
-			desc: "resetuism",
-			match: /^resetuism$/,
-			impl: function(args) {
-				UI.Statemachine.resetStatemachine();
-			},
-			text: "Resets the UI Statemachine"
-		},
-		{
 			desc: "save",
 			match: /^save$/,
 			impl: function(args) {
