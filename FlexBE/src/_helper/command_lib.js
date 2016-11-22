@@ -126,8 +126,11 @@ CommandLib = new (function() {
 					T.logWarn("Cannot update the behavior which is currently loaded. Please use 'load "+be_name+"' instead.");
 					return;
 				}
+				
 				Behaviorlib.updateEntry(Behaviorlib.getByName(be_name), function() {
-					// TODO: update behavior state machine where required
+					// Hint: do not try to store Behaviorlib.getByName(be_name) in a variable and re-use it here, since it has changed during update!!
+					Behavior.getStatemachine().replaceSubBehaviors(Behaviorlib.getByName(be_name));
+					UI.Statemachine.resetStatemachine();
 					UI.Tools.notifyRosCommand('update');
 				});
 			},
@@ -210,6 +213,19 @@ CommandLib = new (function() {
 				UI.RuntimeControl.behaviorLockClicked();
 			},
 			text: "Applies runtime modifications to the currently locked behavior."
+		},
+		{
+			desc: "switch_force",
+			match: /^(switch_force)$/,
+			impl: function(args) {
+				if (!RC.Controller.isRunning() ) {
+					T.logWarn('No locked behavior running which requires a switch, ignoring command.');
+					return;
+				}
+				
+				UI.RuntimeControl.forceSwitch();
+			},
+			text: "Forced version of 'switch', makes the onboard engine switch to the behavior even if no modifications have been made"
 		},
 		{
 			desc: "edit [path]",

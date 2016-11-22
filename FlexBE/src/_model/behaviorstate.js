@@ -14,6 +14,12 @@ BehaviorState = function(be_name, be_definition) {
 	this.getBehaviorStatemachine = function() {
 		return behavior_statemachine;
 	}
+	
+	this.setBehaviorStatemachine = function(bsm) {
+		// T.logInfo("replacing " + behavior_name);
+		behavior_statemachine = bsm;
+		behavior_statemachine.setBehavior(that);
+	}
 
 	this.getBehaviorManifest = function() {
 		return behavior_manifest;

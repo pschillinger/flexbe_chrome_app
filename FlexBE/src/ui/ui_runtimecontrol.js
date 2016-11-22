@@ -524,6 +524,12 @@ UI.RuntimeControl = new (function() {
 			RC.Sync.remove("Changes");
 		}
 	}
+	
+	this.forceSwitch = function() {
+		var selection_box = document.getElementById("selection_rc_autonomy");
+		var autonomy_value = parseInt(selection_box.options[selection_box.selectedIndex].value);
+		RC.PubSub.sendBehaviorUpdate(param_keys, param_vals, autonomy_value);
+	}
 
 	this.updateAutonomySelectionBoxColor = function() {
 		var selection_box = document.getElementById("selection_rc_autonomy");
