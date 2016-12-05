@@ -211,6 +211,7 @@ CommandLib = new (function() {
 					return;
 				}
 				UI.RuntimeControl.behaviorLockClicked();
+				UI.Menu.toControlClicked();
 			},
 			text: "Applies runtime modifications to the currently locked behavior."
 		},
