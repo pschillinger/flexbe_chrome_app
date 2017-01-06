@@ -48,7 +48,8 @@ RC.Sync = new (function() {
 			return element.key == key;
 		});
 		if (process == undefined) {
-			T.debugWarn("Process " + key + " not found for RC.Sync update, skipping remove operation.");
+			// don't warn because this happens for all updates triggered by the onboard behavior
+			//T.debugWarn("Process " + key + " not found for RC.Sync update, skipping remove operation.");
 		} else {
 			processes.remove(process);
 		}
@@ -67,7 +68,8 @@ RC.Sync = new (function() {
 			return element.key == key;
 		});
 		if (process == undefined) {
-			T.debugWarn("Process " + key + " not found for RC.Sync update, can't update progress.");
+			// don't warn because this happens for all updates triggered by the onboard behavior
+			//T.debugWarn("Process " + key + " not found for RC.Sync update, can't update progress.");
 			return;
 		}
 
@@ -83,7 +85,8 @@ RC.Sync = new (function() {
 			return element.key == key;
 		});
 		if (process == undefined) {
-			T.debugWarn("Process " + key + " not found for RC.Sync update, can't set status.");
+			// don't warn because this happens for all updates triggered by the onboard behavior
+			//T.debugWarn("Process " + key + " not found for RC.Sync update, can't set status.");
 			return;
 		}
 
