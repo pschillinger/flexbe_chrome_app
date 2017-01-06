@@ -8,7 +8,7 @@ BehaviorLoader = new (function() {
 			T.logInfo("Code parsing completed.");
 		} catch (err) {
 			T.logError("Code parsing failed: " + err);
-			return;
+			return false;
 		}
 		applyParsingResult(parsingResult, manifest_data);
 		T.logInfo("Behavior " + parsingResult.behavior_name + " loaded.");
@@ -18,7 +18,9 @@ BehaviorLoader = new (function() {
 			T.logError("The loaded behavior contains errors! Please fix and save:");
 			T.logError(error_string);
 			RC.Controller.signalChanged();
+			return false;
 		}
+		return true;
 	}
 
 	var applyParsingResult = function(result, manifest) {
@@ -72,7 +74,7 @@ BehaviorLoader = new (function() {
 		T.logInfo("Waiting for a file to load...");
 	}
 
-	this.loadBehavior = function(manifest) {
+	this.loadBehavior = function(manifest, success_callback) {
 		T.clearLog();
 		UI.Panels.Terminal.show();
 
@@ -94,7 +96,8 @@ BehaviorLoader = new (function() {
 										function (folder) {
 											Filesystem.getFileContent(folder, manifest.codefile_name, function(content) {
 												T.logInfo("Parsing sourcecode...");
-												parseCode(content, manifest);
+												var success = parseCode(content, manifest);
+												if (success && success_callback != undefined) success_callback();
 											});
 										}, 
 										function(error) { T.logError("could not access folder " + manifest.rosnode_name + ", " + error); }

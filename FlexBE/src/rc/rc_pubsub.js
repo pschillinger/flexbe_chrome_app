@@ -148,7 +148,7 @@ RC.PubSub = new (function() {
 		T.clearLog();
 		T.logInfo('Executing received command: ' + msg.command);
 		UI.Tools.startRosCommand(msg.command);
-		T.show();
+		//T.show();
 	}
 
 	var command_feedback_callback = function (msg) {
@@ -165,12 +165,23 @@ RC.PubSub = new (function() {
 		}
 		if (msg.command == "attach") {
 			if (RC.Sync.hasProcess("Attach")) {
-				if (msg.args[0] == Behavior.getBehaviorName()) {
+				if (msg.args[0] != Behavior.getBehaviorName()) {
+					// load the newly attached behavior and attach when loaded successfully
+					var manifest = Behaviorlib.getByName(msg.args[0]).getBehaviorManifest();
+					BehaviorLoader.loadBehavior(manifest, function() {
+						var scedit = document.getElementById("behavior_sourcecode_edit");
+						scedit.setAttribute("cmd", 'rosed ' + manifest.rosnode_name + ' ' + manifest.codefile_name+ '\n');
+						scedit.style.display = "block";
+
+						// attach now
+						RC.Controller.signalRunning();
+						RC.Sync.remove("Attach");
+
+						UI.Menu.toControlClicked();
+					});
+				} else {
 					RC.Controller.signalRunning();
 					RC.Sync.remove("Attach");
-				} else {
-					UI.RuntimeControl.displayBehaviorFeedback(3, "Failed to attach! Please load behavior: " + msg.args[0]);
-					RC.Sync.setStatus("Attach", RC.Sync.STATUS_ERROR);
 				}
 			}
 		}
