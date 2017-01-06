@@ -107,6 +107,7 @@ CommandLib = new (function() {
 				scedit.setAttribute("cmd", 'rosed ' + manifest.rosnode_name + ' ' + manifest.codefile_name+ '\n');
 				scedit.style.display = "block";
 				UI.Menu.toDashboardClicked();
+				UI.Tools.notifyRosCommand('load');
 			},
 			text: "Loads the behavior with the given name.",
 			completions: [
@@ -117,13 +118,9 @@ CommandLib = new (function() {
 			desc: "update [behavior]",
 			match: /^update ([^\n]+)$/,
 			impl: function(args) {
-				if (RC.Controller.isReadonly()) {
-					T.logWarn("Cannot update a behavior while executing another one.");
-					return;	
-				}
 				var be_name = args[1];
 				if (be_name == Behavior.getBehaviorName()) {
-					T.logWarn("Cannot update the behavior which is currently loaded. Please use 'load "+be_name+"' instead.");
+					T.logWarn("Cannot update the behavior which is currently loaded. Please use 'load " + be_name + "' instead.");
 					return;
 				}
 				
