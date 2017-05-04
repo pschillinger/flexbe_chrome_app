@@ -233,6 +233,12 @@ RC.PubSub = new (function() {
 		UI.Tools.notifyRosCommand(msg.command);
 	}
 
+	var synthesis_action_timeout_callback = function(timeout_cb) {
+		T.logError('Synthesis timed out! Check if the synthesis server is listening on topic: ' +  UI.Settings.getSynthesisTopic());
+
+		if(timeout_cb != undefined) timeout_cb();
+	}
+
 	var synthesis_action_feedback_callback = function(feedback, root, feedback_cb) {
 		console.log('Synthesis status: ' + feedback.status + ' (' (feedback.progress * 100) + '%)');
 
@@ -620,7 +626,7 @@ RC.PubSub = new (function() {
 		});
 	}
 
-	this.requestBehaviorSynthesis = function(root, system, goal, initial_condition, outcomes, result_cb, feedback_cb) {
+	this.requestBehaviorSynthesis = function(root, system, goal, initial_condition, outcomes, result_cb, feedback_cb, timeout_cb) {
 		var goal = new ROSLIB.Goal({
 			actionClient: synthesis_action_client,
 			goalMessage: {
@@ -638,8 +644,9 @@ RC.PubSub = new (function() {
 
 		goal.on('feedback', function(feedback) { synthesis_action_feedback_callback(feedback, root, feedback_cb); });
 		goal.on('result', function(result) { synthesis_action_result_callback(result, root, result_cb); });
+		goal.on('timeout', function() { synthesis_action_timeout_callback(timeout_cb); });
 
-		goal.send();
+		goal.send(RC.Controller.onboardTimeout * 1000);
 	}
 
 	this.DEBUG_synthesis_action_result_callback = function(result, root) {
